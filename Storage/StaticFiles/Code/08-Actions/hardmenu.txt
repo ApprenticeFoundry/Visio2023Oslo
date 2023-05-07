@@ -1,0 +1,14 @@
+<div class="rz-p-sm-12" style="margin-bottom: 200px;">
+        <RadzenMenu Click="OnParentClicked">
+            <RadzenMenuItem Text="General" Icon="home">
+                <RadzenMenuItem Text="Buttons" Path="buttons" Icon="account_circle"></RadzenMenuItem>
+                <RadzenMenuItem Text="Menu" Path="menu" Icon="line_weight"></RadzenMenuItem>
+                <RadzenMenuItem Click="OnChildClicked" Text="ChildClick" Icon="attach_file"></RadzenMenuItem>
+                <RadzenMenuItem Text="Dialog" Path="dialog" Icon="perm_media"></RadzenMenuItem>
+                <RadzenMenuItem Text="Notification" Path="notification" Icon="announcement"></RadzenMenuItem>
+            </RadzenMenuItem>
+
+
+    </RadzenMenu>
+</div>
+

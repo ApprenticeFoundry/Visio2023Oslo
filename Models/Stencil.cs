@@ -15,6 +15,26 @@ using Visio2023Foundry.Dialogs;
 
 namespace Visio2023Foundry.Model;
 
+	public class SPEC_ImageURL
+	{
+        public int width { get; set; }
+        public int height { get; set; }
+        public string url { get; set; }
+
+		//https://stackoverflow.com/questions/60797390/generate-random-image-by-url
+		public static SPEC_ImageURL RandomSpec()
+		{
+			var gen = new MockDataGenerator();
+			var width = 50 * gen.GenerateInt(1, 6);
+			var height = 50 * gen.GenerateInt(1, 6);
+			return new SPEC_ImageURL()
+			{
+				url = $"https://picsum.photos/{width}/{height}",
+				width = width,
+				height = height,
+			};
+		}
+	}
 
 public class Stencil : FoWorkbook
 {
@@ -33,7 +53,7 @@ public class Stencil : FoWorkbook
             { "Steve Arrow", () => SetDoCreateSteveArrow()},
             { "Blue Shape", () => SetDoCreateBlue()},
             { "Text Shape", () => SetDoCreateText()},
-            { "Image Shape", () => SetDoCreateImage()},
+            //{ "Image Shape", () => SetDoCreateImage()},
             { "Image URL", () => SetDoAddImage()},
             { "Video URL", () => SetDoAddVideo()},
             { "Glue", () => CreateGluePlayground()},
@@ -240,15 +260,16 @@ public class Stencil : FoWorkbook
         var drawing = Workspace.GetDrawing();
         drawing.SetDoCreate((CanvasMouseArgs args) =>
         {
-            var r1 = SPEC_Image.RandomSpec();
+            var r1 = SPEC_ImageURL.RandomSpec();
             var shape = new FoImage2D(r1.width, r1.height, "Yellow")
             {
                 ImageUrl = r1.url,
+                PinX = args.OffsetX,
+                PinY = args.OffsetY
             };
-            shape.MoveTo(args.OffsetX, args.OffsetY);
             drawing.AddShape<FoImage2D>(shape);
             Command.SendShapeCreate(shape);
-            Command.SendToast(ToastType.Success, "Created");
+            Command.SendToast(ToastType.Success, $"Created {r1.width} {r1.height}");
         });
     }
 

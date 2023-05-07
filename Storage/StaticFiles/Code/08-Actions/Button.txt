@@ -1,0 +1,43 @@
+
+// FoButton2D.cs
+
+
+public class FoButton2D : FoGlyph2D, IFoButton
+{
+    public Action? OnClick;
+    private int countdown = 0;
+
+    public FoButton2D(string command, Action action) : base(command, "Orange")
+    {
+        FontSize = "20";
+        Font = "Segoe UI";
+        Text = command;
+        OnClick = action;
+        ResizeTo(75, 50);
+
+        ResetLocalPin((obj) => 0, (obj) => 0);
+    }
+
+
+    public override FoGlyph2D MarkSelected(bool value)
+    {
+        countdown = 10;
+        this.PreDraw = this.DoClickAnimation;
+
+        OnClick?.Invoke();
+
+        return base.MarkSelected(false);
+    }
+
+    private void DoClickAnimation(Canvas2DContext ctx, FoGlyph2D obj)
+    {
+        this.Color = "Black";
+        if (this.countdown == 0)
+        {
+            this.Color = "Orange";
+            this.PreDraw = null;
+        }
+        countdown--;
+    }
+
+}

@@ -1,0 +1,30 @@
+
+ // Menu.razor   
+    
+    <RadzenCard Class="rz-border-radius-0">
+        <RadzenMenu>
+        @foreach (var menu in GetAllMenus())
+        {
+            <RadzenMenuItem Text="@menu.DisplayText()">
+            @foreach (var button in menu.Buttons())
+            {
+                <RadzenMenuItem Text="@button.DisplayText()" Click="@button.ClickAction()"></RadzenMenuItem>
+            }
+            </RadzenMenuItem>
+        }
+        </RadzenMenu>
+    </RadzenCard>
+
+
+// Menu.razor.cs
+
+    public List<IFoMenu> GetAllMenus()
+    {
+        if (FoWorkspace.RefreshMenus && Workspace != null)
+        {
+            AllMenus.Clear();
+            AllMenus = Workspace.CollectMenus(AllMenus);
+            FoWorkspace.RefreshMenus = false;
+        }
+        return AllMenus;
+    }

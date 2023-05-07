@@ -1,0 +1,72 @@
+
+// FoMenu2D.cs
+
+public class FoMenu2D : FoGlyph2D, IFoMenu
+{
+    public FoMenu2D(string name) : base(name,100,50,"Grey")
+    {
+        ShapeDraw = DrawRect;
+        ResetLocalPin((obj) => 0, (obj) => 0);
+    }
+
+
+    public List<IFoButton> Buttons()
+    {
+        return GetMembers<FoButton2D>()?.Select(item => item as IFoButton).ToList() ?? new List<IFoButton>();
+    }
+
+
+    public bool MouseHit(CanvasMouseArgs args) 
+    {
+        var pt = new Point(args.OffsetX - LeftEdge(), args.OffsetY - TopEdge());
+        var found = Members<FoButton2D>().Where(item => item.Rect().Contains(pt)).FirstOrDefault();
+        if ( found != null) {
+
+            found.MarkSelected(true);
+            return true;
+        }
+        return false;
+    }
+
+    public override bool LocalMouseHover(CanvasMouseArgs args, Action<Canvas2DContext, FoGlyph2D>? OnHover) 
+    {
+        Members<FoButton2D>().ForEach(child => child.HoverDraw = null);
+        var pt = new Point(args.OffsetX - LeftEdge(), args.OffsetY - TopEdge());
+        var found = Members<FoButton2D>().Where(item => item.Rect().Contains(pt)).FirstOrDefault();
+        if ( found != null) {
+            found.HoverDraw = OnHover;
+            return true;
+        }
+
+        return false;
+    }
+
+
+
+    public override async Task<bool> RenderDetailed(Canvas2DContext ctx, int tick, bool deep = true)
+    {
+         if ( CannotRender() ) return false;
+
+        await ctx.SaveAsync();
+        await UpdateContext(ctx, tick);
+
+        PreDraw?.Invoke(ctx, this);
+        await Draw(ctx, tick);
+        HoverDraw?.Invoke(ctx, this);
+        PostDraw?.Invoke(ctx, this);
+
+        if (IsSelected)
+            await DrawWhenSelected(ctx, tick, deep);
+
+        if ( deep )
+        {
+            GetMembers<FoButton2D>()?.ForEach(async item => await item.RenderDetailed(ctx, tick, deep));
+        }
+
+
+        await ctx.RestoreAsync();
+        return true;
+    }
+
+
+}

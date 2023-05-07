@@ -34,6 +34,11 @@
       "Title": "Setting HoverDraw Function dynamically",
       "ImageURL": "{Path}/shaperender.gif",
       "Filename": "lasthover.txt"
+    },
+    {
+      "Title": "use 'tick' to do unique render",
+      "ImageURL": "{Path}/shaperender.gif",
+      "Filename": "RenderClock.txt"
     }
   ]
 }

@@ -1,0 +1,6 @@
+
+// Program.cs
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<ComponentBus>();

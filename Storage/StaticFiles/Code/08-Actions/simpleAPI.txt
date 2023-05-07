@@ -1,0 +1,33 @@
+
+// Playground.cs
+
+    public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
+    {
+
+        space.EstablishMenu2D<FoMenu2D, FoButton2D>("Playground", new Dictionary<string, Action>()
+        {
+            { "Guid Test", () => CreateGuidTest()},
+            { "Group", () => CreateGroupShape()},
+            { "Ring", () => CreateRingGroupPlayground()},
+            { "Glue", () => CreateGluePlayground()},
+            { "Line", () => CreateLinePlayground()},
+            { "Lets Dance", () => LetsDance()},
+        }, true);
+    }
+
+
+// FoWorkspace.cs
+
+    public U EstablishMenu2D<U, T>(string name, Dictionary<string, Action> actions, bool clear) where T : FoButton2D where U : FoMenu2D
+    {
+        var menu = EstablishMenu2D<U>(name,clear);
+
+        foreach (KeyValuePair<string, Action> item in actions)
+        {
+            // this syntax lets you pass parameters to constructors 
+            if (Activator.CreateInstance(typeof(T), item.Key, item.Value) is T shape)
+                menu.Add<T>(shape);  //the general Add method has simplified assembly of models
+        }
+
+        return menu;
+    }

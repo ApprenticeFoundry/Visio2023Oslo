@@ -1,0 +1,25 @@
+   
+// FoDrawing2D.cs
+   
+       PubSub!.SubscribeTo<CanvasMouseArgs>(args =>
+        {
+            try
+            {
+                if (IsCurrentlyRendering || IsCurrentlyProcessing)
+                {
+                    //you should cashe the args to replayed latter
+                    //when the UI is not rendering..
+                    MouseArgQueue.Enqueue(args);
+                }
+                else
+                {
+                    //"is rendering ".WriteSuccess(2);
+                    ApplyMouseArgs(args);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                $" {args.Topic} {ex.Message}".WriteLine();
+            }
+        });

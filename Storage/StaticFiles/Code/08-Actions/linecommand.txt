@@ -1,0 +1,13 @@
+
+ // Playground.cs   
+    
+    private void CreateLinePlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
+
+        var s1 = drawing.AddShape(new FoConnector1D(50, 50, 400, 100, "Red"));
+        Command.SendShapeCreate(s1);
+        var s2 = drawing.AddShape(new FoConnector1D(50, 100, 600, 100, "Blue"));
+        Command.SendShapeCreate(s2);
+    }

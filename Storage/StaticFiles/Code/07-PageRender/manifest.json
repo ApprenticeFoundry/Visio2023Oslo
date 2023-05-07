@@ -1,5 +1,5 @@
 {
-  "Status": "Draft",
+  "Status": "Ready",
   "Title": "07 - Page Rendering",
   "Description": "Every 'tick' starts a long render sequence, from canvas => drawing => page => shapes",
   "Samples": [

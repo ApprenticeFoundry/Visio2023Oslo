@@ -1,4 +1,5 @@
 
+using BlazorComponentBus;
 using FoundryBlazor.Canvas;
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
@@ -6,13 +7,14 @@ using FoundryBlazor.Solutions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
-using BlazorComponentBus;
 
 namespace Visio2023Foundry.Model;
 
 
 public class Playground : FoWorkbook
 {
+
+    private FoMenu2D? playground { get; set; }
 
     public Playground(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
         base(space,command,dialog,js,pubSub)
@@ -21,7 +23,7 @@ public class Playground : FoWorkbook
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
         "Playground CreateMenus".WriteWarning();
-        space.EstablishMenu2D<FoMenu2D, FoButton2D>("Playground", new Dictionary<string, Action>()
+        playground = space.EstablishMenu2D<FoMenu2D, FoButton2D>("Playground", new Dictionary<string, Action>()
         {
 
             //{ "Capture", () => CreateCapturePlayground()},
@@ -30,6 +32,7 @@ public class Playground : FoWorkbook
             { "Ring", () => CreateRingGroupPlayground()},
             { "Glue", () => CreateGluePlayground()},
             { "Line", () => CreateLinePlayground()},
+            { "Menu", () => CreateMenuPlayground()},
             { "Lets Dance", () => LetsDance()},
             //{ "Side Dialog", () => SideDialog()}
         }, true);
@@ -181,13 +184,25 @@ public class Playground : FoWorkbook
         var drawing = Workspace.GetDrawing();
         if ( drawing == null) return;
 
-        var s1 = drawing.AddShape(new FoConnector1D(200, 200, 400, 400, "Red"));
+        var s1 = drawing.AddShape(new FoConnector1D(50, 50, 400, 100, "Red"));
         Command.SendShapeCreate(s1);
-        var s2 = drawing.AddShape(new FoConnector1D(200, 400, 400, 600, "Blue"));
+        var s2 = drawing.AddShape(new FoConnector1D(50, 100, 600, 100, "Blue"));
         Command.SendShapeCreate(s2);
     }
     
+   
+    private void CreateMenuPlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null || playground == null) return;
+
+        playground.ToggleLayout();
+        drawing.AddShape<FoMenu2D>(playground).AnimatedMoveTo(100, 100);
+        playground.Angle = 0;
+
+    }
     
+     
 
  
 }

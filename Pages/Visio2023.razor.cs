@@ -22,7 +22,7 @@ public partial class Visio2023Page : ComponentBase, IDisposable
     [Inject] public IRestAPIServiceDTAR? RestAPI { get; init; }
 
     [Parameter]  
-    public string? LoadWorkPiece { get; set; }  
+    public string? LoadWorkbook { get; set; }  
 
     public string GetVisible2D()
     {
@@ -51,17 +51,17 @@ public partial class Visio2023Page : ComponentBase, IDisposable
     private void LocationChanged(object? sender, LocationChangedEventArgs e)
     {
        // $"LocationChanged {e.Location}".WriteInfo();
-        RefreshWorkPieceMenus();
+        RefreshWorkbookMenus();
         StateHasChanged();
     }
 
-    private void RefreshWorkPieceMenus()
+    private void RefreshWorkbookMenus()
     {
          if (Workspace != null) {
            // $"RefreshWorkPieceMenus".WriteInfo();
             Workspace.ClearAllWorkbook();
 
-            if ( "Boid".Matches(LoadWorkPiece!) )
+            if ( "Boid".Matches(LoadWorkbook!) )
                 Workspace.EstablishWorkbook<BoidManager>();
                 
             Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
@@ -72,7 +72,7 @@ public partial class Visio2023Page : ComponentBase, IDisposable
     {
         if (Workspace != null)
         {
-            RefreshWorkPieceMenus();
+            RefreshWorkbookMenus();
 
             var url = RestAPI?.GetServerUrl() ?? "";
             Workspace.CreateCommands(Workspace, JsRuntime!, Navigation!, url);
