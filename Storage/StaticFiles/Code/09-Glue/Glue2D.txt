@@ -24,3 +24,30 @@
 
         s1.AnimatedMoveTo(800, 300);
     }
+
+
+
+// Reminder:   ContextLink is reevaluated every render cycle
+
+    
+    public virtual async Task UpdateContext(Canvas2DContext ctx, int tick)
+    {
+        ContextLink?.Invoke(this, tick);
+
+        //...
+    }
+      
+
+    public virtual async Task<bool> RenderDetailed(Canvas2DContext ctx, int tick, bool deep = true)
+    {
+        if (CannotRender()) return false;
+
+        await ctx.SaveAsync();
+        await UpdateContext(ctx, tick);
+
+        PreDraw?.Invoke(ctx, this);
+        await Draw(ctx, tick);
+        if (!IsSelected)
+            HoverDraw?.Invoke(ctx, this);
+
+        await DrawTag(ctx);

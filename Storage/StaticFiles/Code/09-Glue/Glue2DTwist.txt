@@ -25,3 +25,7 @@
             obj.Angle += 1;
         };
     }
+
+// Reminder:   ContextLink is reevaluated every render cycle
+
+    
