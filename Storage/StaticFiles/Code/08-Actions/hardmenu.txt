@@ -1,3 +1,7 @@
+
+// Example from Radzen blazor menus
+
+
 <div class="rz-p-sm-12" style="margin-bottom: 200px;">
         <RadzenMenu Click="OnParentClicked">
             <RadzenMenuItem Text="General" Icon="home">
@@ -7,8 +11,6 @@
                 <RadzenMenuItem Text="Dialog" Path="dialog" Icon="perm_media"></RadzenMenuItem>
                 <RadzenMenuItem Text="Notification" Path="notification" Icon="announcement"></RadzenMenuItem>
             </RadzenMenuItem>
-
-
     </RadzenMenu>
 </div>
 

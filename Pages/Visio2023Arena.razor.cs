@@ -20,7 +20,7 @@ public partial class Visio2023ArenaPage : ComponentBase
     [Inject] public IRestAPIServiceDTAR? RestAPI { get; init; }
 
     [Parameter]
-    public string? LoadWorkPiece { get; set; }
+    public string? LoadWorkbook { get; set; }
 
     protected override void OnInitialized()
     {
@@ -44,7 +44,7 @@ public partial class Visio2023ArenaPage : ComponentBase
             var defaultHubURI = Navigation!.ToAbsoluteUri("/DrawingSyncHub").ToString();
             await Workspace.InitializedAsync(defaultHubURI!);
 
-            //Toast?.Info(LoadWorkPiece ?? "No WorkPiece");
+            //Toast?.Info(LoadWorkbook ?? "No LoadWorkbook");
         }
 
         await base.OnInitializedAsync();

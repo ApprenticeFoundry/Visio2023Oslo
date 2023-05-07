@@ -3,14 +3,16 @@
 
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
-
-        space.EstablishMenu2D<FoMenu2D, FoButton2D>("Playground", new Dictionary<string, Action>()
+        playground = space.EstablishMenu2D<FoMenu2D, FoButton2D>("Playground", new Dictionary<string, Action>()
         {
+
+            //{ "Capture", () => CreateCapturePlayground()},
             { "Guid Test", () => CreateGuidTest()},
             { "Group", () => CreateGroupShape()},
             { "Ring", () => CreateRingGroupPlayground()},
             { "Glue", () => CreateGluePlayground()},
             { "Line", () => CreateLinePlayground()},
+            { "Menu", () => CreateMenuPlayground()},
             { "Lets Dance", () => LetsDance()},
         }, true);
     }

@@ -166,16 +166,7 @@ public class Composition : FoWorkbook
         return model;
     }
 
-    // if ("Playground".Matches(LoadWorkPiece!))
-    //     Workspace.EstablishWorkbook<Playground>();
-    // else if ("Stencil".Matches(LoadWorkPiece!))
-    //     Workspace.EstablishWorkbook<Stencil>();
-    // else if ("Boid".Matches(LoadWorkPiece!))
-    //     Workspace.EstablishWorkbook<BoidManager>();
-    // else if ("Composition".Matches(LoadWorkPiece!))
-    //     Workspace.EstablishWorkbook<Composition>();
-    // else if ("Signalr".Matches(LoadWorkPiece!))
-    //     Workspace.EstablishWorkbook<SignalRDemo>();
+
 
     private static TreeModel WorkbookModel()
     {

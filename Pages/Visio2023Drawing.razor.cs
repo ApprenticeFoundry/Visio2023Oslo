@@ -25,7 +25,7 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
 
 
     [Parameter]
-    public string? LoadWorkPiece { get; set; }
+    public string? LoadWorkbook { get; set; }
 
     protected override void OnInitialized()
     {
@@ -58,17 +58,19 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
             // $"RefreshWorkPieceMenus".WriteInfo();
             Workspace.ClearAllWorkbook();
 
-            if ("Playground".Matches(LoadWorkPiece!))
+            if ("Playground".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<Playground>();
-            else if ("Stencil".Matches(LoadWorkPiece!))
+            else if ("Stencil".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<Stencil>();
-            else if ("Boid".Matches(LoadWorkPiece!))
+            else if ("Boid".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<BoidManager>();
-            else if ("Composition".Matches(LoadWorkPiece!))
+            else if ("Composition".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<Composition>();
-            else if ("Simulation".Matches(LoadWorkPiece!))
+            else if ("Simulation".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<MoSimulation>();
-            else if ("Signalr".Matches(LoadWorkPiece!))
+            else if ("Process".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<Process>();
+            else if ("Signalr".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<SignalRDemo>();
 
             Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
@@ -87,7 +89,7 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
             var defaultHubURI = Navigation!.ToAbsoluteUri("/DrawingSyncHub").ToString();
             await Workspace.InitializedAsync(defaultHubURI!);
 
-            //Toast?.Info(LoadWorkPiece ?? "No WorkPiece");
+            //Toast?.Info(LoadWorkbook ?? "No LoadWorkbook");
         }
 
         await base.OnInitializedAsync();

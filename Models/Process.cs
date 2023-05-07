@@ -2,17 +2,12 @@ using System.Drawing;
 using BlazorComponentBus;
 using FoundryBlazor.Canvas;
 using FoundryBlazor.Extensions;
-using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
-using IoBTMessage.Extensions;
 using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using QRCoder;
 using Radzen;
-using Visio2023Foundry.Dialogs;
-using Visio2023Foundry.Model;
 using Visio2023Foundry.Services;
 using Visio2023Foundry.Shape;
 

@@ -1,22 +1,41 @@
 {
-  "Status":"Draft",
+  "Status":"Ready",
   "Title": "08 - Actions, Commanding and Menus",
-  "ImageURL": "menus.png",
-  "MemeURL": "VisioTools.png",
+  "ImageURL": "{Path}/drawmenu.gif",
+  "MemeURL": "{Path}/VisioTools.png",
   "Description": "Integrate actions with a command service, Shapes become menus",
    "Samples": [
+    {
+      "Title": "Leverage the standard web menus and do much more",
+      "ImageURL": "{Path}/menus.png",
+      "Filename": "hardmenu.txt"
+    },
     {
       "Title": "Simple API to execute commands",
       "Filename": "simpleAPI.txt"
     },
     {
-      "Title": "Subscribe to the events from ComponentBus",
-      "Filename": "Subscribe.txt"
+      "Title": "This action will draw line segments, The command service notifies the other components",
+      "ImageURL": "{Path}/lines.png",
+      "Filename": "linecommand.txt"
     },
     {
-      "Title": "Listen to PubSub For events",
-      "Filename": "ForwardTheEvent.txt",
-      "DemoURL": "https://github.com/cpear/BlazorComponentBus"
+      "Title": "The menus are modeled as shapes",
+      "Filename": "Menu.txt"
+    },
+    {
+      "Title": "The buttons become shapes too",
+      "Filename": "Button.txt"
+    },
+    {
+      "Title": "You can build a menu traditional web from a menu shapes",
+      "ImageURL": "{Path}/linemenu.png",
+      "Filename": "razormenu.txt"
+    },
+    {
+      "Title": "Actions can also render menus to the canvas",
+      "ImageURL": "{Path}/drawmenu.gif",
+      "Filename": "menuPlayground.txt"
     }
   ]
 }

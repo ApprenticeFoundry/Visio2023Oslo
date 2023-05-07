@@ -1,0 +1,15 @@
+
+
+ // Playground.cs   
+    
+    private void CreateMenuPlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null || playground == null) return;
+
+        playground.ToggleLayout();
+        drawing.AddShape<FoMenu2D>(playground).AnimatedMoveTo(100, 100);
+        playground.Angle = 0;
+
+    }
+    
