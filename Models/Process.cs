@@ -8,7 +8,7 @@ using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
-using Visio2023Foundry.Services;
+
 using Visio2023Foundry.Shape;
 
 namespace Visio2023Foundry.Model;
@@ -18,7 +18,6 @@ public class Process : FoWorkbook
 {
 
 
-    private IRestAPIServiceDTAR? DTARRestService { get; set; }
     private Semantic SemanticModel { get; set; }    
 
     
@@ -42,18 +41,7 @@ public class Process : FoWorkbook
         space.EstablishMenu2D<FoMenu2D, FoButton2D>("Process", menu, true);
 
 
-        //watch me extend this menu after a service call
-        if ( DTARRestService != null)
-            Task.Run(async () =>
-            {
-                var plans = await DTARRestService.GetAllProcessPlans();
-                plans.ForEach(item =>
-                {
-                    menu.Add(item.title, () => SetDoCreateProcess(item));
-                });
 
-                space.EstablishMenu2D<FoMenu2D,FoButton2D>("Process", menu, true);
-            });
 
     }
 

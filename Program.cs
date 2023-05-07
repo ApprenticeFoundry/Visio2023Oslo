@@ -13,7 +13,7 @@ using Radzen;
 
 
 using Visio2023Foundry.Model;
-using Visio2023Foundry.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +47,6 @@ builder.Services.AddScoped<IPageManagement, PageManagementService>();
 builder.Services.AddScoped<IStageManagement, StageManagementService>();
 builder.Services.AddScoped<ICommand, CommandService>();
 
-builder.Services.AddScoped<IRestAPIServiceDTAR, RestAPIServiceDTAR>();
 
 builder.Services.AddScoped<IDrawing, NDC_Drawing2D>();
 builder.Services.AddScoped<IArena, NDC_Arena3D>();

@@ -3,7 +3,7 @@ using FoundryBlazor.Dialogs;
 using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Radzen;
-using Visio2023Foundry.Services;
+
 
 namespace Visio2023Foundry.Dialogs;
 
@@ -50,35 +50,35 @@ public class ImageUploaderDialog : DialogBase
 
     public void OnComplete(UploadCompleteEventArgs args)
     {
-        var data = args.RawResponse;
-        var response = RestAPIServiceDTAR.HydrateWrapper<UDTO_Image>(data, true);
-        var image = response.payload.First();
+        // var data = args.RawResponse;
+        // var response = null; //RestAPIServiceDTAR.HydrateWrapper<UDTO_Image>(data, true);
+        // var image = response.payload.First();
 
-        if (image != null)
-        {
-            if (Shape != null)
-            {
-                Shape.ImageUrl = image.url;
-                Shape.ImageWidth = image.width;
-                Shape.ImageHeight = image.height;
-                // Shape.Width = image.width;
-                // Shape.Height = image.height;
+        // if (image != null)
+        // {
+        //     if (Shape != null)
+        //     {
+        //         Shape.ImageUrl = image.url;
+        //         Shape.ImageWidth = image.width;
+        //         Shape.ImageHeight = image.height;
+        //         // Shape.Width = image.width;
+        //         // Shape.Height = image.height;
 
-                var scalex = Shape.ImageWidth / (double)Shape.Width;
-                var scaley = Shape.ImageHeight / (double)Shape.Height;
+        //         var scalex = Shape.ImageWidth / (double)Shape.Width;
+        //         var scaley = Shape.ImageHeight / (double)Shape.Height;
 
-                //var scale = scalex > scaley ? scalex : scaley;
-                Shape.ScaleX = 1.0 / scalex;
-                Shape.ScaleY = 1.0 / scaley;
+        //         //var scale = scalex > scaley ? scalex : scaley;
+        //         Shape.ScaleX = 1.0 / scalex;
+        //         Shape.ScaleY = 1.0 / scaley;
 
-                Console.WriteLine($"ScaleX {Shape.ScaleX} ScaleY {Shape.ScaleY}  {Shape.Width} width={image.width}, {Shape.Height} height={image.height}");
+        //         Console.WriteLine($"ScaleX {Shape.ScaleX} ScaleY {Shape.ScaleY}  {Shape.Width} width={image.width}, {Shape.Height} height={image.height}");
 
-            }
-            else
-            {
-                Console.WriteLine($"image is not null, but Shape is NULL");
-            }
-        }
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine($"image is not null, but Shape is NULL");
+        //     }
+        // }
 
     }
 

@@ -6,7 +6,7 @@ using FoundryBlazor.Solutions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Visio2023Foundry.Model;
-using Visio2023Foundry.Services;
+
 
 namespace Visio2023Foundry.Pages;
 
@@ -17,7 +17,7 @@ public partial class Visio2023ArenaPage : ComponentBase
     [Inject] private ComponentBus? PubSub { get; set; }
     [Inject] private IToast? Toast { get; set; }
     [Inject] public IWorkspace? Workspace { get; init; }
-    [Inject] public IRestAPIServiceDTAR? RestAPI { get; init; }
+
 
     [Parameter]
     public string? LoadWorkbook { get; set; }
@@ -34,7 +34,7 @@ public partial class Visio2023ArenaPage : ComponentBase
             Workspace.ClearAllWorkbook();
             Workspace.EstablishWorkbook<Gamer>();
 
-            var url = RestAPI?.GetServerUrl() ?? "";
+            var url = ""; //RestAPI?.GetServerUrl() ?? "";
             Workspace.CreateCommands(Workspace, JsRuntime!, Navigation!, url);
 
             Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);

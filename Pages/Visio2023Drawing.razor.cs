@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 using Visio2023Foundry.Model;
-using Visio2023Foundry.Services;
+
 using Visio2023Foundry.Simulation;
 
 namespace Visio2023Foundry.Pages;
@@ -19,7 +19,7 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
     [Inject] private ComponentBus? PubSub { get; set; }
     [Inject] private IToast? Toast { get; set; }
     [Inject] public IWorkspace? Workspace { get; init; }
-    [Inject] public IRestAPIServiceDTAR? RestAPI { get; init; }
+
 
 
 
@@ -83,7 +83,7 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
         {
             RefreshWorkPieceMenus();
 
-            var url = RestAPI?.GetServerUrl() ?? "";
+            var url = ""; //RestAPI?.GetServerUrl() ?? "";
             Workspace.CreateCommands(Workspace, JsRuntime!, Navigation!, url);
 
             var defaultHubURI = Navigation!.ToAbsoluteUri("/DrawingSyncHub").ToString();
