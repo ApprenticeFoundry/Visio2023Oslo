@@ -1,41 +1,56 @@
-    public async Task RenderFrame(double fps)
+
+// Canvas2DComponent.razor.cs
+
+    public partial class CanvasHelper : ComponentBase //, IAsyncDisposable
     {
-        if (Ctx == null) return;
-        tick++;
+  
+        private DateTime _lastRender;
 
-        Workspace?.PreRender(tick);
+        // Event called every time a frame can be redrawn
 
-        var drawing = Workspace?.GetDrawing();
-        if (drawing == null) return;
+        [Parameter]
+        public EventCallback<double> RenderFrame { get; set; }
 
-        //if you are already rendering then skip it this cycle
-        if (drawing.SetCurrentlyRendering(true)) return;
-        
-        await Ctx.BeginBatchAsync();
-        await Ctx.SaveAsync();
 
-        await drawing.RenderDrawing(Ctx, tick, fps);
-        Workspace?.RenderWatermark(Ctx, tick);
+        [JSInvokable]
+        public async ValueTask RenderInBlazor()
+        {
+            // calculate frames per second
+            double fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
 
-        await Ctx.RestoreAsync();
-        await Ctx.EndBatchAsync();
-        drawing.SetCurrentlyRendering(false);
+            _lastRender = DateTime.Now; // update for the next time 
 
-        Workspace?.PostRender(tick);
-    }
+            // raise the RenderFrame event to the blazor app
+            await RenderFrame.InvokeAsync(fps);
+        }
 
 
 
-//Called from Javascript Interop
-    
-    [JSInvokable]
-    public async ValueTask RenderInBlazor()
-    {
-        // calculate frames per second
-        double fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
+// Render the Drawing  and integrate some events in the workspace
 
-        _lastRender = DateTime.Now; // update for the next time 
+        public async Task RenderFrame(double fps)
+        {
+            if (Ctx == null) return;
+            tick++;
 
-        // raise the RenderFrame event to the blazor app
-        await RenderFrame.InvokeAsync(fps);
+            Workspace?.PreRender(tick);
+
+            var drawing = Workspace?.GetDrawing();
+            if (drawing == null) return;
+
+            //if you are already rendering then skip it this cycle
+            if (drawing.SetCurrentlyRendering(true)) return;
+            
+            await Ctx.BeginBatchAsync();
+            await Ctx.SaveAsync();
+
+            await drawing.RenderDrawing(Ctx, tick, fps);
+            Workspace?.RenderWatermark(Ctx, tick);
+
+            await Ctx.RestoreAsync();
+            await Ctx.EndBatchAsync();
+            drawing.SetCurrentlyRendering(false);
+
+            Workspace?.PostRender(tick);
+        }
     }

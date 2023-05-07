@@ -1,27 +1,31 @@
 {
   "Status": "Draft",
-  "Title": "07 - Page Render, Drawing Render, Canvas Render",
-  "Description": "Every 'tick' starts a long render sequence, from Canvas to Drawing to Page.  The trick is to only draw what is needed",
+  "Title": "07 - Page Rendering",
+  "Description": "Every 'tick' starts a long render sequence, from canvas => drawing => page => shapes",
   "Samples": [
     {
-      "Title": "Render the shapes on the page",
-      "Filename": "RenderDetails.txt",
-      "Notes": "Draw the background, then the grid, then the shapes (1D=>2D) then the tool artifacts"
+      "Title": "Let html5 canvas send you event when it is ready",
+      "ImageURL": "{Path}/workspace.png",
+      "Filename": "CanvasRender.txt"
     },
     {
-      "Title": "Standard method to render to the page",
-      "Filename": "RenderDetails.txt",
-      "Notes": "Innovation: contextLink, prerender, postrender, Dynamic Definition"
+      "Title": "Create the canvas context and call the render chain",
+      "ImageURL": "{Path}/pageandzoom.png",
+      "Filename": "RenderFrame.txt"
     },
     {
-      "Title": "Drawing needs to control both page and zoom window",
-      "Filename": "DrawingRender.txt",
-      "Notes": "The drawing is the only thing that knows about the zoom window, so it needs to render both the page and the zoom window"
+      "Title": "Render the shapes on the page, and order matters",
+      "ImageURL": "{Path}/ordermaters.png",
+      "Filename": "RenderPageDetails.txt",
+      "Description": "Draw the background, then the grid, then the shapes (1D=>2D) then the tool artifacts"
     },
     {
-      "Title": "Canvas reacts to refresh event ",
-      "Filename": "CanvasRender.txt",
-      "Notes": "The Workspace may need to pre/post process,  signals mouse events to queue"
+      "Title": "Render the shapes on the page, and order matters",
+      "ImageURL": "{Path}/drawwhatyousee.png",
+      "Filename": "ShouldRender.txt"
     }
+
+
+
   ]
 }

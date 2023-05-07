@@ -24,6 +24,8 @@ public override async Task<bool> RenderDetailed(Canvas2DContext ctx, int tick, b
 
         await RenderGrid(ctx);
 
+// Render 1D shapes first 
+
         Shapes1D.ForEach(async child => await child.RenderDetailed(ctx, tick, deep));
         Shapes2D.ForEach(async child => await child.RenderDetailed(ctx, tick, deep));
 
