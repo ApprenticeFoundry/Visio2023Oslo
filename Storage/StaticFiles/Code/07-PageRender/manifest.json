@@ -11,18 +11,27 @@
     {
       "Title": "Create the canvas context and call the render chain",
       "ImageURL": "{Path}/pageandzoom.png",
-      "Filename": "RenderFrame.txt"
+      "Filename": "DrawingRender.txt"
+    },
+    {
+      "Title": "The page manager also updates the hit test service",
+      "Filename": "PageManager.txt"
     },
     {
       "Title": "Render the shapes on the page, and order matters",
-      "ImageURL": "{Path}/ordermaters.png",
+      "ImageURL": "{Path}/ordermatters.png",
       "Filename": "RenderPageDetails.txt",
       "Description": "Draw the background, then the grid, then the shapes (1D=>2D) then the tool artifacts"
     },
     {
-      "Title": "Render the shapes on the page, and order matters",
+      "Title": "Only render what is showing on the page",
       "ImageURL": "{Path}/drawwhatyousee.png",
       "Filename": "ShouldRender.txt"
+    },
+      {
+      "Title": "Simplify the drawing of shapes in zoom window",
+      "ImageURL": "{Path}/ZoomWindow.png",
+      "Filename": "RenderShapeConcise.txt"
     }
 
 
