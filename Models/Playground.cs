@@ -6,6 +6,7 @@ using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using QRCoder;
 using Radzen;
 
 namespace Visio2023Foundry.Model;
@@ -14,7 +15,7 @@ namespace Visio2023Foundry.Model;
 public class Playground : FoWorkbook
 {
 
-    private FoMenu2D? playground { get; set; }
+    private FoMenu2D? PlaygroundMenu { get; set; }
 
     public Playground(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
         base(space,command,dialog,js,pubSub)
@@ -23,14 +24,16 @@ public class Playground : FoWorkbook
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
         "Playground CreateMenus".WriteWarning();
-        playground = space.EstablishMenu2D<FoMenu2D, FoButton2D>("Playground", new Dictionary<string, Action>()
+        PlaygroundMenu = space.EstablishMenu2D<FoMenu2D, FoButton2D>("Playground", new Dictionary<string, Action>()
         {
 
             //{ "Capture", () => CreateCapturePlayground()},
             { "Guid Test", () => CreateGuidTest()},
             { "Group", () => CreateGroupShape()},
             { "Ring", () => CreateRingGroupPlayground()},
-            { "Glue", () => CreateGluePlayground()},
+            { "Glue 1D", () => CreateGlue1DPlayground()},
+            { "Glue 2D", () => CreateGlue2DPlayground()},
+            { "Ticker", () => CreateTickPlayground()},     
             { "Line", () => CreateLinePlayground()},
             { "Menu", () => CreateMenuPlayground()},
             { "Lets Dance", () => LetsDance()},
@@ -94,7 +97,7 @@ public class Playground : FoWorkbook
     }
 
 
-    private void CreateGluePlayground()
+    private void CreateGlue1DPlayground()
     {
         var drawing = Workspace.GetDrawing();
         if ( drawing == null) return;
@@ -122,6 +125,63 @@ public class Playground : FoWorkbook
 
         wire1.GetMembers<FoGlue2D>()?.ForEach(glue => Command.SendGlue(glue));
         wire2.GetMembers<FoGlue2D>()?.ForEach(glue => Command.SendGlue(glue));
+    }
+
+    private void CreateGlue2DPlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
+
+        var s1 = new FoShape2D(200, 200, "Green");
+        drawing.AddShape(s1);
+        s1.MoveTo(400, 200);
+
+        var text = "Foundry Canvas QR Code";
+        var qrGenerator = new QRCodeGenerator();
+        var qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
+
+        var qrCode = new PngByteQRCode(qrCodeData);
+        var qrCodeImage = qrCode.GetGraphic(20);
+        var base64 = Convert.ToBase64String(qrCodeImage);
+        var dataURL = $"data:image/png;base64,{base64}";
+
+        var q1 = new FoImage2D(80, 80, "White")
+        {
+            ImageUrl = dataURL,
+            ScaleX = 0.10,
+            ScaleY = 0.10,
+        };
+        q1.MoveTo(400, 400);
+        drawing.AddShape<FoImage2D>(q1);
+
+        q1.ContextLink = (obj,tick) => {
+            obj.PinX = s1.PinX;
+            obj.PinY = s1.PinY + s1.Height/2;
+        };
+
+        s1.AnimatedMoveTo(800, 300);
+    }
+
+   private void CreateTickPlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
+
+        var s1 = new FoShape2D(200, 200, "Green");
+        drawing.AddShape(s1);
+        s1.MoveTo(200, 200);
+
+        var s2 = new FoShape2D(200, 25, "Blue")
+        {
+            LocPinX = (obj) => obj.Width / 4
+        };
+        drawing.AddShape(s2);
+
+        s2.ContextLink = (obj,tick) => {
+            obj.PinX = s1.PinX;
+            obj.PinY = s1.PinY;
+            obj.Angle += 1;
+        };
     }
 
     private void CreateRingGroupPlayground()
@@ -194,11 +254,11 @@ public class Playground : FoWorkbook
     private void CreateMenuPlayground()
     {
         var drawing = Workspace.GetDrawing();
-        if ( drawing == null || playground == null) return;
+        if ( drawing == null || PlaygroundMenu == null) return;
 
-        playground.ToggleLayout();
-        drawing.AddShape<FoMenu2D>(playground).AnimatedMoveTo(100, 100);
-        playground.Angle = 0;
+        PlaygroundMenu.ToggleLayout();
+        drawing.AddShape<FoMenu2D>(PlaygroundMenu).AnimatedMoveTo(100, 100);
+        PlaygroundMenu.Angle = 0;
 
     }
     

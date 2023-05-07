@@ -1,6 +1,6 @@
 {
   "Status":"Ready",
-  "Title": "04 - Tools for Controling Mouse and Keyboard Interaction",
+  "Title": "04 - Tools for Controlling Mouse and Keyboard Interaction",
   "Description": "Tracking a lot of mouse events and drawing state is complicated",
   "ImageURL": "{Path}/VisioTools.png",
   "MemeURL": "{Path}/Boldness.jpg",

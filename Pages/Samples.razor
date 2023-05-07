@@ -13,3 +13,9 @@
     </div>
     <h4 style="padding-left:140px;padding-bottom:10px; max-width:1200px">@manifest.Description</h4>
 }
+
+
+@foreach (var manifest in Manifests)
+{
+    <p>@manifest.Title</p>
+}

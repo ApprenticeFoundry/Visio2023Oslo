@@ -1,0 +1,26 @@
+// Playground.cs 
+    
+    private void CreateGlue2DPlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
+
+        var s1 = new FoShape2D(200, 200, "Green");
+        drawing.AddShape(s1);
+        s1.MoveTo(400, 200);
+
+        //...
+
+        var q1 = new FoImage2D(80, 80, "White");
+        q1.MoveTo(400, 400);
+        drawing.AddShape<FoImage2D>(q1);
+
+// this positions q1 based on s1
+
+        q1.ContextLink = (obj,tick) => {
+            obj.PinX = s1.PinX;
+            obj.PinY = s1.PinY + s1.Height/2;
+        };
+
+        s1.AnimatedMoveTo(800, 300);
+    }
