@@ -1,0 +1,32 @@
+
+
+@using Microsoft.AspNetCore.Components.Web
+@using System.IO
+@using System.Net
+@using FoundryBlazor.Extensions
+@inherits CodeDisplayBase
+
+<h2 style="padding-top:20px;padding-left:20px">@Sample?.Title</h2>
+  
+@if (HasImage())
+{
+    <img src="@Sample?.ImageURL" class="image600" />
+}
+    
+@if (HasCode())
+{
+    <StandaloneCodeEditor @ref="_editor" ConstructionOptions="EditorConstructionOptions" OnDidInit="@EditorOnDidInit" />
+}
+
+@if (HasDemo())
+{
+    <a href="@Sample!.DemoURL" style="padding-left:80px;padding-top:40px">@Sample?.DemoURL</a>
+}
+
+<h4 style="padding-bottom:50px;padding-left:80px;padding-top:20px"><i>@Sample?.Notes</i></h4>
+
+@if (HasMeme())
+{
+    <img src="@Sample?.MemeURL" class="meme400" />
+}
+<p>-----------------------------------------------------------------------------------------------------------------</p>

@@ -1,0 +1,32 @@
+{
+  "Status":"Ready",
+  "Title": "04 - Tools for Controling Mouse and Keyboard Interaction",
+  "Description": "Tracking a lot of mouse events and drawing state is complicated",
+  "ImageURL": "{Path}/VisioTools.png",
+  "MemeURL": "{Path}/Boldness.jpg",
+  "Samples": [
+    {
+      "Title": "Pan and Zoom: Simple example of a class that becomes a tool",
+      "Filename": "PanZoom.txt"
+    },
+    {
+      "Title": "List of tools designed to have the user extend them",
+      "Filename": "ToolSet.txt"
+    },
+
+    {
+      "Title": "Resizing: Another Tool Example",
+      "Filename": "Resizing.txt"
+    },
+
+    {
+      "Title": "Selecting the right tool for the job",
+      "Filename": "SelectingTools.txt"
+    },
+    {
+      "Title": "Simple Version of Tool Selection Code",
+      "Filename": "SimpleVersion.txt",
+      "Notes": "There is no shame in starting simple and then refactoring to a more complex solution"
+    }
+  ]
+}

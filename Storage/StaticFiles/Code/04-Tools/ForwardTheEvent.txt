@@ -1,0 +1,37 @@
+    private void ApplyMouseArgs(CanvasMouseArgs args)
+    {
+        try
+        {
+            if (args == null) return;
+            
+            SetCurrentlyProcessing(true);
+            
+            // call IsDefaultTool method on each interaction to
+            // determine what is the right interaction for this case?
+
+            if (args.Topic.Matches("ON_MOUSE_DOWN"))
+                SelectInteractionByRuleFor(args);
+
+
+            var interact = GetInteraction();
+
+            var isEventHandled = (args.Topic) switch
+            {
+                ("ON_MOUSE_DOWN") => interact.MouseDown(args),
+                ("ON_MOUSE_MOVE") => interact.MouseMove(args),
+                ("ON_MOUSE_UP") => interact.MouseUp(args),
+                ("ON_MOUSE_IN") => interact.MouseIn(args),
+                ("ON_MOUSE_OUT") => interact.MouseOut(args),
+                _ => false
+            };
+        }
+        catch (Exception ex)
+        {
+            $" {args.Topic} {ex.Message}".WriteLine();
+        }
+        finally
+        {
+            SetCurrentlyProcessing(false);
+        }
+
+    }

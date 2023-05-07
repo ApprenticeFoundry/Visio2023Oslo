@@ -1,0 +1,32 @@
+
+// FoDrawing2D.cs
+
+   public async Task RenderDrawing(Canvas2DContext ctx, int tick, double fps)
+    {
+
+        //...
+        if (IsCurrentlyProcessing) return;
+
+
+        var page = PageManager.CurrentPage();
+
+        await ScaleDrawing.ClearCanvas(ctx);
+
+        await ctx.SaveAsync();
+
+        // get the current pan and zoom
+        var (zoom, panx, pany) = await PanZoomService.TranslateAndScale(ctx, page);
+
+        // render the current page using the 'RenderDetailed' techniques
+        await PageManager.RenderDetailed(ctx, tick, true);
+
+        // render the zoom window using the 'RenderConcise' techniques
+        await PanZoomWindow().RenderConcise(ctx, zoom, page.Rect());
+
+        await ctx.RestoreAsync();
+
+
+        //...
+
+    }
+

@@ -1,0 +1,58 @@
+
+// HittestService.cs
+
+public interface IHitTestService
+{
+    List<FoGlyph2D> FindGlyph(Rectangle rect);
+
+    bool Insert(FoGlyph2D glyph);
+    bool InsertRange(List<FoGlyph2D> list);
+    List<FoGlyph2D> AllShapesEverywhere();
+    List<FoGlyph2D> RefreshTree(FoPage2D page);
+    Task RenderTree(Canvas2DContext ctx, bool showTracks);
+}
+
+
+public List<FoGlyph2D> FindGlyph(Rectangle rect)
+{
+    // only for the mouse tracking visual
+    if ( PreviousSearches.Count > 10)
+        PreviousSearches.RemoveRange(0, 6);
+
+    PreviousSearches.Add(rect);
+
+    List<FoGlyph2D> list = new();
+    Tree?.GetObjects(rect, ref list);  //See code fragment below
+
+    return list;
+}
+
+
+// From QuadTree hit test service
+
+public void GetObjects(Rectangle rect, ref List<T> results)
+{
+    // We can't do anything if the results list doesn't exist
+    if (results == null) return;
+    
+    if (rect.Contains(m_rect))
+    {
+        // If the search area completely contains this quad, just get every object this quad and all it's children have
+        GetAllObjects(ref results);
+    }
+    else if (rect.IntersectsWith(m_rect))
+    {
+        // Otherwise, if the quad isn't fully contained, only add objects that intersect with the search rectangle
+        if (m_objects != null)
+            for (int i = 0; i < m_objects.Count; i++)
+                if (rect.IntersectsWith(m_objects[i].Rect()))
+                    results.Add(m_objects[i]);
+
+        // Get the objects for the search rectangle from the children
+
+        m_childTL?.GetObjects(rect, ref results);
+        m_childTR?.GetObjects(rect, ref results);
+        m_childBL?.GetObjects(rect, ref results);
+        m_childBR?.GetObjects(rect, ref results);
+    }
+}

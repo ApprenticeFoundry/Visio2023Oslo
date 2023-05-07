@@ -1,0 +1,14 @@
+
+public class FoPage2D: FoGlyph2D
+{
+    // We cannot add a new collection for every new shape type! 
+    // We can do better 
+    public List<FoShape1D> Shapes1D = new();
+    public List<FoShape2D> Shapes2D = new();
+    public List<FoText2D> Texts2D = new();
+}
+
+public class FoDrawing2D
+{
+     public List<FoPage2D> Pages { get; set; } = new();
+}

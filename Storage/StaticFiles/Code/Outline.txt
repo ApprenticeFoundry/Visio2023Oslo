@@ -1,0 +1,41 @@
+Needed Functionality
+
+00 Drawing using HTML5 Canvas API*
+01 Object Model / State Management
+02 Hit Testing
+03 Shape Data Structures*
+04 Drawing tools / Mouse Events
+05 Performance For Animation
+06 Shape Rendering / Drawing Object Model
+07 Page Render, Drawing Render, Canvas Render",
+
+08 Event and Pub/Sub Custom Menus
+09 Value cashing / Recalculating
+
+10 Collaboration
+11 Extensible / Flexible shapes 2D/3D
+12 Automated Layout of trees
+13 Three D Rendering
+14 Video and Images
+15 Scaled Drawings
+
+
+16 Save and Restore
+
+
+
+Technique
+
+
+Custom Dictionary of Lists :  Creation of FoCollection<T> class
+Quad Tree
+Pattern Matching & Reactive Programming
+Change Tracking / Time-slice Rendering / Queue Events
+OOP  and  Functional  staged rendering procedure
+Command Service
+SignalR + Custom Messages
+Shared Library of Common Shape Components / Operations  (Glue for example)
+C# Generic   public class FoLayoutTree<V> where V : FoGlyph2D
+Async Web Service   PreRender; Render; PostRender; sequence
+Leverage Brower DOM Elements ;  specialized shapes
+Unit Management Service

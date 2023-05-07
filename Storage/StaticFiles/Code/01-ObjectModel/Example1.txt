@@ -1,0 +1,16 @@
+//Early version with a Parent property
+
+public class FoGlyph2D
+{
+    public FoGlyph2D? Parent { get; set; }
+    public List<FoGlyph2D> Children { get; set; } = new(); 
+}
+
+//Current version with a function that returns the parent
+
+public class FoGlyph2D
+{
+    public Func<FoGlyph2D?> GetParent = () => null;
+    public List<FoGlyph2D> Children { get; set; } = new();
+}
+

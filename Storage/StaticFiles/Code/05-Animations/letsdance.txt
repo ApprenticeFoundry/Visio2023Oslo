@@ -1,0 +1,35 @@
+
+// Playground.cs
+
+   private void LetsDance()
+    {
+        var rand = new Random();
+        var drawing = Workspace.GetDrawing();
+        if (drawing == null) return;
+
+        var pages = drawing.Pages();
+        var page = pages.CurrentPage();
+
+        //Create some random animations 
+        
+        pages.Selections().ForEach(shape =>
+        {
+            var X = page?.Width / 2 + 600 * (0.5 - rand.NextDouble());
+            var Y = page?.Height / 2 + 600 * (0.5 - rand.NextDouble());
+            FoGlyph2D.Animations.Tween(shape, new { PinX = X, PinY = Y }, 2)
+                .OnUpdate((arg) =>
+                {
+                    FoGlyph2D.ResetHitTesting = true;
+                    //$"{arg} working".WriteLine(ConsoleColor.DarkYellow);
+                });
+
+            var factor = 3 * rand.NextDouble();
+            FoGlyph2D.Animations.Tween(shape, new { Width = factor * shape.Width, Height = factor * shape.Height }, 3);
+
+            if (shape is FoImage2D)
+                FoGlyph2D.Animations.Tween(shape, new { ScaleX = 2 * rand.NextDouble(), ScaleY = 2 * rand.NextDouble() }, 3);
+
+            var angle = shape.Angle + 360.0 * rand.NextDouble();
+            FoGlyph2D.Animations.Tween(shape, new { Angle = angle }, 4);
+        });
+    }

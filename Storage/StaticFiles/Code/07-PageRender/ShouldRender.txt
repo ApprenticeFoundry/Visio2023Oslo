@@ -1,0 +1,35 @@
+
+// FoPage2D.cs
+
+   public new bool ComputeShouldRender(Rectangle region)
+    {
+        // since the region is in page coordinates no matrix math is needed
+
+        Shapes1D.ForEach(child => child.ComputeShouldRender(region));
+        Shapes2D.ForEach(child => child.ComputeShouldRender(region));
+        return true;
+    }
+
+
+// FoGlyph2D.cs
+
+    public bool ComputeShouldRender(Rectangle region)
+    {
+        ShouldRender = IntersectsRegion(region);
+        return ShouldRender;
+    }
+
+    public bool IntersectsRegion(Rectangle region)
+    {
+        return region.IntersectsWith(Rect());
+    }
+
+    public bool IsInRegion(Rectangle region)
+    {
+        if (LeftEdge() < region.X) return false;
+        if (RightEdge() > region.Width) return false;
+
+        if (TopEdge() < region.Y) return false;
+        if (BottomEdge() > region.Height) return false;
+        return true;
+    }

@@ -1,0 +1,27 @@
+// From Program.cs
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddScoped<ComponentBus>();
+
+
+
+// From FoDrawing2D
+    private ComponentBus PubSub { get; set; }
+
+    PubSub!.SubscribeTo<CanvasKeyboardEventArgs>(args =>
+    {
+        try
+        {
+            var isEventHandled = (args.Topic) switch
+            {
+
+                ("ON_KEY_DOWN") => KeyDown(args),
+                ("ON_KEY_UP") => KeyUp(args),
+                ("ON_KEY_PRESS") => KeyPress(args),
+                _ => false
+            };
+        }
+        catch (Exception ex)
+        {
+            $" {args.Topic} {ex.Message}".WriteLine();
+        }
+    });

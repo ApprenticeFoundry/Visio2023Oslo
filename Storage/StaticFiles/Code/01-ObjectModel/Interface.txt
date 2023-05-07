@@ -1,0 +1,39 @@
+public interface IFoCollection
+{
+    int Count();
+    string GetName();
+    List<string> Keys();
+    List<U> ValuesOfType<U>();
+    bool AddObject(string key, object value);
+}
+
+public interface IFoComponent
+{
+    bool HasSlot<T>() where T : FoBase;
+    T Establish<T>(string key) where T : FoBase;
+    T? Find<T>(string key) where T : FoBase;
+    List<T> Members<T>() where T : FoBase;
+}
+
+
+
+
+//  a dictionary of uniform types, that also acts list a list
+
+public class FoCollection<T>: IFoCollection where T : FoBase
+{
+    private readonly Dictionary<string, T> members = new();
+
+    public List<T> Values()
+    {
+        return this.members.Values.ToList<T>();
+    }
+}
+
+//  the base class of every shape
+
+public class FoComponent : FoBase, IFoComponent
+{
+    private SlotGroups Slots { get; set; } = new();
+}
+

@@ -1,0 +1,17 @@
+{
+  "Title": "16 - Value Cashing and Recalculating",
+  "Description": "Render Detailed,  Render Concise,  Cashe Invalidation",
+  "Notes":"",
+  "Samples": [
+    {
+      "Title": "Early:  Listening to events",
+      "Filename": "Sample.txt",
+      "Notes": "This is a sample of the ComponentBus"
+    },
+    {
+      "Title": "Later: internal PubSub Subscription network with pattern",
+      "Filename": "Sample.txt",
+      "Notes": "This is a sample of the PubSub"
+    }
+  ]
+}

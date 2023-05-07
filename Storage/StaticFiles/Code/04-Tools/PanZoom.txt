@@ -1,0 +1,34 @@
+public class PagePanAndZoom : BaseInteraction
+{
+    private bool isDraggingPage = false;
+    
+    public override void Abort()
+    {     
+        isDraggingPage = false;
+    }
+
+    public override bool IsDefaultTool(CanvasMouseArgs args)
+    {
+        return args.CtrlKey && args.ShiftKey;
+    }
+
+    public override bool MouseDown(CanvasMouseArgs args)
+    {
+        isDraggingPage = true;
+        return true;
+    }
+    public override bool MouseUp(CanvasMouseArgs args)
+    {
+        isDraggingPage = false;
+        drawing.SetInteraction(InteractionStyle.ShapeHovering);
+        return true;
+    }
+    public override bool MouseMove(CanvasMouseArgs args)
+    {
+        if ( isDraggingPage )
+            drawing.MovePanBy(args.MovementX, args.MovementY);
+
+        return true;
+    }
+
+}

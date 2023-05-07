@@ -1,0 +1,40 @@
+
+public class FoPage2D: FoGlyph2D
+{
+    // how about a dictionary of typed collections
+
+    private SlotGroups Slots { get; set; } = new();
+
+
+    public virtual FoCollection<T> Slot<T>() where T : FoBase
+    {
+        var found = Slots.EstablishSlot<T>();
+        return found;
+    }
+
+    public bool HasSlot<T>() where T : FoBase
+    {
+        var key = typeof(T).Name;
+        return Slots.ContainsKey(key);
+    }
+
+    public virtual FoCollection<T>? GetSlot<T>() where T : FoBase
+    {
+        return Slots.FindSlot<T>();
+    }
+
+    public virtual T Add<T>(T value) where T : FoBase
+    {
+        var target = Slot<T>();
+        target.Add(value);
+        return value;
+    }
+
+    public virtual T Remove<T>(T value) where T : FoBase
+    {
+        var target = GetSlot<T>();
+        target?.Remove(value);
+        return value;
+    }
+}
+

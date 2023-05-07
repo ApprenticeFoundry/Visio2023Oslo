@@ -1,0 +1,30 @@
+public class FoText2D : FoGlyph2D, IShape2D
+{
+    public bool ComputeResize { get; set; } = false;
+
+    private string text = "";
+    public string Text { get { return this.text; } set { this.text = CreateDetails(AssignText(value, text)); } }
+
+    private string fontsize = "30";
+    public string FontSize { get { return this.fontsize; } set { this.fontsize = AssignText(value, fontsize); } }
+
+    private string font = "Segoe UI";
+    public string Font { get { return this.font; } set { this.font = AssignText(value, font); } }
+
+    public string TextColor { get; set; } = "White";
+    public bool IsEditing { get; set; } = false;
+
+    public int Margin { get; set; } = 2;
+    public List<string>? Details { get; set; }
+
+
+
+    protected string AssignText(string newValue, string oldValue)
+    {
+        if (newValue != oldValue)
+        {
+            ComputeResize = true;
+        }
+
+        return newValue;
+    }

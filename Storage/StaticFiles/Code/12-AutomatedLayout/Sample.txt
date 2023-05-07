@@ -1,0 +1,10 @@
+    protected void SendModelCreated<T>(T model) where T : Boid
+    {
+        var create = new D2D_ModelCreate()
+        {
+            PayloadType = model.GetType().Name,
+            Payload = StorageHelpers.Dehydrate<T>(model, false)
+        };
+
+        Command.SendSyncMessage(create);
+    } 

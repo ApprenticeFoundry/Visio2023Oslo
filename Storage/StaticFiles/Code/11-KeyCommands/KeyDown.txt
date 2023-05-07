@@ -1,0 +1,32 @@
+   public bool KeyDown(CanvasKeyboardEventArgs args)
+    {
+        var move = args.ShiftKey ? 1 : 5;
+        object success = (args.Code, args.AltKey, args.CtrlKey, args.ShiftKey) switch
+        {
+            ("ArrowUp", false, true, true) => MovePanBy(0, -move * 10),
+            ("ArrowDown", false, true, true) => MovePanBy(0, move * 10),
+            ("ArrowLeft", false, true, true) => MovePanBy(-move * 10, 0),
+            ("ArrowRight", false, true, true) => MovePanBy(move * 10, 0),
+
+            ("ArrowUp", false, false, _) => MoveSelectionsBy(0, -move),
+            ("ArrowDown", false, false, _) => MoveSelectionsBy(0, move),
+            ("ArrowLeft", false, false, _) => MoveSelectionsBy(-move, 0),
+            ("ArrowRight", false, false, _) => MoveSelectionsBy(move, 0),
+
+            ("ArrowUp", true, false, false) => ZoomSelectionBy(1.25),
+            ("ArrowDown", true, false, false) => ZoomSelectionBy(0.75),
+
+            ("KeyG", true, false, false) => PageManager?.GroupSelected<FoGroup2D>() != null,
+            ("KeyR", true, false, false) => RotateSelectionsBy(30),
+            ("KeyL", true, false, false) => LayoutSelections(),
+            ("KeyO", true, false, false) => OpenEdit(),
+            ("KeyC", true, false, false) => OpenCreate(),
+
+            ("KeyD", false, true, false) => DuplicateSelections(),
+            ("Insert", false, false, false) => DuplicateSelections(),
+            ("Delete", false, false, false) => DeleteSelections(),
+            ("Delete", false, true, false) => DeleteSelectionsWithAnimations(),
+            _ => false
+        };
+        return success != null;
+    }

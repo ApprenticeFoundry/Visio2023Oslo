@@ -1,0 +1,67 @@
+namespace Visio2023;
+
+public class Shape
+{
+    public Func<Shape?> Parent { get; set; } = () => null;
+    public List<Shape> Children { get; set; } = new();
+
+    // other properties like Geometry to Render...
+}
+
+public class Shape2D: Shape
+{
+}
+
+public class Shape1D: Shape
+{
+}
+
+public class Page: Shape
+{
+    public List<Shape1D> Shapes1D { get; set; } = new();
+    public List<Shape2D> Shapes2D { get; set; } = new();
+}
+
+public class Drawing
+{
+     public List<Page> Pages { get; set; } = new();
+}
+
+public interface IFoComponent
+{
+    bool HasSlot<T>() where T : FoBase;
+    T Establish<T>(string key) where T : FoBase;
+    T? Find<T>(string key) where T : FoBase;
+    List<T> Members<T>() where T : FoBase;
+}
+
+
+public class FoCollection<T>: IFoCollection where T : FoBase
+{
+    private readonly Dictionary<string, T> members = new();
+
+    public List<T> Values()
+    {
+        return this.members.Values.ToList<T>();
+    }
+}
+
+public class SlotGroups : Dictionary<string, object>
+{
+    public IFoCollection EstablishSlotFor(Type TypeSpec)
+    {
+        var key = TypeSpec.Name;
+        if (ContainsKey(key) == false)
+        {
+            var type = typeof(FoCollection<>).MakeGenericType(TypeSpec);
+            var result = Activator.CreateInstance(type);
+            Add(key, result!);
+        }
+        return (this[key] as IFoCollection)!;
+    }
+}
+
+public class FoComponent : FoBase, IFoComponent
+{
+    public string ClassType { get; init; }
+    private SlotGroups Slots { get; set; } = new();

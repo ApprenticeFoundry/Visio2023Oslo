@@ -1,0 +1,25 @@
+pre code {
+    font-size: large;
+    background-color: #eee;
+    border: 1px solid #999;
+    display: block;
+    padding: 20px;
+}
+
+ .image600 {
+     width: 100%;
+     max-width: 1000px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-right: 150px;
+    margin-left: 180px;
+ }
+
+  .meme400 {
+    width: 60%;
+    max-width: 800px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-right: 150px;
+    margin-left: 180px;
+ }

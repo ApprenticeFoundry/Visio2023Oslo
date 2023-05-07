@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+     <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Version>1.0.0</Version>
+    <!-- <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles> -->
+    <!-- <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>    -->
+ </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.2" />
+    <PackageReference Include="BlazorMonaco" Version="3.0.0" />
+    <PackageReference Include="BlazorThreeJS" Version="0.2.3" />
+    <PackageReference Include="BlazorComponentBus" Version="2.2.0" />
+    <!-- <PackageReference Include="FoundryBlazor" Version="1.4.0" /> -->
+    <PackageReference Include="IoBTMessageLibrary" Version="7.9.4" />
+    <PackageReference Include="IoBTModuleLibrary" Version="1.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="7.0.1" />
+    <PackageReference Include="System.Reactive.Core" Version="5.0.0" />
+    <PackageReference Include="Radzen.Blazor" Version="4.7.1" />
+    <PackageReference Include="QRCoder" Version="1.4.3" />
+    <PackageReference Include="SkiaSharp" Version="2.88.3" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FoundryBlazor\FoundryBlazor.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,32 @@
+
+// FoPage2D.cs
+
+public override async Task<bool> RenderDetailed(Canvas2DContext ctx, int tick, bool deep = true)
+    {
+        if (!IsVisible) return false;
+
+        await ctx.SaveAsync();
+
+        await UpdateContext(ctx, tick);
+
+        var margin = DrawingMargin();
+        Width = DrawingWidth() + 2 * margin;
+        Height = DrawingHeight() + 2 * margin;
+
+        await ctx.SetFillStyleAsync("White");
+        await ctx.FillRectAsync(0, 0, Width, Height);
+
+        await DrawPageName(ctx);
+
+        await ctx.SetFillStyleAsync(Color);
+        await ctx.SetGlobalAlphaAsync(0.75F);
+        await ctx.FillRectAsync(margin, margin, DrawingWidth(), DrawingHeight());
+
+        await RenderGrid(ctx);
+
+        Shapes1D.ForEach(async child => await child.RenderDetailed(ctx, tick, deep));
+        Shapes2D.ForEach(async child => await child.RenderDetailed(ctx, tick, deep));
+
+        await ctx.RestoreAsync();
+        return true;
+    }

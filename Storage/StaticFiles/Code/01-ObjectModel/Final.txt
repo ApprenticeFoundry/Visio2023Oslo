@@ -1,0 +1,45 @@
+
+public class FoGlyph2D : FoComponent, IGlyph2D, IRender
+{
+    public static Tweener Animations { get; set; } = new Tweener();
+
+    public FoConnectionPoint2D AddConnectionPoint2D(FoConnectionPoint2D point)
+    {
+        point.GetParent = () => this;
+        point.Level = Level + 1;
+        Add<FoConnectionPoint2D>(point);
+        return point;
+    }
+
+    public FoConnectionPoint2D? FindConnectionPoint(string key, bool force = false)
+    {
+        if (force) GetConnectionPoints();
+        return this.Find<FoConnectionPoint2D>(key);
+    }
+
+    public override List<FoHandle2D> GetHandles()
+    {
+        if (!this.HasSlot<FoHandle2D>())
+        {
+            var lx = LeftX();
+            var ty = TopY();
+            var rx = RightX();
+            var by = BottomY();
+            AddHandle2D(new FoHandle2D("UL", lx, ty, "Green"));
+            AddHandle2D(new FoHandle2D("UR", rx, ty, "Green"));
+            AddHandle2D(new FoHandle2D("LL", lx, by, "Green"));
+            AddHandle2D(new FoHandle2D("LR", rx, by, "Green"));
+        }
+        var result = this.Members<FoHandle2D>();
+        return result;
+    }
+
+    public FoHandle2D AddHandle2D(FoHandle2D point)
+    {
+        point.GetParent = () => this;
+        point.Level = Level + 1;
+        Add<FoHandle2D>(point);  //Stores the object in a typed slot
+        return point;
+    }
+}
+

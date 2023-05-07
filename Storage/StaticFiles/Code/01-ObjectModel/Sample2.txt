@@ -1,0 +1,48 @@
+//Shape.js
+
+(function (ns, fo, create, undefined) {
+  var tween = create.Tween;
+  var utils = fo.utils;
+
+  var Shape = function (properties, subcomponents, parent) {
+    var shapeSpec = {
+      pinX: 0.0,
+      pinY: 0.0,
+      angle: 0.0,
+      isSelected: false,
+      isEditing: false,
+      isActiveTarget: false,
+      canGroupItems: function () {
+        return true;
+      },
+      canBeGrouped: function () {
+        return true;
+      },
+      showSubcomponents: true,
+      showDetails: true,
+    };
+
+    this.base = ns.FoundryShape;
+    this.base(utils.union(shapeSpec, properties), subcomponents, parent);
+    this.myType = (properties && properties.myType) || "Shape";
+
+    return this;
+  };
+
+  Shape.prototype = (function () {
+    var anonymous = function () {
+      this.constructor = Shape;
+    };
+    anonymous.prototype = ns.FoundryShape.prototype;
+    return new anonymous();
+  })();
+
+  ns.Shape = Shape;
+  utils.isaShape = function (obj) {
+    return obj instanceof Shape ? true : false;
+  };
+
+  ns.makeShape = function (properties, subcomponents, parent) {
+    var shape = new Shape(properties, subcomponents, parent);
+    return shape;
+  };

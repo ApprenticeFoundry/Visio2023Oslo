@@ -1,0 +1,5054 @@
+using System;
+using System.Collections;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Printing;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.Xml;
+
+using AxVisOcx = AxMicrosoft.Office.Interop.VisOcx;
+using Visio = Microsoft.Office.Interop.Visio;
+
+namespace ApprenticeNET
+{
+
+    public enum visTF : short { TRUE = -1, FALSE = 0 };
+    public enum StencilOpenMode
+    {
+        ReadOnly,
+        ReadWrite,
+        ReadHidden,
+        WriteHidden,
+        FindToClose,
+        FindToDelete
+    }
+
+    public class VisioIntegration : DocumentIntegration
+    {
+        private bool m_bIsEditable = true;
+        private bool m_bIsTrackingChanges = false;
+        private bool m_bIsMarkUp = false;
+
+        private ObjectCollection m_oShapeDeletionQueue = null;
+
+        protected FolderObject m_oaStencils = null;
+        protected FolderObject m_oaMasters = null;
+        protected ObjectCollection m_oaPageMasters = new ObjectCollection();
+
+        protected VisioMaster m_aDefaultMaster = null;
+        protected VisioMaster m_ovLastMaster = null;
+        protected VisioEventSink m_ovEventSink = null;
+
+        protected Hashtable m_ovPages = new Hashtable();
+        protected Hashtable m_oaShapes = new Hashtable();
+
+        protected AxVisOcx.AxDrawingControl m_ovControl = null;
+
+        //protected Visio.Application m_ovTargetAppInv = null;
+        protected Visio.Application m_ovTargetApp = null;
+        protected Visio.Document m_ovTargetDoc = null;
+
+        //protected int m_iLastScope = 0;
+        protected string m_sApplicationStencils = null;
+
+        public bool CancelKeyPress = false;
+
+        public bool SuspendEditOnCreation = true;
+        public bool SuspendCreation = false;
+
+        private bool m_bLinkToExisting = false;
+        private bool m_bSelectFromConcept = false;
+
+        //		static private uint uColor1 = 12576662;
+        //		static private uint uColor2 = 11321972;
+
+        public VisioIntegration() : base()
+        {
+        }
+        public VisioIntegration(string sName) : base(sName)
+        {
+        }
+
+        public void EstablishEvent(Visio.EventList ovEventList, DrawingEvents iEvent, bool bProcess)
+        {
+            if (bProcess)
+                m_ovEventSink.EnableEvent(ovEventList, iEvent);
+            else
+                m_ovEventSink.DisableEvent(ovEventList, iEvent, true);
+        }
+
+        public override void Purge()
+        {
+            if ( m_ovEventSink != null )
+            {
+               // m_ovEventSink.Purge();  SRS add a purge!!!!
+                m_ovEventSink = null;
+            }
+
+            m_oaStencils = null;
+            m_oaMasters = null;
+            if (m_oaPageMasters != null)
+                m_oaPageMasters.Clear();
+            m_oaPageMasters = null;
+
+            m_ovPages = null;
+            m_oaShapes = null;
+
+
+            m_ovControl = null;
+            m_ovTargetApp = null;
+            m_ovTargetDoc = null;
+
+            m_sApplicationStencils = null;
+
+            base.Purge();
+        }
+        public virtual bool IsEditable
+        {
+            get { return m_bIsEditable; }
+            set
+            {
+
+                m_bIsEditable = value;
+
+                if (IsApplicationLoading)
+                    return;
+
+                if (!m_bIsEditable)
+                    CloseStencils();
+                else
+                    OpenDefaultStencils();
+            }
+        }
+        public virtual bool IsTrackingChanges
+        {
+            get { return m_bIsTrackingChanges; }
+            set { m_bIsTrackingChanges = value; }
+        }
+        public virtual bool IsMarkUp
+        {
+            get { return m_bIsMarkUp; }
+            set
+            {
+                m_bIsMarkUp = value;
+                string sFormula = string.Format("={0}", m_bIsMarkUp);
+                ShapeBuilder.SetCellFormula(Document.DocumentSheet, "AddMarkup", sFormula, true);
+                ShapeBuilder.SetCellFormula(Document.DocumentSheet, "ViewMarkup", sFormula, true);
+            }
+        }
+        public AxVisOcx.AxDrawingControl Control
+        {
+            get
+            {
+                return m_ovControl;
+            }
+            set
+            {
+                m_ovControl = value;
+            }
+        }
+        public virtual VisioShape IgnoreCreation(VisioShape oaShape)
+        {
+            SuspendCreation = false;
+            return oaShape;
+        }
+
+        public virtual VisioShape LinkToExisting(Visio.Shape ovShape, VisioShape oaShape, string sAllow, string sHide)
+        {
+            if (!m_bLinkToExisting)
+                return null;
+
+            int iCount = 0;
+            ModelComponent oFound = null;
+
+            Solution oSolution = oaShape.MyWorkspace.ActiveSolutionManager.ActiveSolution;
+            ObjectCollection oList = oSolution.ChildrenOfType(typeof(ModelComponent));
+            if (oList.IsEmpty)
+            {
+                PopupMessage("No objects to select", "There are no objects in the model that support an alternate view/nThis shape will be deleted");
+                DeleteShape(oaShape, true);
+                return null;
+            }
+
+            foreach (ModelComponent oComponent in oList)
+            {
+                if (oComponent.IsClass(sAllow) && oComponent.IsComponentUserSpecified)
+                {
+                    oFound = oComponent;
+                    iCount++;
+                }
+            }
+
+            if (oFound != null && iCount == 1 && sAllow.Length > 0)
+            {
+                PopupMessage("One object was found", "One item in the model was found so an alternate view will be created for that item");
+                oFound.ConnectHasView(oaShape);
+                bool bSearchSubShapes = ShapeBuilder.GetASISearchSubShapes(ovShape);
+                if (bSearchSubShapes)
+                {
+                    m_bLinkToExisting = false;
+                    SearchSubShapes(ovShape);
+                    m_bLinkToExisting = true;
+                }
+                oaShape.UpdateShape();
+                oFound = oaShape.ViewOf() as ModelComponent;
+                oFound.RunTriggerNotifyChildren(TriggerEvents.OnMyViewComplete, null, false, false);
+                return oaShape;
+            }
+
+            if (iCount == 0)
+                sAllow = "";
+
+            ModelSelectDialog oForm = new ModelSelectDialog(sAllow, sHide);
+            if (oForm.Login(oaShape))
+            {
+                if (ShowDialog(oForm, true, false))
+                {
+                    bool bSearchSubShapes = ShapeBuilder.GetASISearchSubShapes(ovShape);
+                    if (bSearchSubShapes)
+                    {
+                        m_bLinkToExisting = false;
+                        SearchSubShapes(ovShape);
+                        m_bLinkToExisting = true;
+                    }
+                    oaShape.UpdateShape();
+                    oFound = oaShape.ViewOf() as ModelComponent;
+                    oFound.RunTriggerNotifyChildren(TriggerEvents.OnMyViewComplete, null, false, false);
+                    return oaShape;
+                }
+
+                DeleteShape(oaShape, true);
+                return null;
+            }
+            oForm.Purge();
+            return oaShape;
+        }
+
+        public virtual bool SearchSubShapes(Visio.Shape ovShape)
+        {
+            return false;
+        }
+
+        public bool CreatingAlternateView
+        {
+            get
+            {
+                return m_bLinkToExisting;
+            }
+            set
+            {
+                if (m_bLinkToExisting == value)
+                    return;
+
+                m_bLinkToExisting = value;
+
+                if (m_bLinkToExisting)
+                    SetLinkStencilColors();
+                else
+                    SetDefaultStencilColors();
+            }
+        }
+        public void SetDefaultStencilColors()
+        {
+            if (m_ovTargetApp == null)
+                return;
+
+            m_ovTargetApp.Settings.StencilBackgroundColor = 0xBFD796; // uColor1;  // 0xBFD796; 
+            m_ovTargetApp.Settings.StencilBackgroundColorGradient = 0xACC274; //uColor2;  // 0xACC274;
+        }
+        public void SetLinkStencilColors()
+        {
+            if (m_ovTargetApp == null)
+                return;
+
+            m_ovTargetApp.Settings.StencilBackgroundColor = 0x9DFDFD;  //light Yellow
+            m_ovTargetApp.Settings.StencilBackgroundColorGradient = 0x04C4FF;  //gold
+        }
+        public void SetRecordScriptStencilColors()
+        {
+            if (m_ovTargetApp == null)
+                return;
+
+            m_ovTargetApp.Settings.StencilBackgroundColor = 0x9DFDFD;
+            m_ovTargetApp.Settings.StencilBackgroundColorGradient = 0x9DFDFD;
+        }
+
+        public bool SelectFromConcept
+        {
+            get
+            {
+                return m_bSelectFromConcept;
+            }
+            set
+            {
+                m_bSelectFromConcept = value;
+                if (m_ovTargetApp == null)
+                    return;
+
+                if (m_bSelectFromConcept)
+                    m_ovTargetApp.Settings.DrawingPageColor = 0xFF00; //Green
+
+                else
+                    m_ovTargetApp.Settings.DrawingPageColor = 0xFFFFFF; //White
+            }
+        }
+        //this makes duplicate work the same  in both mentor and apprentice
+        public virtual void DuplicateSelection()
+        {
+        }
+        //this makes duplicate work the same  in both mentor and apprentice
+        public virtual void DeleteSelection()
+        {
+        }
+
+        //this makes configure work the same  in both mentor and apprentice
+        public virtual void ConfigureSelection()
+        {
+        }
+        public virtual bool MoveSelectionToStencil(string sStencil, bool bDelete)
+        {
+            Visio.Application ovApp = m_ovTargetApp;
+            short iEvents = ovApp.EventsEnabled;
+
+            int iCount = ovApp.ActiveWindow.Selection.Count;
+
+            Visio.Document ovStencil = FindOrOpenNewStencil(sStencil);
+
+            ovApp.EventsEnabled = (short)visTF.FALSE;
+            try
+            {
+                if (iCount > 1)
+                {
+                    Visio.Shape ovShape = ovApp.ActiveWindow.Selection.Group();
+                    ShapeBuilder.SetASIPublished(ovShape, "Group");
+                    ovStencil.Drop(ovShape, 0, 0);
+                    ovShape.Ungroup();
+                }
+                else if (iCount == 1)
+                {
+                    Visio.Shape ovShape = ovApp.ActiveWindow.Selection[1];
+                    ShapeBuilder.SetASIPublished(ovShape, "Shape");
+                    ovStencil.Drop(ovShape, 0, 0);
+                }
+            }
+            catch { }
+            ovApp.EventsEnabled = iEvents;
+
+            if (bDelete)
+                DeleteSelection();
+
+            return true;
+        }
+        public virtual void OpenPublishedShape(Visio.Shape ovGroupShape, string sType)
+        {
+            IsProcessingPublishedShape = true;
+
+            int iScope = BeginUndoScope("OpenPublished Shapes");
+
+            if (StringCompare(sType, "Group"))
+            {
+                SetEventsOff();
+                m_ovTargetApp.AlertResponse = 1;
+                ovGroupShape.Ungroup();
+                SetEventsOn();
+            }
+
+            ArrayList oFromCell = new ArrayList();
+            ArrayList oToCell = new ArrayList();
+
+            Visio.Selection ovSelection = CompleteSelection();
+            foreach (Visio.Shape ovShape in ovSelection)
+            {
+                ShapeBuilder.ClearGUIDforShape(ovShape, true);
+                ShapeBuilder.SetASIPublished(ovShape, "");
+
+                if (ovShape.OneD == (short)visTF.FALSE)
+                    AfterShapeAdded(ovShape);
+                else
+                    foreach (Visio.Connect ovConnect in ovShape.Connects)
+                    {
+                        oFromCell.Add(ovConnect.FromCell);
+                        oToCell.Add(ovConnect.ToCell);
+                    }
+
+            }
+
+            foreach (Visio.Shape ovShape in ovSelection)
+            {
+                ShapeBuilder.UnglueShape(ovShape);
+                if (ovShape.OneD == (short)visTF.TRUE)
+                    AfterShapeAdded(ovShape);
+            }
+
+            for (int i = 0; i < oFromCell.Count; i++)
+            {
+                Visio.Cell ovFromCell = oFromCell[i] as Visio.Cell;
+                Visio.Cell ovToCell = oToCell[i] as Visio.Cell;
+                ovFromCell.GlueTo(ovToCell);
+            }
+
+            oFromCell.Clear();
+            oToCell.Clear();
+
+            //now capture the data from the shape
+
+            if (StringCompare(sType, "Group"))
+                m_ovTargetApp.ActiveWindow.DeselectAll();
+
+            EndUndoScope(iScope);
+        }
+        public virtual void ActiveObjectUpdate(Solution oSolution, SemanticObject oObject)
+        {
+            if (oSolution != null && oSolution.ParameterU("ActiveObject", false) != null)
+            {
+                oSolution.ParameterU("ActiveObject").Value = oObject;
+                oSolution.UpdateMarkedControls();
+            }
+        }
+
+        public virtual string MyApplicationStencils
+        {
+            get
+            {
+                if (m_sApplicationStencils == null)
+                    return "";
+
+                return m_sApplicationStencils;
+            }
+            set
+            {
+                m_sApplicationStencils = value;
+            }
+        }
+        public override string MyRenderingStencils
+        {
+            get
+            {
+                if (m_sApplicationStencils == null || m_sApplicationStencils.Length == 0)
+                    return base.MyRenderingStencils;
+
+                return m_sApplicationStencils;
+            }
+        }
+        public bool DeployReadOnlyTo(string sDirectory, WorkFile oFile)
+        {
+            string sFile = string.Format(@"{0}\{1}.vsd", sDirectory, oFile.Filename);
+            Document.SaveAs(sFile);
+
+            Type oType = UserTagValueAsType(UserTagNames.FileObjectType, typeof(FileObject));
+            oFile.AddFileObject(sFile, oType);
+            return true;
+        }
+
+        public virtual FolderObject VisioStencilFolder
+        {
+            get
+            {
+                if (m_oaStencils == null)
+                {
+                    CommunicationManager oManager = MyWorkspace.ActiveCommunicationManager;
+
+                    m_oaStencils = oManager.VisioStencilFolder;
+                    m_oaMasters = oManager.VisioMasterFolder;
+
+                    oManager.VisioMaster("VisioDocument", typeof(VisioDocument));
+                    oManager.VisioMaster("VisioPage", typeof(VisioPage));
+
+                }
+                return m_oaStencils;
+            }
+        }
+        public virtual FolderObject VisioMasterFolder
+        {
+            get
+            {
+                if (m_oaMasters == null)
+                    m_oaStencils = VisioStencilFolder;
+
+                return m_oaMasters;
+            }
+        }
+        public virtual VisioMaster VisioMaster(string sMaster)
+        {
+            VisioMaster oaMaster = null;
+            foreach (VisioStencil oaStencil in VisioStencilFolder.Slots)
+            {
+                oaMaster = (VisioMaster)oaStencil.FindChildObject(sMaster);
+                if (oaMaster != null)
+                    return oaMaster;
+            }
+            return oaMaster;
+        }
+
+        public VisioMaster VisioMaster(string sMaster, string sStencil)
+        {
+            VisioMaster oaMaster = VisioMasterFolder.FindObjectInFolder(sMaster, false) as VisioMaster;
+            if (oaMaster != null)
+                return oaMaster;
+
+            VisioStencil oaStencil = VisioStencilFolder.FindObjectInFolder(sStencil, false) as VisioStencil;
+            if (oaStencil == null)
+                return null;
+
+            oaMaster = oaStencil.FindChildObject(sMaster) as VisioMaster;
+            if (oaMaster == null)
+                oaMaster = oaStencil.FindChildObject(InternalName(sMaster)) as VisioMaster;
+
+            return oaMaster;
+        }
+        public virtual InstanceObject CreateForSelections(string sName, string sConcept)
+        {
+            return null;
+        }
+        public virtual short ScreenUpdating
+        {
+            get { return Application.ScreenUpdating; }
+            set { Application.ScreenUpdating = value; }
+        }
+        public virtual short DeferRecalc
+        {
+            get { return Application.DeferRecalc; }
+            set { Application.DeferRecalc = value; }
+        }
+
+        public virtual bool SuspendRender
+        {
+            set
+            {
+                if (value)
+                {
+                    Application.ScreenUpdating = (short)visTF.FALSE;
+                    Application.DeferRecalc = (short)visTF.TRUE;
+                }
+                else
+                {
+                    Application.ScreenUpdating = (short)visTF.TRUE;
+                    Application.DeferRecalc = (short)visTF.FALSE;
+                }
+            }
+        }
+
+
+        public short SetEventsOff()
+        {
+            short iEvents = EventsEnabled;
+            EventsEnabled = (short)visTF.FALSE;
+            return iEvents;
+        }
+        public short SetEventsOn()
+        {
+            short iEvents = EventsEnabled;
+            EventsEnabled = (short)visTF.TRUE;
+            return iEvents;
+        }
+        public override short EventsEnabled
+        {
+            get
+            {
+                if (m_ovTargetApp == null)
+                    return (short)visTF.FALSE;
+
+                return Application.EventsEnabled;
+            }
+            set
+            {
+                if (m_ovTargetApp != null && m_ovTargetApp.EventsEnabled != value)
+                    m_ovTargetApp.EventsEnabled = value;
+            }
+        }
+        public override Icons ASIIconIndex
+        {
+            get { return Icons.Drawing; }
+        }
+
+        public bool Logout(Visio.Document ovDoc)
+        {
+            CreatingAlternateView = false;
+
+            m_ovEventSink.ClearEvents();
+
+            m_ovPages.Clear();
+            m_ovPages = null;
+
+            m_oaShapes.Clear();
+            m_oaShapes = null;
+
+            m_ovTargetDoc = null;
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            //Essentially, the common language runtime may hold onto a COM object even though 
+            //the managed code has released all pointers and even set the pointers to Nothing. 
+            Marshal.ReleaseComObject(ovDoc);
+
+            return true;
+        }
+
+        public override bool Logout()
+        {
+            if (m_ovTargetApp == null)
+                return false;
+
+            CreatingAlternateView = false;
+
+            bool bShutDown = (IsServerShutingdown || m_ovControl == null);
+
+            Visio.Application ovApp = m_ovTargetApp;
+            if (bShutDown && ovApp != null)
+                m_ovTargetApp.EventsEnabled = (short)visTF.FALSE;
+
+            Logout(m_ovTargetDoc);
+
+            if (bShutDown && ovApp != null)
+            {
+                //Essentially, the common language runtime may hold onto a COM object even though 
+                //the managed code has released all pointers and even set the pointers to Nothing. 
+                if (ovApp.Documents.Count <= 1)
+                {
+                    ovApp.Quit();
+                    Marshal.ReleaseComObject(ovApp);
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
+                else if (m_ovControl == null)
+                {
+                    ovApp.ActiveDocument.Saved = true;
+                    ovApp.ActiveDocument.Close();
+                    ovApp.Quit();
+                    Marshal.ReleaseComObject(ovApp);
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
+            }
+
+            m_ovTargetApp = null;
+
+            return true;
+        }
+        public void GlueToConnectionPointsOnly()
+        {
+            if (m_ovTargetApp == null)
+                return;
+
+            m_ovTargetDoc.SnapSettings = Visio.VisSnapSettings.visSnapToNone;
+            m_ovTargetDoc.SnapSettings = Visio.VisSnapSettings.visSnapToConnectionPoints;
+
+            m_ovTargetDoc.GlueSettings = Visio.VisGlueSettings.visGlueToNone;
+            m_ovTargetDoc.GlueSettings = Visio.VisGlueSettings.visGlueToConnectionPoints;
+        }
+        public bool HasDocument()
+        {
+            if (m_ovTargetApp == null || m_ovTargetDoc == null)
+                return false;
+
+            return true;
+        }
+        public virtual bool QueryUserDeleteViewOnly()
+        {
+            return true;
+        }
+        public Visio.Application Application
+        {
+            get
+            {
+                try
+                {
+                    if (m_ovTargetApp != null)
+                        return m_ovTargetApp;
+
+                    if (ApprenticeObject.IsVisioVisible)
+                        m_ovTargetApp = new Visio.Application();
+                    else
+                        m_ovTargetApp = new Visio.Application() as Visio.Application;
+
+                    //m_ovTargetApp.AlertResponse = (short)5; //ignore visio responce
+                    MySession.AddFilePath(FilePathName.Visio, m_ovTargetApp.StencilPaths, true);
+                    MySession.AddFilePath(FilePathName.Visio, m_ovTargetApp.TemplatePaths, true);
+                    MySession.AddFilePath(FilePathName.Visio, m_ovTargetApp.DrawingPaths, true);
+
+                    return m_ovTargetApp;
+                }
+                catch (Exception e)
+                {
+                    ApprenticeObject.ReportException(e);
+                    return null;
+                }
+            }
+        }
+        public bool IsChanged()
+        {
+            if (Document != null)
+                return Document.Saved ? false : true;
+
+            return false;
+        }
+        public bool SetProtection(bool bLockSelect)
+        {
+            if (m_ovTargetDoc == null)
+                return false;
+
+            m_ovTargetDoc.set_Protection("", (bLockSelect ? Visio.VisProtection.visProtectShapes : Visio.VisProtection.visProtectNone));
+            return true;
+        }
+
+        public Visio.Document Document
+        {
+            get
+            {
+                try
+                {
+                    if (m_ovTargetDoc != null)
+                        return m_ovTargetDoc;
+
+                    m_ovTargetDoc = Application.ActiveDocument;
+                    return m_ovTargetDoc;
+                }
+                catch (Exception e)
+                {
+                    ApprenticeObject.ReportException(e);
+                    return null;
+                }
+            }
+        }
+        public virtual void LockUnlockLocation()
+        {
+            Visio.Selection ovSelection = CompleteSelection();
+            if (ovSelection.Count == 0)
+                return;
+
+            int iScope = BeginUndoScope("LockUnlock Shapes");
+            foreach (Visio.Shape ovShape in ovSelection)
+                ShapeBuilder.ToggleLockLocation(ovShape);
+
+            EndUndoScope(iScope);
+        }
+        public virtual void FlipXSelection()
+        {
+            Visio.Selection ovSelection = CompleteSelection();
+            if (ovSelection.Count == 0)
+                return;
+
+            int iScope = BeginUndoScope("FlipX Shapes");
+            foreach (Visio.Shape ovShape in ovSelection)
+                ShapeBuilder.ToggleFlip(ovShape, "FlipX");
+
+            EndUndoScope(iScope);
+        }
+        public virtual void FlipYSelection()
+        {
+            Visio.Selection ovSelection = CompleteSelection();
+            if (ovSelection.Count == 0)
+                return;
+
+            int iScope = BeginUndoScope("FlipY Shapes");
+            foreach (Visio.Shape ovShape in ovSelection)
+                ShapeBuilder.ToggleFlip(ovShape, "FlipY");
+
+            EndUndoScope(iScope);
+        }
+        public virtual void RouteSelection(int iRouteStyle, int iConLineRouteExt, int iConFixedCode)
+        {
+            Visio.Selection ovSelection = CompleteSelection();
+            if (ovSelection.Count == 0)
+                return;
+
+            int iScope = BeginUndoScope("Route Shapes");
+            foreach (Visio.Shape ovShape in ovSelection)
+                ShapeBuilder.ToggleRouteStyle(ovShape, iRouteStyle, iConLineRouteExt, iConFixedCode);
+
+            EndUndoScope(iScope);
+        }
+        public virtual void ToggleHideTextSelection()
+        {
+            Visio.Selection ovSelection = CompleteSelection();
+            if (ovSelection.Count == 0)
+                return;
+
+            int iScope = BeginUndoScope("Hide Text");
+            foreach (Visio.Shape ovShape in ovSelection)
+                ShapeBuilder.ToggleHideText(ovShape);
+
+            EndUndoScope(iScope);
+        }
+        public virtual void EdgePointSelection()
+        {
+            Visio.Selection ovSelection = CompleteSelection();
+            if (ovSelection.Count == 0)
+                return;
+
+            int iScope = BeginUndoScope("Edge Point");
+            foreach (Visio.Shape ovShape in ovSelection)
+                ShapeBuilder.PublishASISingleBehavior(ovShape, "edgepoint", "");
+
+            EndUndoScope(iScope);
+        }
+        //		public Font ChangeFont()
+        //		{
+        //			Font oFont = null;
+        //			using(FontDialog oFontDialog = new FontDialog())
+        //			{
+        //				oFontDialog.ShowColor = true;
+        //				oFontDialog.AllowScriptChange = false;
+        //				oFontDialog.FontMustExist = true;
+        //				oFontDialog.ShowEffects = true;
+        //				oFontDialog.AllowVerticalFonts = false;
+        //				if(oFontDialog.ShowDialog() != DialogResult.Cancel )
+        //				{
+        //					oFont = oFontDialog.Font;
+        //				}
+        //			}
+        //
+        //			return oFont;
+        //		}
+        public virtual void ChangeTextFontSelection()
+        {
+            Visio.Selection ovSelection = CompleteSelection();
+            if (ovSelection.Count == 0)
+                return;
+
+            //Font oFont = ChangeFont();
+
+            int iScope = BeginUndoScope("Change Text Font");
+
+            foreach (Visio.Shape ovShape in ovSelection)
+                ShapeBuilder.GuardCellFormula(ovShape, "Char.Size", true, true);
+
+            //VisioDoCmd(Visio.VisUICmds.visCmdFormatText);					
+            VisioDoCmd(Visio.VisUICmds.visCmdFormatAllTextProps);
+
+            foreach (Visio.Shape ovShape in ovSelection)
+                ShapeBuilder.UnguardCellFormula(ovShape, "Char.Size", true, true);
+
+            EndUndoScope(iScope);
+        }
+
+        public int BeginUndoScope(string sName)
+        {
+            if (!Application.IsUndoingOrRedoing)
+                try
+                {
+                    return Application.BeginUndoScope(sName);
+                }
+                catch { }
+
+            return -1;
+        }
+        public void EndUndoScope(int iScope)
+        {
+            if (iScope >= 0)
+                Application.EndUndoScope(iScope, true);
+        }
+
+        public void VisioGetFocus()
+        {
+            if (m_ovControl != null)
+                m_ovControl.Focus();
+        }
+        public virtual void OpenDefaultStencils()
+        {
+            if (!m_bIsEditable)
+                return;
+
+            VisioGetFocus();
+            VisioDoCmd(Visio.VisUICmds.visCmdStenIconAndName);
+
+            string sDirectory = Directory.GetCurrentDirectory();
+            OpenAllStencils(sDirectory, null);
+            VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+        }
+        public void OpenAllStencils(string sDirectory, Application oApplication)
+        {
+            if (!m_bIsEditable)
+                return;
+
+            VisioGetFocus();
+            SessionObject oSession = MySession;
+            try
+            {
+                Visio.Documents ovDocs = Application.Documents;
+
+                DirectoryInfo oDirectory = new DirectoryInfo(sDirectory);
+                foreach (FileInfo oFile in oDirectory.GetFiles("*.vss"))
+                {
+                    if (oApplication != null && !oApplication.FilterDefaultStencil(oFile.Name))
+                        continue;
+
+                    OpenDockedStencil(ovDocs, oFile.FullName, StencilOpenMode.ReadOnly);
+                }
+            }
+            catch { }
+        }
+        public SemanticObject DragDropShapeToObject(Visio.Shape ovShape)
+        {
+            string sSourceGuid = ShapeBuilder.GetASISource(ovShape);
+            if (sSourceGuid.Length == 0)
+                return null;
+
+            SemanticObject oObject = MySession.DragDropObject;
+            if (oObject == null)
+                return null;
+
+            if (sSourceGuid == oObject.ApprenticeID)
+                return oObject;
+
+            return null;
+        }
+        public override bool LearnDocument(VisualLanguage oLanguage)
+        {
+            return false;
+        }
+        public override bool LearnPage(VisualLanguage oLanguage)
+        {
+            return false;
+        }
+        public override bool SyncronizeGUIDS(RuleLanguage oLanguage)
+        {
+            return false;
+        }
+        public virtual bool ResetShapeDefaults()
+        {
+            return false;
+        }
+
+        private Visio.Document LoadDocument(string sPath)
+        {
+            if (IsNamed(sPath) && m_ovTargetDoc != null)
+                return m_ovTargetDoc;
+
+            Name = sPath;
+            if (m_ovControl != null)
+            {
+                if (m_ovControl.Src != null && m_ovControl.Src.Length != 0)
+                {
+                    Logout(m_ovTargetDoc);
+                    m_ovControl.Src = ""; //SRS new 
+                    m_ovControl.MouseDownEvent -= new AxVisOcx.EVisOcx_MouseDownEventHandler(OCXMouseDownEvent);
+                    m_ovControl.MouseMoveEvent -= new AxVisOcx.EVisOcx_MouseMoveEventHandler(OCXMouseMoveEvent);
+                    m_ovControl.MouseUpEvent -= new AxVisOcx.EVisOcx_MouseUpEventHandler(OCXMouseUpEvent);
+                }
+
+                m_ovControl.MouseDownEvent += new AxVisOcx.EVisOcx_MouseDownEventHandler(OCXMouseDownEvent);
+                m_ovControl.MouseMoveEvent += new AxVisOcx.EVisOcx_MouseMoveEventHandler(OCXMouseMoveEvent);
+                m_ovControl.MouseUpEvent += new AxVisOcx.EVisOcx_MouseUpEventHandler(OCXMouseUpEvent);
+
+                try
+                {
+                    m_ovControl.Src = sPath;
+                }
+                catch (Exception e)
+                {
+                    PopupError("Visio Load Error", "File not found: " + sPath);
+                    ApprenticeObject.ReportException(e);
+                    return null;
+                }
+
+                m_ovTargetDoc = m_ovControl.Document;
+                m_ovTargetApp = m_ovTargetDoc.Application;
+
+                m_ovEventSink = new VisioEventSink(this, m_ovTargetApp, m_ovTargetDoc);
+
+                m_ovTargetApp.Settings.ZoomOnRoll = true;
+                m_ovTargetApp.Settings.CenterSelectionOnZoom = true;
+                m_ovTargetApp.Settings.ConnectorSplittingEnabled = true;
+                m_ovTargetApp.Settings.DrawingAids = true;
+                m_ovTargetApp.Settings.HigherQualityShapeDisplay = true;
+                m_ovTargetApp.Settings.SmoothDrawing = true;
+
+                PageMenu("*", true, true);
+                VisioGetFocus();
+            }
+            else
+            {
+                if (Application != null)
+                    m_ovTargetDoc = m_ovTargetApp.Documents.Add(sPath);
+            }
+            SetProtection(true);
+            return m_ovTargetDoc;
+        }
+        public override bool Login(FileObject oFile)
+        {
+            try
+            {
+                m_ovTargetDoc = LoadDocument(oFile.Name);
+                if (m_ovTargetDoc == null)
+                    return false;
+
+                ShapeBuilder.SetASIKnowledge(m_ovTargetDoc.DocumentSheet, GetType().Name);
+                SetProtection(true);
+
+                m_ovTargetApp = m_ovTargetDoc.Application;
+                CreatingAlternateView = false;
+
+                //m_ovTargetApp.AlertResponse = 0;
+
+                LoadPagesAndStartPageEvents(m_ovTargetDoc);
+                m_ovTargetDoc.Saved = true;
+                SetEventsOn();
+                return true;
+            }
+            catch (Exception e)
+            {
+                ApprenticeObject.ReportException(e);
+                return false;
+            }
+        }
+
+        public override bool Login(Solution oaSolution)
+        {
+            if (m_oaDocument == null)
+                m_oaDocument = CreateKnowledge(Name, typeof(VisioDocument)) as VisioDocument;
+
+            m_oaSolution = oaSolution;
+            if (m_oaSolution != null)
+            {
+                m_oaSolution.ConnectHasView(m_oaDocument);
+                m_oaDocument.UpdateDisplay();
+
+                Parameter oParam = m_oaSolution.Parameter("_GlueToGeometry", false);
+                if (oParam != null && oParam.ValueAsBool)
+                {
+                    short iGlue = (short)Visio.VisGlueSettings.visGlueToGeometry | (short)Visio.VisGlueSettings.visGlueToConnectionPoints | (short)Visio.VisGlueSettings.visGlueToGuides;
+                    m_ovTargetDoc.GlueSettings = (Visio.VisGlueSettings)iGlue; // | m_ovTargetDoc.GlueSettings);
+                }
+            }
+
+            SetEventsOn();
+            return true;
+        }
+
+        public bool LoadPagesAndStartPageEvents(Visio.Document ovDoc)
+        {
+            if (m_ovPages.Keys.Count > 0)
+                return true;
+
+            Visio.Page ovCurrentPage = ovDoc.Application.ActivePage;
+
+            ObjectCollection oExampleMasters = NewCollection();
+            Hashtable oExamplePages = new Hashtable();
+
+            //lets preset the PageMaster based on the pagename
+            if (VisioStencilFolder == null)
+                return false;
+
+            foreach (VisioMaster oMaster in VisioMasterFolder.Slots)
+                if (oMaster.ConstructionType.Equals(typeof(VisioPage)))
+                    m_oaPageMasters.Add(oMaster);
+
+
+            foreach (Visio.Page ovPage in ovDoc.Pages)
+            {
+                if (ovPage.Background == (short)visTF.TRUE)
+                {
+                    if (!(this is MentorDrawing))
+                        ShapeBuilder.SetPageInvisible(ovPage, !ShowVisioBackgroundPages, !ShowVisioBackgroundPages);
+                    continue;
+                }
+
+                string sPage = ovPage.Name;
+                foreach (VisioMaster oMaster in m_oaPageMasters)
+                    if (oMaster.HasExamplePage(sPage))
+                    {
+                        oMaster.Category = sPage;  //this will make sure an inherited page is defined
+                        oExampleMasters.Add(oMaster);
+                        if (!oExamplePages.ContainsKey(sPage))
+                        {
+                            ShapeBuilder.SetASIMaster(ovPage.PageSheet, oMaster.Name);
+                            oExamplePages.Add(sPage, 1);
+                        }
+                        else
+                        {
+                            int iValue = System.Convert.ToInt32(oExamplePages[sPage]) + 1;
+                            oExamplePages[sPage] = iValue;
+                        }
+                    }
+            }
+
+            FillPageHashtable(ovDoc);
+
+            Visio.EventList ovEvents = ovDoc.EventList;
+            m_ovEventSink.EnableEvent(ovEvents, DrawingEvents.AfterPageAdded);
+            m_ovEventSink.EnableEvent(ovEvents, DrawingEvents.BeforePageDeleted);
+            m_ovEventSink.EnableEvent(ovEvents, DrawingEvents.BeforeDocumentClosed);
+
+            if (IsSolutionRestoring)
+            {
+                foreach (Visio.Page ovPage in ovDoc.Pages)
+                {
+                    if (ovPage.Background == (short)visTF.TRUE)
+                        ShapeBuilder.SetPageInvisible(ovPage, !ShowVisioBackgroundPages, !ShowVisioBackgroundPages);
+                    else if (ovPage.NameU.StartsWith("Example:") || ovPage.Name.StartsWith("Example:"))
+                        ShapeBuilder.SetPageInvisible(ovPage, true, true);
+                }
+
+                foreach (VisioMaster oMaster in oExampleMasters)
+                {
+                    if (oMaster.Category.Length > 0)
+                        oMaster.Category = string.Format("Example:{0}", oMaster.Name);
+                }
+            }
+            else
+            {
+                ObjectCollection oMultiExampleMasters = new ObjectCollection();
+
+                foreach (VisioMaster oMaster in oExampleMasters)
+                {
+                    Visio.Page ovPage = DoesPageExist(oMaster.Category);
+                    if (ovPage == null)
+                        continue;
+
+
+                    int iCount = System.Convert.ToInt32(oExamplePages[oMaster.Category]);
+                    VisioPage oaPage = EstablishPageViewForPage(ovPage);
+                    Parameter oDefault = oaPage.ParameterU("_Default", false);
+
+                    if (iCount == 1)
+                    {
+                        string sPage = oMaster.Category;
+                        oExamplePages.Remove(oMaster.Category);
+
+                        oMaster.Category = string.Format("Example:{0}", oMaster.Name);
+                        ovPage.NameU = oMaster.Category;
+                        ovPage.Name = oMaster.Category;
+                        oaPage.CustomName = oMaster.Category;
+
+                        if (oDefault != null && oDefault.ValueAsString.Length > 0)
+                            CreateScaledPage(oDefault.ValueAsString, oMaster.Name, true);
+
+                        ShapeBuilder.SetPageInvisible(ovPage, true, true);
+
+                        if (oDefault != null)
+                            ovCurrentPage = null;
+                    }
+                    else
+                    {
+                        oMultiExampleMasters.Add(oMaster);
+                    }
+                }
+
+                foreach (string sPage in oExamplePages.Keys)
+                {
+                    Visio.Page ovPage = DoesPageExist(sPage);
+                    if (ovPage == null)
+                        continue;
+
+                    bool bFound = false;
+                    foreach (VisioMaster oMaster in oMultiExampleMasters)
+                    {
+                        if (!oMaster.HasExamplePage(sPage))
+                            continue;
+
+                        VisioPage oExamplePage = null;
+                        Visio.Page ovNewPage = ovPage;
+
+                        DisplayPage(ovPage);
+                        if (!bFound)
+                        {
+                            bFound = true;
+                            oExamplePage = EstablishPageViewForPage(ovPage);
+                        }
+                        else
+                        {
+                            short iEvents = SetEventsOff();
+                            ovNewPage = m_ovTargetDoc.Pages.Add();
+                            EventsEnabled = iEvents;
+
+                            ShapeBuilder.SetASIMaster(ovNewPage.PageSheet, oMaster.Name);
+                            oExamplePage = EstablishPageViewForPage(ovNewPage);
+                        }
+
+                        oMaster.Category = string.Format("Example:{0}", oMaster.Name);
+                        ovNewPage.NameU = oMaster.Category;
+                        ovNewPage.Name = oMaster.Category;
+                        oExamplePage.CustomName = oMaster.Category;
+
+                        Parameter oDefault = oExamplePage.ParameterU("_Default", false);
+                        if (oDefault != null && oDefault.ValueAsString.Length > 0)
+                            CreateScaledPage(oDefault.ValueAsString, oMaster.Name, true);
+
+                        if (ovNewPage != ovPage)
+                            ShapeBuilder.SetPageInvisible(ovPage, true, true);
+                    }
+                    ShapeBuilder.SetPageInvisible(ovPage, true, true);
+                }
+                oMultiExampleMasters.Purge();
+            }
+
+            oExamplePages.Clear();
+            oExampleMasters.Purge();
+
+            if (ovCurrentPage == null)
+                foreach (Visio.Page ovPage in ovDoc.Pages)
+                    if (ShapeBuilder.RetrieveCellValue(ovPage.PageSheet, "UIVisibility") == 0.0)
+                    {
+                        ovCurrentPage = ovPage;
+                        break;
+                    }
+
+            DisplayPage(ovCurrentPage);
+
+            //RenumberPages(ovDoc);
+            return true;
+        }
+
+        public bool UnloadPagesAndStopPageEvents(Visio.Document ovDoc)
+        {
+            if (m_ovPages.Keys.Count == 0)
+                throw new ApprenticeException("UnloadPagesAndStopPageEvents already called");
+
+            ClearPageHashtable(ovDoc);
+
+            Visio.EventList ovEvents = m_ovTargetDoc.EventList;
+            m_ovEventSink.DisableEvent(ovEvents, DrawingEvents.AfterPageAdded, true);
+            m_ovEventSink.DisableEvent(ovEvents, DrawingEvents.BeforePageDeleted, true);
+            m_ovEventSink.DisableEvent(ovEvents, DrawingEvents.BeforeDocumentClosed, true);
+            return true;
+        }
+        public Visio.Shape SelectShape(double dPinX, double dPinY, double dTol)
+        {
+            Visio.Page ovPage = Application.ActivePage;
+            Visio.Selection oSelection = ovPage.get_SpatialSearch(dPinX, dPinY, (short)Visio.VisSpatialRelationCodes.visSpatialContainedIn, dTol, (short)Visio.VisSpatialRelationFlags.visSpatialFrontToBack);
+            if (oSelection.Count == 0)
+                return null;
+
+            Visio.Shape ovShape = oSelection[1] as Visio.Shape;
+            SelectShape(ovShape, true);
+            return ovShape;
+        }
+
+        public void PageMenu(string sItems, bool bEnabled, bool bVisible)
+        {
+            Office.CommandBars oBars = m_ovTargetApp.CommandBars as Office.CommandBars;
+            Office.CommandBar oBar = oBars["Page Tab"];
+
+            if (sItems == "*")
+                for (int i = 1; i <= oBar.Controls.Count; i++)
+                {
+                    oBar.Controls[i].Visible = bVisible;
+                    oBar.Controls[i].Enabled = bEnabled;
+                }
+            else
+                foreach (string sItem in sItems.Split(';'))
+                {
+                    int i = 0;
+
+                    if (StringStartCompare(sItem, "insert"))
+                        i = 1;
+                    else if (StringStartCompare(sItem, "delete"))
+                        i = 2;
+                    else if (StringStartCompare(sItem, "rename"))
+                        i = 3;
+                    else if (StringStartCompare(sItem, "reorder"))
+                        i = 4;
+
+                    if (i != 0)
+                    {
+                        oBar.Controls[i].Visible = bVisible;
+                        oBar.Controls[i].Enabled = bEnabled;
+                    }
+                }
+        }
+
+        public double ShapeLength(VisioShape oaShape)
+        {
+            return ShapeLength(GetShapeforShapeView(oaShape));
+        }
+        public double ShapeLength(Visio.Shape ovShape)
+        {
+            if (ovShape == null)
+                return 0.0;
+
+            double dValue = ovShape.get_LengthIU(false);
+            if (dValue == 0.0)
+                dValue = ShapeBuilder.PathLength(ovShape);
+            return dValue;
+        }
+        public double ShapeArea(VisioShape oaShape)
+        {
+            return ShapeArea(GetShapeforShapeView(oaShape));
+        }
+        public double ShapeArea(Visio.Shape ovShape)
+        {
+            if (ovShape == null)
+                return 0.0;
+
+            double dValue = ovShape.get_AreaIU(false);
+            return dValue;
+        }
+        public ObjectCollection ShapeRelation(VisioShape oaShape, string sRelation)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            return FindSpatialRelation(ovShape, oaShape, sRelation);
+        }
+        public ObjectCollection FindSpatialRelation(Visio.Shape ovShape, InstanceObject oObject, string sRelation)
+        {
+            ObjectCollection oList = NewCollection();
+
+            short iRelation = -1;
+
+            if (StringEndCompare(sRelation, "Inside"))
+                iRelation = -1;
+            else if (StringEndCompare(sRelation, "Covers"))
+                iRelation = -2;
+            else if (StringEndCompare(sRelation, "Contains"))
+                iRelation = (short)(Visio.VisSpatialRelationCodes.visSpatialContain);
+            else if (StringEndCompare(sRelation, "ContainedIn"))
+                iRelation = (short)(Visio.VisSpatialRelationCodes.visSpatialContainedIn);
+            else if (StringEndCompare(sRelation, "Overlaps"))
+                iRelation = (short)(Visio.VisSpatialRelationCodes.visSpatialOverlap);
+            else if (StringEndCompare(sRelation, "Touching"))
+                iRelation = (short)(Visio.VisSpatialRelationCodes.visSpatialTouching);
+            else
+                return oList;
+
+
+            if (iRelation == -1) //is shapes X & Y inside of 
+            {
+                double dPinX = ovShape.get_Cells("PinX").ResultIU;
+                double dPinY = ovShape.get_Cells("PinY").ResultIU;
+                foreach (Visio.Shape ovHitShape in ovShape.ContainingPage.Shapes)
+                {
+                    if (ovHitShape == ovShape)
+                        continue;
+
+                    short iHit = ovHitShape.HitTest(dPinX, dPinY, 0);
+                    if (iHit != (short)Visio.VisHitTestResults.visHitInside)
+                        continue;
+
+                    InstanceObject oaInstance = GetInstanceObject(ovHitShape, null, false);
+                    if (oaInstance != null && !oaInstance.IsPurged && oaInstance != oObject)
+                        oList.AddNoDuplicate(oaInstance);
+                }
+            }
+            else if (iRelation == -2)  //does shape cover the center of another
+            {
+                foreach (Visio.Shape ovHitShape in ovShape.ContainingPage.Shapes)
+                {
+                    if (ovHitShape == ovShape)
+                        continue;
+
+                    double dPinX = ovHitShape.get_Cells("PinX").ResultIU;
+                    double dPinY = ovHitShape.get_Cells("PinY").ResultIU;
+                    short iHit = ovShape.HitTest(dPinX, dPinY, 0);
+                    if (iHit != (short)Visio.VisHitTestResults.visHitInside)
+                        continue;
+
+                    InstanceObject oaInstance = GetInstanceObject(ovHitShape, null, false);
+                    if (oaInstance != null && !oaInstance.IsPurged && oaInstance != oObject)
+                        oList.AddNoDuplicate(oaInstance);
+                }
+            }
+            else
+            {
+                short iFlag = (short)Visio.VisSpatialRelationFlags.visSpatialBackToFront;
+                Visio.Selection ovSelection = ovShape.get_SpatialNeighbors(iRelation, 0.0, iFlag, null);
+                foreach (Visio.Shape ovHitShape in ovSelection)
+                {
+                    InstanceObject oaInstance = GetInstanceObject(ovHitShape, null, false);
+                    if (oaInstance != null && !oaInstance.IsPurged && oaInstance != oObject)
+                        oList.AddNoDuplicate(oaInstance);
+                }
+            }
+
+            return oList;
+        }
+
+
+        public override Point PageUnitsToPixels(double dPinX, double dPinY)
+        {
+            if (m_ovControl == null)
+                return new Point((int)dPinX, (int)dPinY);
+
+            double vLeft, vTop, vWidth, vHeight;
+            m_ovControl.Window.GetViewRect(out vLeft, out vTop, out vWidth, out vHeight);
+
+            int moveRight = 0, moveLeft = 0, moveDown = 0, moveUp = 0;
+            int iLeft, iTop, iWidth, iHeight;
+
+            foreach (Visio.Window visWindow in m_ovControl.Window.Windows)
+            {
+                int windowState = visWindow.WindowState;
+                int iDockedState = (int)Visio.VisWindowStates.visWSDockedLeft + (int)Visio.VisWindowStates.visWSDockedRight +
+                    (int)Visio.VisWindowStates.visWSDockedTop + (int)Visio.VisWindowStates.visWSDockedBottom;
+
+                if (visWindow.Visible == true && (visWindow.WindowState & iDockedState) > 0)
+                {
+                    visWindow.GetWindowRect(out iLeft, out iTop, out iWidth, out iHeight);
+
+                    // only add the moveRight offset once. There may be tabbed docked windows.
+                    if ((windowState & (int)Visio.VisWindowStates.visWSDockedLeft) > 0 && moveLeft == 0)
+                        moveLeft = iLeft;
+                    else if ((windowState & (int)Visio.VisWindowStates.visWSDockedRight) > 0 && moveRight == 0)
+                        moveRight = iWidth;
+                    else if ((windowState & (int)Visio.VisWindowStates.visWSDockedTop) > 0 && moveDown == 0)
+                        moveDown = iHeight;
+                    else if ((windowState & (int)Visio.VisWindowStates.visWSDockedBottom) > 0 && moveUp == 0)
+                        moveUp = iHeight;
+                }
+            }
+
+            // calculate position
+            int iRealWidth = m_ovControl.Width + moveLeft - moveRight;
+            int iRealHeight = m_ovControl.Height - moveDown - moveUp;
+
+            // calculate position
+            int xForm = (int)(m_ovControl.Left - moveLeft + (iRealWidth / vWidth) * (dPinX - vLeft));
+            int yForm = (int)(m_ovControl.Top + moveDown + (iRealHeight / vHeight) * (vTop - dPinY));
+
+            // the 3 * 16 is to push down the menu and account for the tab's accros the top
+            return new Point(xForm, yForm + (3 * 16));
+            //return new Point( xForm, yForm );		
+        }
+        public virtual void ArrangeContainer(Visio.Shape ovShape)
+        {
+        }
+        public virtual void ArrangeContainer(VisioShape oaShape, string sPresentation)
+        {
+        }
+        public virtual void ArrangeContainer(Visio.Shape ovShape, bool bDeep)
+        {
+        }
+        public virtual void SelectLinkedShapes(XmlElement oElement, bool bMoveToNewPage)
+        {
+        }
+        public virtual bool CollideShapes(Visio.Shape ovFromShape, XmlElement oTargetElement, Visio.Shape ovToShape, XmlElement oSourceElement, bool bLayout)
+        {
+            return false;
+        }
+        public virtual void ArrangeStructure(Visio.Shape ovShape)
+        {
+        }
+        public virtual bool ExportLocalMasters(CommunicationManager oManager)
+        {
+            VisioStencil oStencil = oManager.VisioStencil("Document", true);
+
+            foreach (Visio.Master ovMaster in Document.Masters)
+                oStencil.VisioMaster(ovMaster.Name);
+
+            return true;
+        }
+
+        public Visio.Shape DrawRectangle(double dx1, double dy1, double dx2, double dy2)
+        {
+            return m_ovTargetApp.ActivePage.DrawRectangle(dx1, dy1, dx2, dy2);
+        }
+        public virtual ArrayList Render(VisioRenderTool oTool, InstanceObject oSponsor, PresentationObject oaShape, PresentationObject oTarget)
+        {
+            return Render(oaShape.ClassName, oTarget.CustomName, oTool.MyRenderingStencils);
+        }
+        public virtual ArrayList Render(VisualLanguage oLanguage, bool bNewPage, string sStencils)
+        {
+            Visio.Page ovPage = Application.ActivePage;
+            if (bNewPage == true)
+                ovPage = Document.Pages.Add();
+
+            return Render(oLanguage.Document, ovPage.PageSheet, 10, 10, sStencils);
+        }
+        public virtual ArrayList Render(string sMaster, string sPage, string sStencils)
+        {
+            Visio.Page ovPage = Application.ActivePage;
+            Visio.Page ovTargetPage = ovPage;
+
+            if (string.Compare(ovPage.Name, sPage, true) != 0)
+            {
+                ovTargetPage = EstablishPage(sPage);
+                EstablishPageViewForPage(ovTargetPage);
+            }
+
+            if (ovPage.Name != sPage)
+                DisplayPage(sPage);
+
+            ArrayList oResult = Render(sMaster, ovTargetPage.PageSheet, sStencils);
+
+            if (ovPage.Name != sPage)
+                DisplayPage(ovPage);
+
+            if (m_ovControl != null && ScreenUpdating == (short)visTF.TRUE)
+                m_ovControl.Refresh();
+
+            return oResult;
+        }
+        public virtual ArrayList DrawConnect(string sMaster, string sPage, string sStencils, VisioShape oBegin, VisioShape oEnd)
+        {
+            Visio.Page ovPage = Application.ActivePage;
+            Visio.Page ovTargetPage = ovPage;
+
+            if (string.Compare(ovPage.Name, sPage, true) != 0)
+            {
+                ovTargetPage = EstablishPage(sPage);
+                EstablishPageViewForPage(ovTargetPage);
+            }
+
+            if (ovPage.Name != sPage)
+                DisplayPage(sPage);
+
+            ArrayList oResult = Render(sMaster, ovTargetPage.PageSheet, sStencils);
+            foreach (Visio.Shape ovShape in oResult)
+            {
+                if (oBegin != null)
+                {
+                    //Connections.X1
+                    Visio.Shape ovBegin = FindShapeforGUID(oBegin.Name);
+                    GlueTo(ovShape, "BeginX", ovBegin, "Connections.X1", "PinX");
+                }
+                if (oEnd != null)
+                {
+                    //Connections.X1
+                    Visio.Shape ovEnd = FindShapeforGUID(oEnd.Name);
+                    GlueTo(ovShape, "EndX", ovEnd, "Connections.X1", "PinX");
+                }
+            }
+
+            if (ovPage.Name != sPage)
+                DisplayPage(ovPage);
+
+            if (m_ovControl != null && ScreenUpdating == (short)visTF.TRUE)
+                m_ovControl.Refresh();
+
+            return oResult;
+        }
+        public virtual Visio.Shape DrawConnect(string sMaster, string sStencils, string sPage, VisioShape oBegin, VisioShape oEnd, string sView, InstanceObject oInstance)
+        {
+            Visio.Page ovPage = Application.ActivePage;
+            Visio.Page ovTargetPage = ovPage;
+
+            if (string.Compare(ovPage.Name, sPage, true) != 0)
+            {
+                ovTargetPage = EstablishPage(sPage);
+                EstablishPageViewForPage(ovTargetPage);
+            }
+
+            if (ovPage.Name != sPage)
+                DisplayPage(sPage);
+
+            double dPinX = 0.0;
+            double dPinY = 0.0;
+            ShapeBuilder.GetDropXY(Application.ActiveWindow, ovTargetPage, out dPinX, out dPinY);
+
+            ModelObject oOwner = oInstance as ModelObject;
+            Visio.Shape ovShape = null;
+
+            if (oOwner != null && oOwner.FindShapeView(sView) != null)
+                ovShape = GetShapeforShapeView(oOwner.FindShapeView(sView));
+            else
+                ovShape = DropMaster(sMaster, sStencils, sPage, dPinX, dPinY, sView, oOwner);
+
+            if (oBegin != null)
+            {
+                Visio.Shape ovBegin = FindShapeforGUID(oBegin.Name);
+                GlueTo(ovShape, "BeginX", ovBegin, "Connections.X1", "PinX");
+            }
+
+            if (oEnd != null)
+            {
+                Visio.Shape ovEnd = FindShapeforGUID(oEnd.Name);
+                GlueTo(ovShape, "EndX", ovEnd, "Connections.X1", "PinX");
+            }
+
+            if (ovPage.Name != sPage)
+                DisplayPage(ovPage);
+
+            if (m_ovControl != null && ScreenUpdating == (short)visTF.TRUE)
+                m_ovControl.Refresh();
+
+            return ovShape;
+        }
+        public virtual ArrayList DrawShape(string sMaster, string sPage, string sStencils, double dX, double dY)
+        {
+            Visio.Page ovPage = Application.ActivePage;
+            Visio.Page ovTargetPage = ovPage;
+
+            if (string.Compare(ovPage.Name, sPage, true) != 0)
+            {
+                ovTargetPage = EstablishPage(sPage);
+                EstablishPageViewForPage(ovTargetPage);
+            }
+
+            if (ovPage.Name != sPage)
+                DisplayPage(sPage);
+
+            ArrayList ovResult = new ArrayList();
+            Visio.Master ovMaster = FindMaster(sMaster, sStencils);
+            if (ovMaster != null)
+                ovResult.Add(ovTargetPage.Drop(ovMaster, dX, dY));
+
+            if (ovPage.Name != sPage)
+                DisplayPage(ovPage);
+
+            if (m_ovControl != null && ScreenUpdating == (short)visTF.TRUE)
+                m_ovControl.Refresh();
+
+            return ovResult;
+        }
+        public virtual ArrayList Render(string sMaster, Visio.Shape ovParent, string sStencils)
+        {
+            double dPinX = ovParent.get_Cells("PageWidth").ResultIU / 2;
+            double dPinY = ovParent.get_Cells("PageHeight").ResultIU / 2;
+
+            if (m_ovControl != null)
+                ShapeBuilder.GetDropXY(m_ovControl.Window, ovParent.ContainingPage, out dPinX, out dPinY);
+            else
+                ShapeBuilder.GetDropXY(Application.ActiveWindow, ovParent.ContainingPage, out dPinX, out dPinY);
+
+            ArrayList ovResult = new ArrayList();
+            Visio.Master ovMaster = FindMaster(sMaster, sStencils);
+            if (ovMaster != null)
+                ovResult.Add(ovParent.Drop(ovMaster, dPinX, dPinY));
+
+            return ovResult;
+        }
+        public virtual ArrayList Render(ApprenticeXml oDocument, string sStencils)
+        {
+            double dPinX = 0;
+            double dPinY = 0;
+
+            Visio.Page ovPage = Application.ActivePage;
+
+            ShapeBuilder.GetDropXY(Application.ActiveWindow, ovPage, out dPinX, out dPinY);
+
+            return Render(oDocument, ovPage.PageSheet, dPinX, dPinY, sStencils);
+        }
+        public virtual ArrayList Render(ApprenticeXml oDocument, Visio.Shape ovParent, double dPinX, double dPinY, string sStencils)
+        {
+            ArrayList ovResult = new ArrayList();
+
+            if (oDocument != null && oDocument.DocumentElement != null)
+                foreach (XmlElement oElement in oDocument.DocumentElement.ChildNodes)
+                    ovResult.AddRange(Render(oElement, ovParent, dPinX, dPinY, sStencils));
+
+            return ovResult;
+        }
+        public virtual ArrayList Render(ApprenticeXml oDocument, Visio.Shape ovParent, string sStencils)
+        {
+            ArrayList ovResult = new ArrayList();
+
+            if (oDocument != null && oDocument.DocumentElement != null)
+                foreach (XmlElement oElement in oDocument.ChildNodes)
+                    ovResult.AddRange(Render(oElement, ovParent, 0, 0, sStencils));
+
+            return ovResult;
+        }
+        public virtual ArrayList Render(XmlElement oParent, Visio.Shape ovParent, string sStencils)
+        {
+            ArrayList oResult = new ArrayList();
+
+            if (oParent != null)
+                foreach (XmlElement oElement in oParent.ChildNodes)
+                    oResult.AddRange(Render(oElement, ovParent, 0, 0, sStencils));
+
+            return oResult;
+        }
+        public virtual bool RenderAndExtract(string sShape, string sStencils)
+        {
+            return false;
+        }
+        public virtual bool ShowLayers(string sPage, string sLayers, bool bShow)
+        {
+            foreach (Visio.Page ovPage in m_ovTargetDoc.Pages)
+            {
+                if (ovPage.Background == (short)visTF.TRUE)
+                    continue;
+
+                string sName = ovPage.NameU;
+                if (!(sPage.Length == 0 || sPage == "*" || sPage == sName))
+                    continue;
+
+                foreach (Visio.Layer ovLayer in ovPage.Layers)
+                    foreach (string sLayer in sLayers.Split(';'))
+                        if (sLayer == "*" || StringCompare(ovLayer.Name, sLayer))
+                            ovLayer.get_CellsC((short)Visio.VisCellIndices.visLayerVisible).FormulaForce = string.Format("={0}", bShow);
+            }
+            return true;
+        }
+        public virtual bool GoToPage(string sNewPage)
+        {
+            Visio.Page ovPage = DoesPageExist(sNewPage);
+            if (ovPage == null)
+                return false;
+
+            DisplayPage(sNewPage);
+            return true;
+        }
+        public VisioMaster FindPageMaster(string sName)
+        {
+            foreach (VisioMaster oMaster in m_oaPageMasters)
+            {
+                if (oMaster.IsNamed(sName) || oMaster.IsCustomNamed(sName))
+                    return oMaster;
+            }
+            return null;
+        }
+        public virtual string FindExamplePage(string sPageMaster, bool bDisplay)
+        {
+            VisioMaster oPageMaster = FindPageMaster(sPageMaster);
+            if (oPageMaster == null && oPageMaster.Category == null)
+                return "";
+
+            string sExamplePage = oPageMaster.Category;
+            if (!sExamplePage.StartsWith("Example:"))
+                return "";
+
+            Visio.Page ovExamplePage = DoesPageExist(sExamplePage);
+            if (ovExamplePage != null)
+            {
+                ShapeBuilder.SetPageInvisible(ovExamplePage, false, true);
+
+                if (bDisplay)
+                    DisplayPage(sExamplePage);
+            }
+            return sExamplePage;
+        }
+
+
+        public virtual bool CreateScaledPage(string sNewPage, string sExamplePage, bool bDisplay)
+        {
+            Visio.Page ovPage = DoesPageExist(sNewPage);
+            if (ovPage != null)
+            {
+                if (bDisplay)
+                    DisplayPage(sNewPage);
+
+                return true;
+            }
+
+            Visio.Page ovCurrentPage = m_ovTargetApp.ActivePage;
+
+            double dShow = 0.0;
+            Visio.Page ovExamplePage = null;
+            string sPageMaster = "";
+
+            if (sExamplePage.Length > 0)
+            {
+                sPageMaster = sExamplePage;
+                VisioMaster oPageMaster = FindPageMaster(sPageMaster);
+                if (oPageMaster != null && oPageMaster.Category != null)
+                    sExamplePage = oPageMaster.Category;
+
+                ovExamplePage = DoesPageExist(sExamplePage);
+                if (ovExamplePage != null)
+                {
+                    dShow = ShapeBuilder.RetrieveCellValue(ovExamplePage.PageSheet, "UIVisibility");
+                    if (dShow == 1.0)
+                        ShapeBuilder.SetPageInvisible(ovExamplePage, false, true);
+
+                    DisplayPage(sExamplePage);
+                }
+            }
+
+            VisioPage oaPage = EstablishPageView(sNewPage, sPageMaster, bDisplay);
+            EstablishPage(sNewPage).Background = (short)visTF.FALSE;
+            oaPage.UpdateShape();
+
+            if (dShow == 1.0 || sExamplePage.StartsWith("Example:"))
+            {
+                ShapeBuilder.SetPageInvisible(ovExamplePage, true, true);
+                PageTabWindowRefresh();
+            }
+
+            if (!bDisplay)
+                DisplayPage(ovCurrentPage);
+
+            return true;
+        }
+
+        public void RemoveSubShapes(Visio.Shape ovParent)
+        {
+            TemporaryCollection oTemp = new TemporaryCollection();
+
+            foreach (Visio.Shape ovSubShape in ovParent.Shapes)
+                oTemp.Add(ovSubShape);
+
+            foreach (Visio.Shape ovSubShape in oTemp)
+                ovSubShape.Delete();
+
+            oTemp.Purge();
+        }
+        public virtual Visio.Shape RenderSwapShapeEnds(VisioShape oaShape)
+        {
+            Visio.Shape ovSourceShape = GetShapeforShapeView(oaShape);
+            if (ovSourceShape == null || ovSourceShape.OneD == (short)visTF.FALSE)
+                return ovSourceShape;
+
+            ovSourceShape.SwapEnds();
+
+            if (UpdateShape(oaShape, false))
+                oaShape.ProcessSuspectValueQueue();
+
+            return ovSourceShape;
+        }
+        public virtual Visio.Shape AttachSubShapeView(VisioShape oaShape, string sName, InstanceObject oTarget, string sView)
+        {
+            Visio.Shape ovFoundShape = null;
+
+            Visio.Shape ovSourceShape = GetShapeforShapeView(oaShape);
+            if (ovSourceShape == null)
+                return null;
+
+            foreach (Visio.Shape ovSubShape in ovSourceShape.Shapes)
+            {
+                string sShapeName = ShapeBuilder.GetASIName(ovSubShape);
+                if (StringCompare(sShapeName, sName))
+                    ovFoundShape = ovSubShape;
+                if (StringCompare(ovSubShape.NameID, sName))
+                    ovFoundShape = ovSubShape;
+                if (StringCompare(ovSubShape.Text, sName))
+                    ovFoundShape = ovSubShape;
+
+                if (ovFoundShape != null)
+                    break;
+            }
+
+            if (ovFoundShape != null)
+            {
+                VisioMaster oaMaster = VisioMaster("VisioShape");
+
+                string sGUID = ShapeBuilder.EstablishGUIDforShape(ovFoundShape);
+                VisioShape oaSubShape = oaMaster.EstablishInstance(sGUID, oaShape) as VisioShape;
+                AssociateShapePresentationObject(ovFoundShape, oaSubShape);
+            }
+
+            return ovFoundShape;
+        }
+
+        public bool SetDocumentValue(string sKey, string sValue)
+        {
+            if (m_ovTargetDoc == null)
+                return false;
+
+            switch (sKey.ToLower())
+            {
+                case "title":
+                    m_ovTargetDoc.Title = sValue;
+                    break;
+                case "subject":
+                    m_ovTargetDoc.Subject = sValue;
+                    break;
+                case "manager":
+                    m_ovTargetDoc.Manager = sValue;
+                    break;
+                case "author":
+                    m_ovTargetDoc.Creator = sValue;
+                    break;
+                case "keywords":
+                    m_ovTargetDoc.Keywords = sValue;
+                    break;
+                case "category":
+                    m_ovTargetDoc.Category = sValue;
+                    break;
+                case "description":
+                    m_ovTargetDoc.Description = sValue;
+                    break;
+                case "hyperlinkbase":
+                    m_ovTargetDoc.HyperlinkBase = sValue;
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
+
+        public virtual Visio.Shape RenderSwap(string sMaster, string sStencils, VisioShape oaShape)
+        {
+            Visio.Shape ovNewShape = null;
+            Visio.Shape ovSourceShape = GetShapeforShapeView(oaShape);
+            if (ovSourceShape == null)
+                return ovNewShape;
+
+            string sSourceMaster = ShapeBuilder.GetASIMaster(ovSourceShape);
+            if (sSourceMaster == sMaster)
+                return ovSourceShape;
+
+            Visio.Master ovLocalMaster = DoesMasterExist(sMaster);
+            Visio.Master ovMaster = ovLocalMaster != null ? ovLocalMaster : FindMaster(sMaster, sStencils);
+            if (ovMaster != null)
+            {
+                //If new pages is added events must run
+                Visio.Page ovPage = ovSourceShape.ContainingPage;
+                double dLocX = ovSourceShape.get_Cells("PinX").ResultIU;
+                double dLocY = ovSourceShape.get_Cells("PinY").ResultIU;
+
+                short iEvents = SetEventsOff();
+
+                ovNewShape = ovPage.Drop(ovMaster, dLocX, dLocY);
+                if (ovNewShape != null)
+                {
+                    //this is needed to make sure RMA work right
+                    ShapeBuilder.SetASIMaster(ovNewShape, sMaster);
+
+                    string sAngle = ovSourceShape.get_Cells("Angle").Formula;
+                    ovNewShape.get_Cells("Angle").FormulaForce = sAngle;
+                    RemovePresentationObject(oaShape, oaShape.Name);
+
+                    //capture the glue for the previous shape
+                    foreach (Visio.Connect ovConnect in ovSourceShape.Connects)
+                    {
+                        Visio.Cell ovFromCell = ovConnect.FromCell;
+                        Visio.Cell ovToCell = ovConnect.ToCell;
+                        string sTargetCell = ovFromCell.Name;
+
+                        try
+                        {
+                            ovFromCell = ovNewShape.get_Cells(sTargetCell);
+                            ovFromCell.GlueTo(ovToCell);
+                        }
+                        catch { }
+                    }
+
+                    foreach (Visio.Connect ovConnect in ovSourceShape.FromConnects)
+                    {
+                        Visio.Cell ovFromCell = ovConnect.FromCell;
+                        Visio.Cell ovToCell = ovConnect.ToCell;
+                        string sTargetCell = ovToCell.Name;
+
+                        try
+                        {
+                            ovToCell = ovNewShape.get_Cells(sTargetCell);
+                            ovFromCell.GlueTo(ovToCell);
+                        }
+                        catch { }
+                    }
+
+                    try
+                    {
+                        ovSourceShape.Delete();
+                        AssociateShapePresentationObject(ovNewShape, oaShape);
+                    }
+                    catch { }
+                }
+
+                EventsEnabled = iEvents;
+
+                if (UpdateShape(oaShape, false))
+                    oaShape.ProcessSuspectValueQueue();
+
+            }
+
+            if (ovLocalMaster == null)
+                LoadStencilsForActivePage();
+
+            return ovNewShape;
+        }
+        public virtual Visio.Master CopyMastersToDrawing(string sMasters, string sStencils)
+        {
+            bool bEditable = m_bIsEditable;
+            m_bIsEditable = true;
+
+            Visio.Master ovMaster = null;
+
+            if (sMasters.Length == 0 || sMasters == "*")
+            {
+                foreach (string sStencil in sStencils.Split(';'))
+                {
+                    if (sStencil.Length == 0)
+                        continue;
+
+                    FileObject oFile = new FileObject(sStencil, ".vss", MySession);
+                    CopyMastersToDocument(oFile);
+                    oFile.Remove();
+                }
+            }
+            else
+            {
+                Visio.Document ovDocument = Document;
+                foreach (string sMaster in sMasters.Split(';'))
+                {
+                    if (sMaster.Length == 0)
+                        continue;
+
+                    ovMaster = FindMaster(sMaster, sStencils);
+                    ovDocument.Drop(ovMaster, 0, 0);
+                }
+            }
+
+            m_bIsEditable = bEditable;
+            return ovMaster;
+        }
+        public Visio.Shape DropMasterShape(string sMaster, string sStencils, string sPage, double dPinX, double dPinY)
+        {
+            Visio.Shape ovShape = null;
+            Visio.Master ovMaster = null;
+
+            if (sStencils.Length > 0 && sStencils.IndexOf(';') == -1)
+                ovMaster = FindMasterOnStencil(sMaster, sStencils);
+            else
+            {
+                ovMaster = DoesMasterExist(sMaster);
+                if (ovMaster == null)
+                    ovMaster = FindMaster(sMaster, sStencils);
+            }
+
+            if (ovMaster != null)
+            {
+                //If new pages is added events must run
+                Visio.Page ovTargetPage = EstablishPage(sPage);
+                EstablishPageViewForPage(ovTargetPage);
+
+                ovShape = ShapeBuilder.DropMaster(ovTargetPage, ovMaster, dPinX, dPinY, true);
+            }
+
+            return ovShape;
+        }
+        public virtual void ResetLocation(object oShape, string sPinX, string sPinY)
+        {
+            Visio.Shape ovShape = oShape as Visio.Shape;
+            if (ovShape == null)
+                return;
+
+            if (!IsNumber(sPinX) && sPinX.Length > 0)
+                ShapeBuilder.SetCellFormula(ovShape, "PinX", sPinX, true);
+
+            if (!IsNumber(sPinY) && sPinY.Length > 0)
+                ShapeBuilder.SetCellFormula(ovShape, "PinY", sPinY, true);
+        }
+        public virtual Visio.Shape DropMaster(string sMaster, string sStencils, string sPage, double dPinX, double dPinY, string sView, InstanceObject oOwner)
+        {
+            bool bEditable = m_bIsEditable;
+            m_bIsEditable = true;
+
+            Visio.Shape ovShape = null;
+            Visio.Master ovMaster = null;
+
+            bool bReload = true;
+            if (sStencils == null)
+                ovMaster = DoesMasterExist(sMaster);
+            else if (sStencils.Length > 0 && sStencils.IndexOf(';') == -1)
+                ovMaster = FindMasterOnStencil(sMaster, sStencils);
+            else
+            {
+                ovMaster = DoesMasterExist(sMaster);
+                if (ovMaster != null)
+                    bReload = false;
+                else
+                    ovMaster = FindMaster(sMaster, sStencils);
+            }
+
+            if (ovMaster != null)
+            {
+                //If new pages is added events must run
+                Visio.Page ovTargetPage = EstablishPage(sPage);
+                EstablishPageViewForPage(ovTargetPage);
+
+                ovShape = ShapeBuilder.DropMaster(ovTargetPage, ovMaster, dPinX, dPinY, false); //was false send no events
+            }
+
+            m_bIsEditable = bEditable;
+
+            if (IsApplicationLoading)
+                return ovShape;
+
+            if (bReload && ovMaster != null)
+                LoadStencilsForActivePage();
+
+            return ovShape;
+        }
+        public virtual Visio.Shape DropMaster(string sMaster, string sStencils, VisioShape oaShape, double dPinX, double dPinY, InstanceObject oOwner)
+        {
+            bool bEditable = m_bIsEditable;
+            m_bIsEditable = true;
+
+            Visio.Shape ovShape = null;
+            Visio.Master ovMaster = null;
+
+            bool bReload = true;
+            if (sStencils.Length > 0 && sStencils.IndexOf(';') == -1)
+                ovMaster = FindMasterOnStencil(sMaster, sStencils);
+            else
+            {
+                ovMaster = DoesMasterExist(sMaster);
+                if (ovMaster != null)
+                    bReload = false;
+                else
+                    ovMaster = FindMaster(sMaster, sStencils);
+            }
+
+            Visio.Shape ovTargetShape = GetShapeforShapeView(oaShape);
+            if (IsProcessingPublishedShape)
+                ovShape = FindSubShape(ovTargetShape, sMaster);
+
+
+            if (ovMaster != null && ovTargetShape != null && ovShape == null)
+            {
+                //If new pages is added events must run
+                ShapeBuilder.SetCellFormula(ovTargetShape, "LockGroup", "=0", true);
+
+                short iType = ovTargetShape.Type;
+                if (iType != (short)Visio.VisShapeTypes.visTypeGroup)
+                {
+                    SetEventsOff();
+                    m_ovTargetApp.AlertResponse = 1;
+                    ovTargetShape.ConvertToGroup();
+                    ShapeBuilder.SetCellFormula(ovTargetShape, "SelectMode", "=0", true);
+                    SetEventsOn();
+                }
+
+                ovShape = ShapeBuilder.DropMaster(ovTargetShape, ovMaster, dPinX, dPinY, false); //was false send no events
+            }
+
+            m_bIsEditable = bEditable;
+            if (IsApplicationLoading || ScreenUpdating == (short)visTF.FALSE)
+                return ovShape;
+
+            if (bReload && ovMaster != null)
+                LoadStencilsForActivePage();
+
+            return ovShape;
+        }
+        public virtual VisioShape DropMasterCreateView(string sMaster, string sStencils, string sPage, double dPinX, double dPinY, string sView)
+        {
+            return null;
+        }
+        public virtual ArrayList Render(XmlElement oElement, Visio.Shape ovParent, double dPinX, double dPinY, string sStencils)
+        {
+            ArrayList oResult = new ArrayList();
+
+            string sElement = oElement.LocalName;
+            string sName = oElement.GetAttribute("Name");
+
+            Visio.Shape ovShape = null;
+            if (ovParent.ObjectType == (short)Visio.VisObjectTypes.visObjTypeShape)
+                foreach (Visio.Shape ovSubShape in ovParent.Shapes)
+                {
+                    string sText = ShapeBuilder.RetrieveCleanText(ovSubShape, false);
+                    string sKnowledge = ShapeBuilder.GetASIKnowledge(ovSubShape);
+                    if (sKnowledge == sElement && (sText.StartsWith(sElement) || sText.Length == 0))
+                    {
+                        ovShape = ovSubShape;
+                        break;
+                    }
+                }
+
+            if (ovShape == null)
+                try
+                {
+                    string sMaster = oElement.GetAttribute("Master");
+                    sMaster = (sMaster.Length == 0) ? sElement : sMaster;
+
+                    Visio.Master ovMaster = FindMaster(sMaster, sStencils);
+                    if (ovMaster != null)
+                    {
+                        ovShape = ovParent.Drop(ovMaster, dPinX, dPinY);
+                        oResult.Add(ovShape);
+                    }
+                }
+                catch { }
+
+
+            if (ovShape == null)
+                ovShape = ovParent;
+            else
+                switch (oElement.LocalName)
+                {
+                    case "Tag":
+                        string sTag = oElement.GetAttribute("Tag");
+                        if (sTag.Length > 0)
+                            ovShape.Text = sTag + ": " + sName;
+                        else
+                            ovShape.Text = sName.Replace(":", ": ");
+                        break;
+                    case "Enumeration":
+                        string sEnumeration = oElement.GetAttribute("Enumeration");
+                        if (sEnumeration.Length > 0)
+                            ovShape.Text = sEnumeration + ": " + sName;
+                        else
+                            ovShape.Text = sName.Replace(":", ": ");
+                        break;
+                    case "Status":
+                        string sStatus = oElement.GetAttribute("Status");
+                        if (sStatus.Length > 0)
+                            ovShape.Text = sStatus + ": " + sName;
+                        else
+                            ovShape.Text = sName.Replace(":", ": ");
+                        break;
+                    default:
+                        ovShape.Text = sName;
+                        break;
+                }
+
+            string sGUIDKey = oElement.GetAttribute("GUIDKey");
+            ovShape.Data1 = sGUIDKey;
+
+            string sInnerXML = oElement.GetAttribute("InnerXML");
+
+            if (sInnerXML == true.ToString())
+                ShapeBuilder.SetASIChildXML(ovShape, oElement.InnerXml);
+            else
+                try
+                {
+                    foreach (XmlElement oChild in oElement.ChildNodes)
+                        if (ovShape == ovParent)
+                            oResult.AddRange(Render(oChild, ovShape, dPinX, dPinY, sStencils));
+                        else
+                            oResult.AddRange(Render(oChild, ovShape, 0, 0, sStencils));
+                }
+                catch { }
+
+            return oResult;
+        }
+
+        public override bool ProcessDocumentEvents(bool bProcess)
+        {
+            if (m_ovTargetDoc == null)
+                return false;
+
+            Visio.EventList ovEvents = m_ovTargetDoc.EventList;
+
+            EstablishEvent(ovEvents, DrawingEvents.AfterShapeAdded, bProcess);
+            EstablishEvent(ovEvents, DrawingEvents.BeforeSelectionDeleted, bProcess);
+            return true;
+        }
+
+        private void ClearPageHashtable(Visio.Document ovDoc)
+        {
+            foreach (Visio.Page ovPage in ovDoc.Pages)
+                if (ovPage.Background == (short)visTF.FALSE)
+                    PageDeleted(ovPage);
+        }
+        private void FillPageHashtable(Visio.Document ovDoc)
+        {
+            foreach (Visio.Page ovPage in ovDoc.Pages)
+                if (ovPage.Background == (short)visTF.FALSE)
+                    PageAdded(ovPage);
+        }
+        public void BeforeVisioQuit(Visio.Application ovApp)
+        {
+            m_ovTargetDoc = null;
+            m_ovTargetApp = null;
+        }
+        public virtual void BeforePageDeleted(Visio.Page ovPage)
+        {
+            PageDeleted(ovPage);
+        }
+        public virtual void AfterPageAdded(Visio.Page ovPage)
+        {
+            PageAdded(ovPage);
+        }
+        public virtual void AfterPageAddedWithUnDoKey(Visio.Page ovPage)
+        {
+            PageAdded(ovPage);
+        }
+
+        protected bool QueueDeleteShapes(Visio.Shape ovShape)
+        {
+            if (m_oShapeDeletionQueue == null)
+                m_oShapeDeletionQueue = new ObjectCollection();
+
+            m_oShapeDeletionQueue.Add(ovShape);
+            return true;
+        }
+        public virtual void AfterVisioIdle(Visio.Document ovDoc)
+        {
+            if (m_oShapeDeletionQueue != null)
+            {
+                TemporaryCollection oTemp = new TemporaryCollection(m_oShapeDeletionQueue);
+                m_oShapeDeletionQueue = null;
+
+                foreach (Visio.Shape ovShape in oTemp)
+                    ShapeBuilder.DeleteShape(ovShape, false);
+
+                oTemp.Purge();
+            }
+        }
+        public virtual void AfterDocumentOpened(Visio.Document ovDoc)
+        {
+        }
+        public virtual void BeforeDocumentClosed(Visio.Document ovDoc)
+        {
+            if (m_ovControl != null || ovDoc != m_ovTargetDoc)
+                return;
+
+            CloseAllWindows();
+        }
+        public bool IsShapeAllowed(Visio.Shape ovShape)
+        {
+            if (ShapeBuilder.IsShapeIgnored(ovShape))
+                return false;
+
+            if (RemapDroppedSource(ovShape))
+                return false;
+
+            return true;
+        }
+        public virtual bool RemapDroppedSource(Visio.Shape ovShape)
+        {
+            return false;
+        }
+        public virtual bool MarkerEventException(int iEvent)
+        {
+            return false;
+        }
+        public virtual bool AfterMarkerEvent(string sMarkerEvent)
+        {
+            string[] sCmds = sMarkerEvent.Split(';');
+            return DoCommand(sCmds[0], null);
+        }
+        public int QueueMarkerEvent(string sCmd, string sGUID)
+        {
+            string sEvent = sCmd;
+            if (sEvent.Length == 0)
+                return 0;
+
+            if (sCmd.Length > 0 && sGUID.Length > 0)
+                sEvent = string.Format("{0};{1}", sEvent, sGUID);
+
+            return m_ovTargetApp.QueueMarkerEvent(sEvent);
+        }
+        public void SelectShape(Visio.Shape ovShape, bool bForceToPage)
+        {
+            try
+            {
+                if (bForceToPage)
+                    DisplayPage(ovShape.ContainingPage);
+
+                if (ovShape == ovShape.ContainingPage.PageSheet)
+                    return;
+
+                short iSelect = (short)(Visio.VisSelectArgs.visSelect | Visio.VisSelectArgs.visSubSelect | Visio.VisSelectArgs.visDeselectAll);
+                m_ovTargetApp.ActiveWindow.Select(ovShape, iSelect);
+            }
+            catch { }
+        }
+        public virtual Visio.Shape MarkerShape
+        {
+            get
+            {
+                return CurrentlySelectedShape(m_ovTargetApp.ActiveWindow.Selection);
+            }
+        }
+        public virtual object CurrentlySelectedComponents
+        {
+            get
+            {
+                return null;
+            }
+        }
+        public virtual object ActivePageComponent
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        public Visio.Selection CompleteSelection()
+        {
+            Visio.Selection ovSelection = m_ovTargetApp.ActiveWindow.Selection;
+            ovSelection.IterationMode = (int)Visio.VisSelectMode.visSelModeSkipSuper;
+            return ovSelection;
+        }
+        public Visio.Shape CurrentlySelectedShape(Visio.Selection ovSelection)
+        {
+            //TraceWriteLine("CurrentlySelectedShape...");
+            ovSelection.IterationMode = (int)Visio.VisSelectMode.visSelModeSkipSuper;
+            if (ovSelection.Count == 0)
+                return null;
+
+            //TraceWriteLine("ovSelection[1]...");
+
+            Visio.Shape ovShape = ovSelection[1];
+            //			if ( ovShape == null )
+            //				TraceWriteLine("ovSelection[1]is NULL");
+
+            return ovShape;
+        }
+        public Visio.Shape CurrentlySelectedShape()
+        {
+            return CurrentlySelectedShape(m_ovTargetApp.ActiveWindow.Selection);
+        }
+        public virtual bool LoadStencilsForActivePage()
+        {
+            if (!m_bIsEditable)
+                return false;
+
+            return LoadStencilsForPage(m_ovTargetApp.ActivePage, true);
+        }
+
+        public virtual bool LoadStencilsForPage(Visio.Page ovPage, bool bForce)
+        {
+            return false;
+        }
+
+        protected bool DoesDocumentHaveFocus()
+        {
+            Visio.Document ovDocument = Application.ActiveDocument;
+            string sKnow = ShapeBuilder.GetASIKnowledge(ovDocument.DocumentSheet);
+            return sKnow == GetType().Name;
+        }
+
+
+        public virtual bool LoadStencilsForPage(Visio.Window ovWindow, bool bForce)
+        {
+            if (IsAutoCreating)
+                return false;
+
+            if (DoesDocumentHaveFocus())
+            {
+                Visio.Page ovPage = ovWindow.Application.ActivePage;
+                string sKnow = ShapeBuilder.GetASIKnowledge(ovPage.PageSheet);
+                if (sKnow.Length == 0)
+                    return LoadStencilsForPage(ovPage, bForce);
+            }
+            return false;
+        }
+
+        public virtual bool QueryCancelSelectionDelete(Visio.Selection ovSelection)
+        {
+            return false;
+        }
+        public virtual bool QueryCancelMasterDelete(Visio.Master ovMaster)
+        {
+            return false;
+        }
+        public virtual bool QueryCancelDocumentClose(Visio.Document ovDocument)
+        {
+            return false;
+        }
+        public virtual bool QueryCancelPageDelete(Visio.Page ovPage)
+        {
+            return false;
+        }
+        public virtual bool QueryCancelQuit(Visio.Application ovApplication)
+        {
+            return false;
+        }
+
+        public virtual bool AfterOCXMouseDown(AxVisOcx.EVisOcx_MouseDownEvent oEvent)
+        {
+            if ((int)Visio.VisKeyButtonFlags.visKeyShift == (oEvent.keyButtonState & (int)Visio.VisKeyButtonFlags.visKeyShift))
+                return true;
+
+            //this keeps the visio menu from comming up if nothing is selected
+            //helps force the appretntice menu as the righ mouse menu
+            //SRS temp remove
+            if (m_ovTargetApp != null && m_ovTargetApp.ActiveWindow.Selection.Count == 0 && ActivePage.ViewOf() == null)
+            {
+                if (oEvent.button == (int)Visio.VisKeyButtonFlags.visMouseRight)
+                {
+                    oEvent.cancelDefault = true;
+                    return false;
+                }
+            }
+            return true;
+        }
+        public virtual bool AfterOCXMouseMove(AxVisOcx.EVisOcx_MouseMoveEvent oEvent)
+        {
+            return false;
+        }
+        public virtual bool AfterOCXMouseUp(AxVisOcx.EVisOcx_MouseUpEvent oEvent)
+        {
+            return false;
+        }
+        //		public virtual bool AfterMouseDown(Visio.MouseEvent ovMouseEvent)
+        //		{
+        //			return false;
+        //		}
+        //		public virtual bool AfterMouseMove(Visio.MouseEvent ovMouseEvent)
+        //		{
+        //			return false;
+        //		}
+        //		public virtual bool AfterMouseUp(Visio.MouseEvent ovMouseEvent)
+        //		{
+        //			//turns off mouse action
+        //			switch ( ovMouseEvent.Button )
+        //			{
+        //				case (int)Visio.VisKeyButtonFlags.visMouseRight:
+        //					return CancelRightMouse;
+        //				case (int)Visio.VisKeyButtonFlags.visMouseMiddle:
+        //					return CancelMiddleMouse;
+        //				case (int)Visio.VisKeyButtonFlags.visMouseLeft:
+        //					return CancelLeftMouse;
+        //			}
+        //			return false;
+        //		}
+        public virtual bool AfterKeyPress(Visio.KeyboardEvent ovKeyEvent)
+        {
+            //truns on/off processing of key
+            return CancelKeyPress;
+        }
+        public virtual bool AfterKeyUp(Visio.KeyboardEvent ovKeyEvent)
+        {
+            //truns on/off processing of key
+            return false;
+        }
+        public virtual bool AfterKeyDown(Visio.KeyboardEvent ovKeyEvent)
+        {
+            //truns on/off processing of key
+            return false;
+        }
+        public virtual void AfterConnectionAdded(Visio.Connects ovConnects)
+        {
+        }
+        public virtual void BeforeConnectionDeleted(Visio.Connects ovConnects)
+        {
+        }
+        public virtual void AfterCellChanged(Visio.Cell ovCell)
+        {
+        }
+        public virtual void AfterPageChanged(Visio.Page ovPage)
+        {
+        }
+        public virtual void BeforeTextEdit(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterTextEdit(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterTextChanged(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterWindowActivate(Visio.Window ovWindow)
+        {
+        }
+        public virtual void BeforePageTurn(Visio.Window ovWindow)
+        {
+        }
+        public virtual void AfterPageTurn(Visio.Window ovWindow)
+        {
+        }
+        public virtual void AfterParentChanged(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterShapeAdded(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterShapeAddedWithDuplicate(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterShapeAddedWithDupeKey(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterShapeAddedWithPasteKey(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterShapeAddedWithUnDoKey(Visio.Shape ovShape)
+        {
+        }
+        public virtual void BeforeShapeDeleted(Visio.Shape ovShape)
+        {
+        }
+        public virtual void AfterSelectionChanged(Visio.Shape ovShape)
+        {
+        }
+        public virtual void BeforeSelectionDeletedWithDelKey(Visio.Selection ovSelection)
+        {
+        }
+        public virtual void BeforeSelectionDeletedWithCutKey(Visio.Selection ovSelection)
+        {
+        }
+        public virtual void MarkSelectionWithCutData(Visio.Selection ovSelection)
+        {
+        }
+        public virtual void BeforeSelectionDeleted(Visio.Selection ovSelection)
+        {
+        }
+        public virtual void BeforeWindowSelectionDeleted(Visio.Selection ovSelection)
+        {
+        }
+        public virtual Visio.Master SelectDragMaster(SemanticObject oObject)
+        {
+            string sMaster = "";
+            string sStencils = "";
+
+            VisioMaster oMaster = oObject as VisioMaster;
+            if (oMaster != null)
+            {
+                sMaster = oMaster.CustomName;
+                sStencils = oMaster.ParentOfType(typeof(VisioStencil)).CustomName;
+            }
+            else
+            {
+                sMaster = MySession.DetermineDragVisioMasterName(oObject);
+                sStencils = MyRenderingStencils;
+            }
+
+            if (sMaster != "")
+                return FindMaster(sMaster, sStencils);
+            else
+                return null;
+        }
+        public Visio.Master FindLocalMaster(string sName, bool bCreate)
+        {
+            Visio.Master ovMaster = DoesMasterExist(sName);
+            if (ovMaster != null || !bCreate)
+                return ovMaster;
+
+            ovMaster = m_ovTargetDoc.Masters.Add();
+            ovMaster.DrawRectangle(0, 0, 1, 1);
+            ovMaster.Name = sName;
+            return ovMaster;
+        }
+        public Visio.Master FindMaster(string sName)
+        {
+            return FindMaster(sName, "");
+        }
+        public Visio.Master FindMaster(string sName, string sStencils)
+        {
+            Visio.Master ovMaster = DoesMasterExist(sName);
+            if (ovMaster == null)
+                ovMaster = FindMasterOnStencil(sName, sStencils);
+
+            return ovMaster;
+        }
+
+        public Visio.Master FindMasterOnStencil(string sName, string sStencils)
+        {
+            Visio.Master ovMaster = null;
+            int iScope = BeginUndoScope("FindMaster");
+
+            short iEvents = SetEventsOff();
+
+            bool bClose = !IsApplicationLoading;
+
+            foreach (string sStencil in sStencils.Split(';'))
+            {
+                if (sStencil.Length == 0)
+                    continue;
+
+                FileObject oFile = new FileObject(sStencil, ".vss", MySession);
+                Visio.Document ovStencil = OpenStencilReadOnly(oFile);
+                if (ovStencil != null)
+                {
+                    ovMaster = DoesMasterExist(sName, ovStencil);
+                    if (ovMaster != null)
+                    {
+                        ovMaster = m_ovTargetDoc.Drop(ovMaster, 0, 0);
+                        ovStencil.Close();
+                        break;
+                    }
+                    ovStencil.Close();
+                }
+            }
+            EventsEnabled = iEvents;
+            EndUndoScope(iScope);
+            return ovMaster;
+        }
+        public Visio.Master DoesMasterExist(string sName)
+        {
+            return ShapeBuilder.DoesMasterExist(sName, m_ovTargetDoc);
+        }
+        public Visio.Master DoesMasterExist(string sName, Visio.Document ovDoc)
+        {
+            return ShapeBuilder.DoesMasterExist(sName, ovDoc);
+        }
+        public Visio.Page DoesPageExist(string sName)
+        {
+            return ShapeBuilder.DoesPageExist(sName, m_ovTargetDoc);
+        }
+        public virtual bool DeleteShape(VisioShape oaShape, bool bForceShapeDelete)
+        {
+            if (IsServerShutingdown)
+                return false;
+
+            string sGUID = oaShape.Name;
+            object oResult = RemovePresentationObject(oaShape, sGUID);
+            if (oResult == null)
+                return false;
+
+            if (oaShape.Status.IsTemporary || !bForceShapeDelete)
+                return true;
+
+            Visio.Shape ovShape = FindShapeforGUID(sGUID);
+            if (ovShape == null)
+                return false;
+
+            if (!ShapeBuilder.DeleteShape(ovShape, true))
+                QueueDeleteShapes(ovShape);
+
+            return true;
+        }
+        public virtual Visio.Shape FindSubShape(Visio.Shape ovShape, string sMaster)
+        {
+            if (IsServerShutingdown || sMaster.Length == 0)
+                return null;
+
+            foreach (Visio.Shape ovSubShape in ovShape.Shapes)
+            {
+                string sName = ovSubShape.Name;
+                if (StringStartCompare(sName, sMaster) ||
+                    StringStartCompare(ovSubShape.NameU, sMaster) ||
+                    StringStartCompare(ovSubShape.NameID, sMaster))
+                    return ovSubShape;
+
+                string sASIMaster = ShapeBuilder.GetASIMaster(ovSubShape);
+                if (StringCompare(sASIMaster, sMaster))
+                    return ovSubShape;
+
+                string sASIName = ShapeBuilder.GetASIName(ovSubShape);
+                if (StringCompare(sASIName, sMaster))
+                    return ovSubShape;
+
+                if (StringCompare(ovSubShape.get_UniqueID((short)Visio.VisUniqueIDArgs.visGetOrMakeGUID), sMaster))
+                    return ovSubShape;
+
+                Visio.Master ovMaster = ovSubShape.Master;
+                if (ovMaster == null || ovMaster == ovShape.Master)
+                    continue;
+
+                string sMasterName = ovMaster.NameU;
+                if (StringCompare(sMasterName, sMaster))
+                    return ovSubShape;
+            }
+            return null;
+        }
+        public virtual bool DeleteSubShape(VisioShape oaShape, string sMaster)
+        {
+            if (IsServerShutingdown || sMaster.Length == 0)
+                return false;
+
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            Visio.Shape ovSubShape = FindSubShape(ovShape, sMaster);
+            if (ovSubShape != null)
+                return ShapeBuilder.DeleteShape(ovSubShape, true);  //was false
+
+            return false;
+        }
+        public string ShapeNameID(VisioShape oaShape, bool bIDOnly)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            return bIDOnly ? ovShape.ID.ToString() : ovShape.NameID;
+        }
+        public object EvaluateExpression(VisioShape oaShape, string sVisioFormula, bool bToNumber)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (bToNumber)
+                return ShapeBuilder.EvaluateExpressionToNumber(ovShape, sVisioFormula, false);
+            else
+                return ShapeBuilder.EvaluateExpressionToString(ovShape, sVisioFormula, false);
+        }
+        public double RetrieveCellValue(VisioShape oaShape, string sCellName)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            return ShapeBuilder.RetrieveCellValue(ovShape, sCellName);
+        }
+        public virtual bool ParentShapeTo(Visio.Shape ovShape, Visio.Page ovPage)
+        {
+            return ParentShapeTo(ovShape, ovPage.PageSheet);
+        }
+        public virtual bool ParentShapeTo(Visio.Shape ovShape, Visio.Shape ovParent)
+        {
+            Visio.Shape ovCurrentParent = ovShape.Parent as Visio.Shape;
+
+            if (ovParent.Equals(ovCurrentParent))
+                return true;
+
+            try
+            {
+                ovShape.Parent = ovParent;
+                return true;
+            }
+            catch { }
+
+            return false;
+        }
+        public virtual bool ParentShapeTo(VisioShape oaShape, VisioShape oaParent, bool bForce)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            Visio.Shape ovParent = FindShapeforGUID(oaParent.Name);
+            if (ovParent == null)
+                return false;
+
+            Visio.Shape ovCurrentParent = ovShape.Parent as Visio.Shape;
+
+            if (oaParent.IsType(typeof(VisioPage)))
+            {
+                Visio.Page ovCurrentPage = ovShape.Parent as Visio.Page;
+                if (ovCurrentPage != null)
+                    ovCurrentParent = ovCurrentPage.PageSheet as Visio.Shape;
+            }
+
+            if (bForce)
+                ShapeBuilder.SetASIFlagClear(ovShape);
+
+            if (ovParent.Equals(ovCurrentParent))
+                return true;
+
+            try
+            {
+                ovShape.Parent = ovParent;
+                return true;
+            }
+            catch { }
+
+            if (bForce)
+                ShapeBuilder.SetASIShowFlag(ovShape, ShapeFlags.Error, "incorrect parent shape");
+
+            return false;
+        }
+        public virtual bool SetDocumentValues(VisioShape oaShape, ObjectCollection oList)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            Visio.Document ovDocument = ovShape.Document;
+            foreach (Parameter oParameter in oList)
+            {
+                string sCell = oParameter.Name;
+                string sResult = oParameter.ValueAsString;
+
+                switch (sCell.ToLower())
+                {
+                    case "title":
+                        ovDocument.Title = sResult;
+                        break;
+                    case "subject":
+                        ovDocument.Subject = sResult;
+                        break;
+                    case "manager":
+                        ovDocument.Manager = sResult;
+                        break;
+                    case "author":
+                        ovDocument.Creator = sResult;
+                        break;
+                    case "keywords":
+                        ovDocument.Keywords = sResult;
+                        break;
+                    case "category":
+                        ovDocument.Category = sResult;
+                        break;
+                    case "description":
+                        ovDocument.Description = sResult;
+                        break;
+                    case "hyperlinkbase":
+                        ovDocument.HyperlinkBase = sResult;
+                        break;
+                }
+            }
+
+            return true;
+        }
+
+        public virtual ObjectCollection VisiblePageNames()
+        {
+            ObjectCollection sPages = new ObjectCollection();
+            if (m_ovTargetDoc != null)
+                foreach (Visio.Page ovPage in m_ovTargetDoc.Pages)
+                {
+                    if (ovPage.Background == (short)visTF.TRUE)
+                        continue;
+
+                    if (ShapeBuilder.RetrieveCellValue(ovPage.PageSheet, "UIVisibility") == 1.0)
+                        continue;
+
+                    sPages.Add(ovPage.Name);
+                }
+            return sPages;
+        }
+
+        public virtual bool IsShapeOneD(VisioShape oaShape)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            return (ovShape.OneD == (short)visTF.TRUE);
+        }
+        public virtual string PageName(VisioShape oaShape)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return "";
+
+            return ovShape.ContainingPage.Name;
+        }
+        public virtual string ShapeText(VisioShape oaShape, bool bIncludeReturns)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return "";
+
+            return ShapeBuilder.RetrieveCleanText(ovShape, bIncludeReturns);
+        }
+        public virtual bool DoesCellExist(VisioShape oaShape, string sName)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            return ShapeBuilder.DoesCellExist(ovShape, sName);
+        }
+
+        public virtual bool EstablishUserCellValue(VisioShape oaShape, ValueObject oObject, object oValue)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.EstablishUserCellValue(ovShape, oObject.Name, oValue, true);
+            return true;
+        }
+        public virtual bool CollectUserCells(VisioShape oaShape, ObjectCollection oList)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.CollectUserCells(ovShape, oList);
+            return true;
+        }
+        public virtual bool EstablishUserCells(VisioShape oaShape, ObjectCollection oList)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            foreach (ValueObject oValueObject in oList)
+            {
+                Parameter oParameter = oValueObject as Parameter;
+                RestoreableValue oRestoreable = oValueObject as RestoreableValue;
+                if (oParameter == null && oRestoreable != null)
+                    oParameter = oRestoreable.MyParameter;
+
+                string sCell = oParameter.Name;
+                string sResult = oParameter.ValueAsString;
+
+                if (ApprenticeObject.IsNumber(sResult))
+                    ShapeBuilder.EstablishUserCellFormula(ovShape, sCell, sResult, false);
+                else
+                    ShapeBuilder.EstablishUserCellValue(ovShape, sCell, sResult, false);
+            }
+
+            return true;
+        }
+        public virtual bool LockSelect(VisioShape oaShape, bool bLockSelect)
+        {
+            //Assume this is document protection
+            if (oaShape == null || oaShape is VisioDocument)
+                return SetProtection(bLockSelect);
+
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            int iLock = bLockSelect ? 1 : 0;
+            ShapeBuilder.SetCellFormula(ovShape, "LockSelect", string.Format("={0}", iLock), true);
+            return true;
+        }
+        public virtual bool LockDelete(VisioShape oaShape, bool bLockDelete)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            int iLock = bLockDelete ? 1 : 0;
+            ShapeBuilder.SetCellFormula(ovShape, "LockDelete", string.Format("={0}", iLock), true);
+            return true;
+        }
+        public virtual bool LockText(VisioShape oaShape, bool bLockText)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            int iLock = bLockText ? 1 : 0;
+            ShapeBuilder.SetCellFormula(ovShape, "LockTextEdit", string.Format("={0}", iLock), true);
+            return true;
+        }
+        public virtual bool SizeShapeTo(VisioShape oaShape, object dWidth, object dHeight, bool bForce)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            if (dWidth != null)
+                ShapeBuilder.SetShapeWidthCell(ovShape, dWidth);
+
+            if (dHeight != null)
+                ShapeBuilder.SetShapeHeightCell(ovShape, dHeight);
+
+            return true;
+        }
+        public virtual bool MoveShapeToPage(VisioShape oaShape, string sPageName, bool bForce)
+        {
+            Visio.Shape ovSourceShape = FindShapeforGUID(oaShape.Name);
+            if (ovSourceShape == null)
+                return false;
+
+            Visio.Page ovTargetPage = DoesPageExist(sPageName);
+            if (ovTargetPage == null && !bForce)
+                return false;
+
+            if (ovTargetPage == null)
+                ovTargetPage = EstablishPage(sPageName);
+
+            Visio.Page ovMyPage = ovSourceShape.ContainingPage;
+            if (ovTargetPage == ovMyPage)
+                return true;
+
+            if (!ParentShapeTo(ovSourceShape, ovTargetPage))
+                try
+                {
+                    short iEvents = m_ovTargetApp.EventsEnabled;
+                    m_ovTargetApp.EventsEnabled = (short)visTF.FALSE;
+
+                    //this will mark the source shape with GUIDs so
+                    //AssociateNetShape will work
+                    MarkASIAssociateGUID(ovSourceShape, true);
+
+                    Visio.Shape ovShape = ovTargetPage.Drop(ovSourceShape, ShapeBuilder.RetrieveCellValue(ovSourceShape, "PinX"), ShapeBuilder.RetrieveCellValue(ovSourceShape, "PinY"));
+
+                    //this will associate shape to the new one
+                    UnmarkASIAssociateGUID(ovShape, true);
+
+                    ovSourceShape.Delete();
+
+                    m_ovTargetApp.EventsEnabled = iEvents;
+                }
+                catch { }
+
+            return true;
+        }
+        public void MarkASIAssociateGUID(Visio.Shape ovShape, bool bDeep)
+        {
+            string sGUID = ShapeBuilder.EstablishGUIDforShape(ovShape);
+            if (GetPresentationObject(sGUID) != null)
+                ShapeBuilder.SetASIModelGUID(ovShape, sGUID);
+            else
+                ShapeBuilder.SetASIModelGUID(ovShape, "");
+
+            if (!bDeep)
+                return;
+
+            foreach (Visio.Shape ovSubShape in ovShape.Shapes)
+                MarkASIAssociateGUID(ovSubShape, bDeep);
+
+        }
+        public void UnmarkASIAssociateGUID(Visio.Shape ovShape, bool bDeep)
+        {
+            string sGUID = ShapeBuilder.GetASIModelGUID(ovShape);
+            if (sGUID.Length > 0)
+            {
+                VisioShape oaShape = GetPresentationObject(sGUID) as VisioShape;
+                RemovePresentationObject(oaShape, sGUID);
+                AssociateShapePresentationObject(ovShape, oaShape);
+            }
+
+            if (!bDeep)
+                return;
+
+            foreach (Visio.Shape ovSubShape in ovShape.Shapes)
+                UnmarkASIAssociateGUID(ovSubShape, bDeep);
+
+        }
+        public virtual bool MoveShapeTo(VisioShape oaShape, object dPinX, object dPinY, bool bForce)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            if (!bForce && ShapeBuilder.IsLocationLocked(ovShape))
+                return false;
+
+            if (dPinX != null)
+                ShapeBuilder.SetCellFormula(ovShape, "PinX", string.Format("={0}", dPinX), bForce);
+
+            if (dPinY != null)
+                ShapeBuilder.SetCellFormula(ovShape, "PinY", string.Format("={0}", dPinY), bForce);
+
+            return true;
+        }
+        public virtual bool RotateShapeTo(VisioShape oaShape, object dAngle, bool bForce)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            if (!bForce && ShapeBuilder.IsLocationLocked(ovShape))
+                return false;
+
+            if (dAngle != null)
+                ShapeBuilder.SetCellFormula(ovShape, "Angle", string.Format("={0}", dAngle), bForce);
+
+            return true;
+        }
+        public virtual bool MoveShapeBy(VisioShape oaShape, object dPinX, object dPinY, bool bForce)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            if (!bForce && ShapeBuilder.IsLocationLocked(ovShape))
+                return false;
+
+            if (dPinX != null)
+            {
+                double dNewPinX = ConvertToDouble(dPinX) + ShapeBuilder.RetrieveCellValue(ovShape, "PinX");
+                ShapeBuilder.SetCellFormula(ovShape, "PinX", string.Format("={0}", dNewPinX), bForce);
+            }
+            if (dPinY != null)
+            {
+                double dNewPinY = ConvertToDouble(dPinY) + ShapeBuilder.RetrieveCellValue(ovShape, "PinY");
+                ShapeBuilder.SetCellFormula(ovShape, "PinY", string.Format("={0}", dNewPinY), bForce);
+            }
+            return true;
+        }
+        public virtual bool RotateShapeBy(VisioShape oaShape, object dAngle, bool bForce)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            if (!bForce && ShapeBuilder.IsLocationLocked(ovShape))
+                return false;
+
+            if (dAngle != null)
+            {
+                double dNewAngle = ConvertToDouble(dAngle) + ShapeBuilder.RetrieveCellValue(ovShape, "Angle");
+                ShapeBuilder.SetCellFormula(ovShape, "Angle", string.Format("={0}", dNewAngle), bForce);
+            }
+            return true;
+        }
+        public virtual bool UpdateShape(VisioShape oaShape, bool bOnlyChanges)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            ObjectCollection oList = NewCollection();
+            foreach (Parameter oParameter in oaShape.Parameters())
+            {
+                if (bOnlyChanges && oParameter.IsValueDetermined)
+                    continue;
+
+                oList.Add(oParameter);
+            }
+
+            if (oList.Count == 0)
+                return false;
+
+            int iScope = BeginUndoScope("UpdateShape");
+
+            SuspectValueQueueLock++;
+            foreach (Parameter oParameter in oList)
+            {
+                if (oParameter.Value == null || oParameter.Status.IsTemporary)
+                    continue;
+
+                string sName = oParameter.Name;
+                string sSection = sName.Split('.')[0];
+
+                if (oParameter.IsNamed("Text"))
+                    ShapeBuilder.SetShapeText(ovShape, oParameter.ValueAsString);
+                else if (oParameter.IsNamed("Comment"))
+                    ShapeBuilder.SetCellFormula(ovShape, sName, WrapDQIfNeeded(oParameter.ValueAsString), false);
+                else if (oParameter.IsNamed("Layer"))
+                    ShapeBuilder.AddShapeLayers(ovShape, oParameter.ValueAsList, true);
+                else if (StringCompare(sSection, "ALL"))
+                {
+                    string sCell = sName.Remove(0, 4);
+                    sSection = sCell.Split('.')[0];
+                    if (StringCompare(sSection, "USER"))
+                        ShapeBuilder.SetAllUserCellFormula(ovShape, sCell.Remove(0, 5), oParameter.ValueAsString, true);
+                    else
+                        ShapeBuilder.SetAllCellFormula(ovShape, sCell, oParameter.ValueAsString, true);
+                }
+                else if (!ShapeBuilder.DoesCellExist(ovShape, sName))
+                {
+                    oParameter.Status.IsTemporary = true; //this parameter can be skipped next time the shape updates
+                    if (StringCompare(sSection, "USER"))
+                    {
+                        string sCell = sName.Split('.')[1];
+                        ShapeBuilder.EstablishUserCell(ovShape, sCell);
+                        ShapeBuilder.SetCellFormula(ovShape, sName, oParameter.ValueAsString, false);
+                        oaShape.ShapeModified();
+                    }
+                }
+                else if (!ShapeBuilder.DoesCellValueEqual(ovShape, sName, oParameter.Value))
+                {
+                    ShapeBuilder.SetCellFormula(ovShape, sName, oParameter.ValueAsString, false);
+                    oaShape.ShapeModified();
+                }
+            }
+            SuspectValueQueueLock--;
+
+            EndUndoScope(iScope);
+            return true;
+        }
+
+        public bool DeleteUnconnectedShapes(Visio.Page ovPage)
+        {
+            Visio.Selection ovSelection = CompleteSelection();
+            ovSelection.DeselectAll();
+
+            foreach (Visio.Shape ovShape in ovPage.Shapes)
+                if (ovShape.OneD == (short)visTF.TRUE && ovShape.Connects.Count != 2)
+                    ovSelection.Select(ovShape, (short)Visio.VisSelectArgs.visSelect);
+
+            if (ovSelection.Count == 0)
+                return false;
+
+            ovSelection.Delete();
+            return true;
+        }
+
+        public bool GlueTo(VisioShape oaFromShape, string sFromCellName, VisioShape oaToShape, string sToCellName)
+        {
+            Visio.Shape ovFromShape = FindShapeforGUID(oaFromShape.Name);
+            Visio.Shape ovToShape = FindShapeforGUID(oaToShape.Name);
+            if (ovFromShape == null || ovToShape == null)
+                return false;
+
+            try
+            {
+                Visio.Cell ovFromCell = ovFromShape.get_Cells(sFromCellName);
+                Visio.Cell ovToCell = ovToShape.get_Cells(sToCellName);
+
+                ovFromCell.GlueTo(ovToCell);
+
+                AfterCellChanged(ovFromCell);
+                AfterCellChanged(ovToCell);
+                return true;
+            }
+            catch { }
+            return false;
+        }
+        public bool GlueTo(Visio.Shape ovFromShape, string sFromCellName, Visio.Shape ovToShape, string sToCellName, string sAltToCellName)
+        {
+            if (ovFromShape == null || ovToShape == null)
+                return false;
+
+            try
+            {
+                Visio.Cell ovFromCell = ovFromShape.get_Cells(sFromCellName);
+
+                Visio.Cell ovToCell = ovToShape.get_Cells(sAltToCellName);
+                if (ovToShape.get_CellExistsU(sToCellName, (short)visTF.FALSE) == (short)visTF.TRUE)
+                    ovToCell = ovToShape.get_Cells(sToCellName);
+
+
+                ovFromCell.GlueTo(ovToCell);
+
+                AfterCellChanged(ovFromCell);
+                AfterCellChanged(ovToCell);
+                return true;
+            }
+            catch { }
+            return false;
+        }
+        public bool SetCellValue(VisioShape oaShape, string sCellName, object oValue)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.SetCellFormula(ovShape, sCellName, oValue.ToString(), true);
+            oaShape.ShapeModified();
+            return true;
+        }
+        public bool SetCellFormula(VisioShape oaShape, string sCellName, object oValue)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.SetCellFormula(ovShape, sCellName, oValue.ToString(), true);
+            oaShape.ShapeModified();
+            return true;
+        }
+        public bool SetUserCellFormula(VisioShape oaShape, string sCellName, object oValue)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.EstablishUserCellFormula(ovShape, sCellName, oValue.ToString(), true);
+            oaShape.ShapeModified();
+            return true;
+        }
+        public bool SetScratchCellFormula(VisioShape oaShape, string sCellName, object oValue)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.EstablishScratchCellFormula(ovShape, sCellName, oValue.ToString(), true);
+            oaShape.ShapeModified();
+            return true;
+        }
+        public bool AddLayers(VisioShape oaShape, string sLayers, bool bClearFirst, bool bDeep)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.AddShapeLayers(ovShape, sLayers, bClearFirst);
+
+            if (bDeep)
+                foreach (Visio.Shape ovSubShape in ovShape.Shapes)
+                    if (GetPresentationObject(ovSubShape) == null)
+                        ShapeBuilder.AddShapeLayers(ovSubShape, sLayers, bClearFirst);
+
+            return true;
+        }
+        public bool RemoveLayers(VisioShape oaShape, string sLayers, bool bDeep)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.RemoveShapeLayers(ovShape, sLayers);
+
+            if (bDeep)
+                foreach (Visio.Shape ovSubShape in ovShape.Shapes)
+                    if (GetPresentationObject(ovSubShape) == null)
+                        ShapeBuilder.RemoveShapeLayers(ovSubShape, sLayers);
+
+            return true;
+        }
+        public bool SetText(VisioShape oaShape, string sText)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.SetShapeText(ovShape, sText);
+            return true;
+        }
+        public bool AddConnectionPoint(VisioShape oaShape, string sName, string sXFormula, string sYFormula)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            string sTag = InternalName(sName);
+            ShapeBuilder.EstablishConnectionPointCellFormula(ovShape, sTag, "", true);
+            ShapeBuilder.EstablishConnectionPointCellFormula(ovShape, string.Format("{0}.X", sTag), sXFormula, true);
+            ShapeBuilder.EstablishConnectionPointCellFormula(ovShape, string.Format("{0}.Y", sTag), sYFormula, true);
+            return true;
+        }
+
+        public bool SetBehavior(VisioShape oaShape, string sBehavior, bool bApplyToMaster)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            Visio.Master ovMaster = ovShape.Master;
+            if (bApplyToMaster && ovMaster != null)
+            {
+                Visio.Shape ovMainShape = ovMaster.Shapes[1];
+                ShapeBuilder.PublishASIBehaviors(ovMainShape, sBehavior, null);
+            }
+            ShapeBuilder.PublishASIBehaviors(ovShape, sBehavior, null);
+            return true;
+        }
+
+        public virtual object GetCellValue(VisioShape oaShape, string sCellName)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            return ShapeBuilder.RetrieveCellValue(ovShape, sCellName);
+        }
+
+        public bool SetUserCellValue(VisioShape oaShape, string sCellName, object oValue)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape == null)
+                return false;
+
+            ShapeBuilder.EstablishUserCellValue(ovShape, sCellName, oValue.ToString(), true);
+            oaShape.ShapeModified();
+            return true;
+        }
+
+        public virtual object GetUserCellValue(VisioShape oaShape, string sCellName)
+        {
+            Visio.Shape ovShape = GetShapeforShapeView(oaShape);
+            if (ovShape == null)
+                return false;
+
+            return ShapeBuilder.RetrieveUserCellValue(ovShape, sCellName);
+        }
+        public Visio.Shape GetShapeforShapeView(VisioShape oaShape)
+        {
+            return FindShapeforGUID(oaShape.Name);
+        }
+        public Visio.Shape GetShapeforElement(XmlElement oXMLElement)
+        {
+            try
+            {
+                string sGUID = oXMLElement.GetAttribute("GUID");
+                return FindShapeforGUID(sGUID);
+            }
+            catch { }
+            return null;
+        }
+        public Visio.Page GetPageforPageView(VisioPage oaPage)
+        {
+            return FindPageforGUID(oaPage.Name);
+        }
+
+        public Visio.Page FindPageforGUID(string sGUID)
+        {
+            string[] sID = sGUID.Split(':');
+            string sMyPageGUID = sID[0];
+            return PageFind(sMyPageGUID);
+        }
+        public Visio.Shape FindShapeforGUID(string sGUID)
+        {
+            if (m_ovTargetDoc == null)
+                return null;
+
+            Visio.Page ovPage = FindPageforGUID(sGUID);
+            if (ovPage == null)
+            {
+                if (sGUID == ShapeBuilder.EstablishGUIDforShape(m_ovTargetDoc))
+                    return m_ovTargetDoc.DocumentSheet;
+
+                return null;
+            }
+
+            string[] sID = sGUID.Split(':');
+            if (sID.Length == 1)
+                return ovPage.PageSheet;
+
+            try
+            {
+                string sMyShapeGUID = "*" + sID[1];
+                Visio.Shape ovShape = ovPage.Shapes[sMyShapeGUID];
+                return ovShape;
+            }
+            catch { }
+            return null;
+        }
+
+        public Visio.Page PageFind(string sGUID)
+        {
+            if (!m_ovPages.ContainsKey(sGUID))
+                return null;
+
+            return m_ovPages[sGUID] as Visio.Page;
+        }
+        public bool PageAdd(Visio.Page ovPage, string sGUID)
+        {
+            if (m_ovPages.ContainsKey(sGUID))
+                return false;
+
+            m_ovPages.Add(sGUID, ovPage);
+            return true;
+        }
+        public bool PageRemove(Visio.Page ovPage, string sGUID)
+        {
+            if (!m_ovPages.ContainsKey(sGUID))
+                return false;
+
+            m_ovPages.Remove(sGUID);
+            return true;
+        }
+        public VisioPage PageAdded(Visio.Page ovPage)
+        {
+            VisioPage oaPage = EstablishPageViewForPage(ovPage);
+            return oaPage;
+        }
+
+        public void PageDeleted(Visio.Page ovPage)
+        {
+            RemovePageViewForPage(ovPage);
+        }
+
+        public virtual Solution MySolution
+        {
+            get
+            {
+                Solution oSolution = null;
+                if (m_oaDocument != null)
+                    oSolution = m_oaDocument.ViewOf() as Solution;
+
+                return oSolution;
+            }
+        }
+        public override VisioDocument ActiveDocument
+        {
+            get
+            {
+                if (m_oaDocument == null && m_ovTargetDoc != null)
+                {
+                    VisioMaster oaMaster = MyWorkspace.ActiveCommunicationManager.VisioMaster("VisioDocument", typeof(VisioDocument));
+
+                    string sGUID = ShapeBuilder.EstablishGUIDforShape(m_ovTargetDoc);
+                    m_oaDocument = CreateKnowledge(sGUID, oaMaster.ConstructionType) as VisioDocument;
+                    oaMaster.InitializeNewInstance(m_oaDocument);
+                    m_oaDocument.CustomName = m_ovTargetDoc.Name;
+                }
+                return m_oaDocument;
+            }
+        }
+        //		public bool EstablishShapeHyperlink(VisioShape oSource, VisioPage oTarget)
+        //		{
+        //			Visio.Page ovPage = GetPageforPageView(oTarget);
+        //			Visio.Shape ovShape = GetShapeforShapeView(oSource);
+        //
+        //			ShapeBuilder.EstablishHyperlinkCellFormula(ovPage.PageSheet,"Goto Source","XXX",true);
+        //			return true;
+        //		}
+        public bool VisioDoCmd(short iCMD)
+        {
+            bool bSucess = false;
+            Server oServer = MyServer;
+            if (m_ovTargetApp != null)
+                try
+                {
+                    m_ovTargetApp.DoCmd(iCMD);
+                    bSucess = true;
+                }
+                catch
+                {
+                    //SRS need to reset cursor to defult
+                    m_ovTargetApp.DoCmd((short)Visio.VisUICmds.visCmdDRPointerTool);
+                    GC.Collect(1);
+                }
+
+            //			if ( bSucess && oServer != null )
+            //				try
+            //				{
+            //					//oServer.FormRefresh();
+            //				}
+            //				catch {}
+
+
+            return bSucess;
+        }
+        public bool VisioDoCmd(Visio.VisUICmds iCMD)
+        {
+            return VisioDoCmd((short)iCMD);
+        }
+
+        [ToolBarButtonAttribute("Open Stencil...", Icons.FileOpen, false)]
+        [MenuAttribute("Open Stencil...", Icons.FileOpen, Shortcut.None, "Diagram", "O")]
+        public void OpenStencilDialog()
+        {
+            if (!m_bIsEditable)
+                return;
+
+            if (VisioDoCmd(Visio.VisUICmds.visCmdFileOpenStencil))
+                VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+
+        }
+
+        [ToolBarButtonAttribute("Align Shapes...", Icons.AlignShapes, false)]
+        public void AlignShapesDialog()
+        {
+            if (m_ovTargetApp == null || CompleteSelection().Count <= 1)
+            {
+                PopupMessage("Selection Incomplete", "Two or more shapes must be selected for this operation.");
+                return;
+            }
+
+            VisioDoCmd(Visio.VisUICmds.visCmdObjectAlignObjects);
+        }
+        [ToolBarButtonAttribute("Distribute Shapes...", Icons.DistributeShapes, false)]
+        public void DistributeShapesDialog()
+        {
+            if (m_ovTargetApp == null || CompleteSelection().Count <= 2)
+            {
+                PopupMessage("Selection Incomplete", "Three or more shapes must be selected for this operation.");
+                return;
+            }
+
+            VisioDoCmd(Visio.VisUICmds.visCmdObjectDistributeDlg);
+        }
+        public void ApplyToShape(Visio.Shape ovShape, Visio.VisUICmds iCmd)
+        {
+            if (m_ovTargetApp == null)
+                return;
+
+            try
+            {
+                SelectShape(ovShape, true);
+                VisioDoCmd(iCmd);
+            }
+            catch { }
+        }
+        public string FindReplaceShapeText(string sGUID, string sFind, string sReplace, bool bIgnoreCase)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(sGUID);
+
+            string sText = ovShape.Text;
+            if (sText.Length == 0)
+                return null;
+
+            string sSample = sText.ToLower();
+            if (!bIgnoreCase && sText.IndexOf(sFind) != -1)
+            {
+                sText = sText.Replace(sFind, sReplace);
+            }
+            else if (bIgnoreCase && sSample.IndexOf(sFind) != -1)
+            {
+                int iStart = sSample.IndexOf(sFind);
+                int iEnd = iStart + sFind.Length;
+                int iLength = sText.Length - iEnd;
+                sText = string.Format("{0}{1}{2}", sText.Substring(0, iStart), sReplace, sText.Substring(iEnd, iLength));
+            }
+
+            ovShape.Text = sText;
+            return sText;
+        }
+        public void JumpToGUID(string sGUID, bool bZoom)
+        {
+            Visio.Shape ovMarker = MarkerShape;
+            Visio.Page ovPage = FindPageforGUID(sGUID);
+            DisplayPage(ovPage);
+
+            Visio.Shape ovShape = FindShapeforGUID(sGUID);
+            if (ovShape == null)
+                VisioDoCmd(Visio.VisUICmds.visCmdZoomPageWidth);
+            else if (ovShape == ovMarker)
+                VisioDoCmd(Visio.VisUICmds.visCmdZoomSingleTile);
+            else
+                SelectShape(ovShape, false);
+
+            if (bZoom && ovShape != null)
+                VisioDoCmd(Visio.VisUICmds.visCmdView400);
+        }
+
+        public void ZoomToShape(Visio.Shape ovShape)
+        {
+            ApplyToShape(ovShape, Visio.VisUICmds.visCmdZoomIn);
+        }
+        public void BringToFront(Visio.Shape ovShape)
+        {
+            //ovShape.BringToFront();
+            ApplyToShape(ovShape, Visio.VisUICmds.visCmdObjectBringToFront);
+        }
+        public void SendToBack(Visio.Shape ovShape)
+        {
+            //ovShape.SendToBack();
+            ApplyToShape(ovShape, Visio.VisUICmds.visCmdObjectSendToBack);
+        }
+        public void UpdateAlignmentBox(Visio.Shape ovShape)
+        {
+            //ovShape.UpdateAlignmentBox();
+            ApplyToShape(ovShape, Visio.VisUICmds.visCmdAlignBox);
+        }
+
+        [ToolBarButtonAttribute("Page Setup...", Icons.Page, false)]
+        public void PageSetupDialog()
+        {
+            if (VisioDoCmd(Visio.VisUICmds.visCmdOptionsPageSetup))
+                VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+        }
+        //		[ToolBarButtonAttribute("Resize page to fit",Icons.Document,true,"DA")]
+        //		public void ResizePageToFit()
+        //		{
+        //			if (m_ovTargetApp != null)
+        //				m_ovTargetApp.ActivePage.ResizeToFitContents();
+        //		}
+        [ToolBarButtonAttribute("Pan and Zoom...", Icons.PanAndZoom, false)]
+        public void PanZoomWindow()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdPanZoom);
+        }
+        //		[ToolBarButtonAttribute("Zoom To Area...",Icons.ZoomToPage)]
+        //		[MenuAttribute("Zoom To Area","Diagram")]
+        //		public void ZoomToArea()
+        //		{
+        //			if (m_ovTargetApp != null)
+        //				m_ovTargetApp.DoCmd((short)Visio.VisUICmds.visCmdZoomArea);
+        //		}
+        [ToolBarButtonAttribute("Zoom To Shape...", Icons.ZoomToShape, false)]
+        public void ZoomToSelection()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdZoomIn);
+        }
+        [MenuAttribute("Zoom 50%", Icons.LastIcon, Shortcut.None, "Diagram", "Zoom", "Z1")]
+        public void Zoom50()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdView50);
+        }
+        [MenuAttribute("Zoom 100%", Icons.LastIcon, Shortcut.None, "Diagram", "Zoom", "Z2")]
+        public void Zoom100()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdView100);
+        }
+        [MenuAttribute("Zoom 200%", Icons.LastIcon, Shortcut.None, "Diagram", "Zoom", "Z3")]
+        public void Zoom200()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdView200);
+        }
+        [MenuAttribute("Zoom 400%", Icons.LastIcon, Shortcut.None, "Diagram", "Zoom", "Z4")]
+        public void Zoom400()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdView400);
+        }
+        [MenuAttribute("Zoom To Page", Icons.LastIcon, Shortcut.None, "Diagram", "Zoom", "Z5")]
+        [ToolBarButtonAttribute("Zoom To Page...", Icons.ZoomToPage, false)]
+        public void ZoomToPage()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdZoomSingleTile);
+        }
+
+        [MenuAttribute("Show Ruler", Icons.LastIcon, Shortcut.None, "Diagram", "Drawing Tools", "R")]
+        public void Ruler()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdViewRulers);
+        }
+        [MenuAttribute("Set Ruler && Grid", Icons.LastIcon, Shortcut.None, "Diagram", "Drawing Tools", "AAAA")]
+        public void SetRulerAndGrid()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdRulerGridDlg);
+        }
+        [MenuAttribute("Layers...", Icons.Layer, Shortcut.None, "Diagram", "L")]
+        [ToolBarButtonAttribute("Layers", Icons.Layer, false)]
+        public void EditLayers()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdLayerSetupDlg);
+        }
+        [MenuAttribute("Show Grid", Icons.LastIcon, Shortcut.None, "Diagram", "Drawing Tools", "G")]
+        public void Grid()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdViewGrid);
+        }
+
+        [MenuAttribute("Summary Info", Icons.NewDocument, Shortcut.None, "Diagram", "Drawing Tools", "S")]
+        public void SummaryInfo()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdFileSummaryInfoDlg);
+        }
+
+        [MenuAttribute("Protect Document", Icons.LastIcon, Shortcut.None, "Diagram", "Drawing Tools", "T")]
+
+        public void ProtectDocument()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdOptionsProtectDocument);
+        }
+        public void ProtectShape()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdFormatProtection);
+        }
+
+        [MenuAttribute("Show Connection Points", Icons.LastIcon, Shortcut.None, "Diagram", "Drawing Tools", "C")]
+        public void ConnectionPoints()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdViewConnections);
+        }
+
+        [MenuAttribute("Show Guide", Icons.LastIcon, Shortcut.None, "Diagram", "Drawing Tools", "G")]
+        public void Guide()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdViewGuides);
+        }
+        [MenuAttribute("Show Margins", Icons.LastIcon, Shortcut.None, "Diagram", "Drawing Tools", "P")]
+        public void Margins()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdViewPageBreaks);
+        }
+        //		[MenuAttribute("Restart Events",Icons.LastIcon,Shortcut.None,"Diagram","Drawing Tools","R")]
+        //		public void RestartEvents()
+        //		{
+        //			EventsEnabled = (short)visTF.TRUE;
+        //		}
+        [ToolBarButtonAttribute("Connector Tool", Icons.ConnectorTool, false)]
+        public void ConnectorTool()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdDRConnectorTool);
+        }
+        [ToolBarButtonAttribute("Pointer Tool", Icons.PointerTool, false)]
+        public void PointerTool()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+        }
+        [ToolBarButtonAttribute("Text Tool", Icons.TextTool, false)]
+        public void TextTool()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdDRTextTool);
+        }
+        [ToolBarButtonAttribute("Undo", Icons.Undo, false)]
+        public override void Undo()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdEditUndo);
+            SetEventsOn();
+        }
+        [ToolBarButtonAttribute("Redo", Icons.Redo, false)]
+        public override void Redo()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdEditRedo);
+            SetEventsOn();
+        }
+        [ToolBarButtonAttribute("Spelling...", Icons.SpellCheck, false)]
+        public void SpellingDialog()
+        {
+            if (VisioDoCmd(Visio.VisUICmds.visCmdToolsSpelling))
+                VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+        }
+        [ToolBarButtonAttribute("Add Comment...", Icons.Author, false)]
+        public virtual void AddComment()
+        {
+            if (VisioDoCmd(Visio.VisUICmds.visCmdInsertComment))
+                VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+        }
+
+
+
+        [ToolBarButtonAttribute("Find...", Icons.Find, false)]
+        public void FindShapeDialog()
+        {
+            VisioGetFocus();
+            if (VisioDoCmd(Visio.VisUICmds.visCmdEditFind))
+                VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+        }
+        [ToolBarButtonAttribute("Find and Replace...", Icons.FindReplace, false)]
+        public void ReplaceShapeDialog()
+        {
+            VisioGetFocus();
+            if (VisioDoCmd(Visio.VisUICmds.visCmdEditReplace))
+                VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+        }
+
+
+        public void VisioPageNew()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdOptionsNewPage);
+        }
+        public void VisioPageDelete()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdOptionsDeletePages);
+        }
+        public void VisioPageNext()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdTurnToNextPage);
+        }
+        public void VisioPagePrevious()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdTurnToPrevPage);
+        }
+        public void VisioPageReorder()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdOptionsReorderPages);
+        }
+        public void VisioPageSetup()
+        {
+            VisioDoCmd(Visio.VisUICmds.visCmdOptionsPageSetup);
+        }
+        public void VisioPageTabsHide()
+        {
+            PageTabWindow(false);
+        }
+        //		public void VisioPageTabsShow()
+        //		{
+        //			Visio.Window ovWindow = Application.ActiveWindow;
+        //			if ( ovWindow == null )
+        //				return;
+        //
+        //			ovWindow.ShowPageTabs = false;
+        //			System.Windows.Forms.Application.DoEvents();			
+        //			ovWindow.ShowPageTabs = true;
+        //		}
+
+        public bool PrintDrawingPreview()
+        {
+            if (m_ovTargetDoc == null)
+                return false;
+
+            string sFile = string.Format(@"{0}\PrintPreview.vsd", MyWorkspace.CurrentWorkFile.Directory, MyApplication.Name);
+            ApprenticeObject.XDelete(sFile);
+
+            SaveDocument(sFile);
+
+            Visio.Application oApp = new Visio.Application();
+            oApp.Documents.Open(sFile);
+            oApp.ActiveDocument.Application.DoCmd((short)Visio.VisUICmds.visCmdPrintPreview);
+            oApp.Visible = true;
+
+
+            //			using(PrintPreviewDialog oPrintPreviewDialog = new PrintPreviewDialog())
+            //			{
+            //				PrintDocument oPrintDocument = new PrintDocument(); 
+            //				oPrintDocument.PrintController = new PreviewPrintController();
+            //				oPrintDocument.PrintPage +=new PrintPageEventHandler(PreviewPrintPage);
+            //
+            //				oPrintPreviewDialog.Document = oPrintDocument;
+            //				oPrintPreviewDialog.ShowDialog();
+            //			}
+            //
+            //			MySession.FormRefresh();
+            return true;
+        }
+        //		private void PreviewPrintPage(object sender, PrintPageEventArgs ev)
+        //		{
+        ////			foreach(Visio.Page ovPage in m_ovTargetDoc.Pages)
+        ////			{
+        //				int handlevalue = m_ovTargetDoc.Application.ActivePage.Picture.Handle;
+        //				//int handlevalue = ovPage.Picture.Handle;
+        //
+        //				Metafile oVisioMetafile = new Metafile((IntPtr) handlevalue, false);
+        //				ev.Graphics.DrawImage(oVisioMetafile, 0, 0 );
+        ////			}
+        //		}
+
+        public bool FindShapeText(string sSearch, bool bCurrentPage, bool bIgnoreCase, SemanticTreeView oaTree)
+        {
+            bool bFound = false;
+            MySession.FormRefresh();
+
+            if (!bCurrentPage)
+                MySession.ProgressStart(0, m_ovTargetDoc.Pages.Count, "Searching...");
+
+            foreach (Visio.Page ovPage in m_ovTargetDoc.Pages)
+            {
+                if (!bCurrentPage)
+                    MySession.ProgressDoAction(ovPage.Name);
+
+                if (ovPage.Background == (short)visTF.TRUE)
+                    continue;
+
+                if (bCurrentPage && ovPage != m_ovTargetDoc.Application.ActivePage)
+                    continue;
+
+                string sText = ovPage.Name;
+                SemanticTreeNode oPageFolder = new SemanticTreeNode(oaTree, sText, Icons.Page);
+                oPageFolder.Tag = ShapeBuilder.EstablishGUIDforShape(ovPage);
+
+                string sFind = bIgnoreCase ? sSearch.ToLower() : sSearch;
+                if (FindShapeText(sFind, bIgnoreCase, ovPage, oPageFolder, bCurrentPage))
+                    bFound = true;
+
+                if (oPageFolder.Nodes.Count == 0)
+                    oPageFolder.Remove();
+            }
+
+            if (!bCurrentPage)
+                MySession.ProgressEnd();
+
+            return bFound;
+        }
+
+        public bool FindShapeText(string sSearch, bool bIgnoreCase, Visio.Page ovPage, SemanticTreeNode oParent, bool bProgress)
+        {
+
+            bool bFound = false;
+            if (bProgress)
+                MySession.ProgressStart(0, ovPage.Shapes.Count, "Searching...");
+
+            foreach (Visio.Shape ovShape in ovPage.Shapes)
+            {
+                string sText = ovShape.Text;
+
+                if (bProgress)
+                    MySession.ProgressDoAction(sText);
+
+                SemanticTreeNode oShape = new SemanticTreeNode(oParent, sText, Icons.Master);
+                oShape.Tag = ShapeBuilder.EstablishGUIDforShape(ovShape);
+
+                string sTarget = bIgnoreCase ? sText.ToLower() : sText;
+                if (sTarget.IndexOf(sSearch) != -1)
+                {
+                    if (FindShapeText(sSearch, bIgnoreCase, ovShape, oShape))
+                        bFound = true;
+
+                    oShape.EnsureVisible();
+                    continue;
+                }
+
+                if (FindShapeText(sSearch, bIgnoreCase, ovShape, oShape))
+                    bFound = true;
+
+                if (oShape.Nodes.Count == 0)
+                    oShape.Remove();
+                else
+                    oShape.ForeColor = System.Drawing.Color.Gray;
+
+            }
+
+            if (bProgress)
+                MySession.ProgressEnd();
+
+            return bFound;
+        }
+        public bool FindShapeText(string sSearch, bool bIgnoreCase, Visio.Shape ovShape, SemanticTreeNode oParent)
+        {
+            bool bFound = false;
+            foreach (Visio.Shape ovSubShape in ovShape.Shapes)
+            {
+                string sKnow = ShapeBuilder.GetASIKnowledge(ovSubShape);
+                Icons iIcon = DoesStringStartWith(sKnow, "Attribute") ? Icons.Tag : Icons.TextTool;
+
+                string sText = ovSubShape.Text;
+
+                SemanticTreeNode oShape = new SemanticTreeNode(oParent, sText, iIcon);
+                oShape.Tag = ShapeBuilder.EstablishGUIDforShape(ovSubShape);
+
+                string sTarget = bIgnoreCase ? sText.ToLower() : sText;
+                if (sTarget.IndexOf(sSearch) != -1)
+                {
+                    if (FindShapeText(sSearch, bIgnoreCase, ovSubShape, oShape))
+                        bFound = true;
+
+                    //oShape.EnsureVisible();
+                    continue;
+                }
+
+                if (FindShapeText(sSearch, bIgnoreCase, ovSubShape, oShape))
+                    bFound = true;
+
+                if (oShape.Nodes.Count == 0)
+                    oShape.Remove();
+                else
+                    oShape.ForeColor = System.Drawing.Color.Gray;
+
+            }
+
+            return bFound;
+        }
+
+        public bool PrintDrawingDialog()
+        {
+            if (m_ovTargetDoc == null)
+                return false;
+
+            using (PrintDialog oPrintDialog = new PrintDialog())
+            {
+                oPrintDialog.AllowPrintToFile = true;
+                oPrintDialog.AllowSelection = false;
+                oPrintDialog.AllowSomePages = false;
+                oPrintDialog.ShowNetwork = true;
+
+                PrintDocument oPrintDocument = new PrintDocument();
+                oPrintDocument.DocumentName = m_ovTargetDoc.Name;
+                oPrintDocument.PrintController = new StandardPrintController();
+                //oPrintDocument.PrintPage +=new PrintPageEventHandler(PrintPage);
+
+
+                oPrintDialog.Document = oPrintDocument;
+                if (oPrintDialog.ShowDialog() == DialogResult.OK)
+                {
+                    int iCount = 0;
+                    foreach (Visio.Page ovPage in m_ovTargetDoc.Pages)
+                    {
+                        if (ovPage.Background == (short)visTF.TRUE)
+                            continue;
+
+                        if (ShapeBuilder.RetrieveCellValue(ovPage.PageSheet, "UIVisibility") == 1.0)
+                            continue;
+
+                        iCount++;
+                    }
+
+                    string sPrinterName = oPrintDialog.PrinterSettings.PrinterName;
+
+                    bool bPrintToFile = oPrintDialog.PrintToFile;
+                    int iFromPage = oPrintDialog.PrinterSettings.FromPage;
+                    int iToPage = oPrintDialog.PrinterSettings.ToPage;
+                    int iCopies = oPrintDialog.PrinterSettings.Copies;
+                    bool bCollate = oPrintDialog.PrinterSettings.Collate;
+
+                    try
+                    {
+                        m_ovTargetDoc.PrintOut(Visio.VisPrintOutRange.visPrintFromTo, 1, iCount, false, sPrinterName, bPrintToFile, null, iCopies, bCollate, false);
+                        //m_ovTargetDoc.PrintOut(Visio.VisPrintOutRange.visPrintAll,1,m_ovTargetDoc.Pages.Count,false,null,false,null,1,false,false);
+                    }
+                    catch { }
+                }
+            }
+
+            MySession.FormRefresh();
+            return true;
+        }
+        //		private void PrintPage(object sender, PrintPageEventArgs ev)
+        //		{
+        //			int iCount = 0;
+        //			foreach(Visio.Page ovPage in m_ovTargetDoc.Pages)
+        //			{
+        //				if ( ovPage.Background == (short)visTF.TRUE)
+        //					continue;
+        //
+        //				if ( ShapeBuilder.RetrieveCellValue(ovPage.PageSheet,"UIVisibility") == 1.0 )
+        //					continue;
+        //
+        //				iCount++;
+        //			}
+        //
+        //			try
+        //			{
+        //				m_ovTargetDoc.PrintOut(Visio.VisPrintOutRange.visPrintFromTo,1,iCount,false,null,false,null,1,false,false);
+        //				//m_ovTargetDoc.PrintOut(Visio.VisPrintOutRange.visPrintAll,1,m_ovTargetDoc.Pages.Count,false,null,false,null,1,false,false);
+        //			} 
+        //			catch {}		
+        //		}
+        //		public void PrintDrawing()
+        //		{
+        //			if ( m_ovTargetDoc == null )
+        //				return;
+        //
+        //			int iCount = 0;
+        //			foreach(Visio.Page ovPage in m_ovTargetDoc.Pages)
+        //				if ( ovPage.Background == (short)visTF.FALSE)
+        //					iCount++;
+        //
+        //			try
+        //			{
+        //				m_ovTargetDoc.PrintOut(Visio.VisPrintOutRange.visPrintFromTo,1,iCount,false,null,false,null,1,false,false);
+        //				//m_ovTargetDoc.PrintOut(Visio.VisPrintOutRange.visPrintAll,1,m_ovTargetDoc.Pages.Count,false,null,false,null,1,false,false);
+        //			} 
+        //			catch {}
+        //
+        //			MySession.FormRefresh();
+        //		}
+        //		public void PrintPage()
+        //		{
+        //			if ( m_ovTargetDoc == null )
+        //				return;
+        //
+        //			int iCount = 0;
+        //			foreach(Visio.Page ovPage in m_ovTargetDoc.Pages)
+        //			{
+        //				iCount++;
+        //				if ( ovPage == m_ovTargetDoc.Application.ActivePage)
+        //					try
+        //					{
+        //						m_ovTargetDoc.PrintOut(Visio.VisPrintOutRange.visPrintCurrentPage,iCount,iCount,false,null,false,null,1,false,false);
+        //					} 
+        //					catch {}
+        //			}
+        //
+        //			MySession.FormRefresh();
+        //		}
+
+
+
+        public VisioPage ActivePage
+        {
+            get
+            {
+                if (m_ovTargetApp == null)
+                    return ActiveDocument.GetChildObject(0) as VisioPage;
+
+                Visio.Page ovPage = m_ovTargetApp.ActivePage;
+                return EstablishPageViewForPage(ovPage);
+            }
+        }
+        public string ActivePageName
+        {
+            get
+            {
+                return m_ovTargetApp.ActivePage.Name;
+            }
+        }
+        public VisioPage EstablishPageViewForShape(Visio.Shape ovShape)
+        {
+            Visio.Page ovPage = ovShape.ContainingPage;
+            return EstablishPageViewForPage(ovPage);
+        }
+
+        public virtual VisioPage EstablishPageViewForPage(Visio.Page ovPage)
+        {
+            string sGUID = ShapeBuilder.EstablishGUIDforShape(ovPage);
+            VisioPage oaPage = GetPresentationObject(sGUID) as VisioPage;
+
+            if (oaPage != null)
+                return oaPage;
+
+            string sMaster = ShapeBuilder.GetASIMaster(ovPage.PageSheet);
+            if (sMaster.Length == 0 && m_aDefaultMaster == null && m_ovLastMaster != null)
+                sMaster = m_ovLastMaster.Name;
+
+            VisioMaster oaMaster = m_aDefaultMaster != null ? m_aDefaultMaster : FindPageMaster(sMaster);
+            if (oaMaster == null)
+                oaMaster = FindPageMaster("VisioPage");
+
+            oaPage = oaMaster.EstablishInstance(sGUID, ActiveDocument) as VisioPage;
+            oaPage.CustomName = ovPage.NameU;
+
+            ShapeBuilder.SetASIMaster(ovPage.PageSheet, oaMaster.Name);
+
+            PageAdd(ovPage, sGUID);
+            SetPresentationObject(oaPage, sGUID);
+            if (!IsSolutionRestoring)
+                oaPage.UpdateShape();
+
+            ActiveDocument.BroadcastNotifyPresentations(InstanceNotify.CREATED, oaPage, null);
+            return oaPage;
+        }
+        public virtual VisioPage RemovePageViewForPage(Visio.Page ovPage)
+        {
+            string sGUID = ShapeBuilder.EstablishGUIDforShape(ovPage);
+            VisioPage oaPage = GetPresentationObject(sGUID) as VisioPage;
+            if (oaPage != null)
+            {
+                PageRemove(ovPage, sGUID);
+                ActiveDocument.RemoveChildObject(oaPage);
+                RemovePresentationObject(oaPage, sGUID);
+            }
+            return oaPage;
+        }
+        public virtual void SetShapeFlags(VisioShape oaShape, bool bFlags, string sFlags)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape != null)
+                ShapeBuilder.SetASIShowFlag(ovShape, bFlags, sFlags);
+        }
+        public virtual void SetShapeNoteFlags(VisioShape oaShape, bool bFlags, string sFlags)
+        {
+            Visio.Shape ovShape = FindShapeforGUID(oaShape.Name);
+            if (ovShape != null)
+                ShapeBuilder.SetASIShowNoteFlag(ovShape, bFlags, sFlags);
+        }
+        //		public virtual VisioShape EstablishCopyOfShape(Visio.Shape ovSourceShape, Visio.Shape ovTargetShape, bool bKeepExternalReferences)
+        //		{
+        //			VisioShape oaSource = GetPresentationObject(ovSourceShape);
+        //			if ( oaSource == null )
+        //				return null;
+        //
+        //			VisioShape oaTarget = GetPresentationObject(ovTargetShape);
+        //			if ( oaTarget != null )
+        //				return null;
+        //
+        //			oaTarget = oaSource.DuplicatePresentation(bKeepExternalReferences) as VisioShape;
+        //			if ( oaTarget != null && !oaTarget.IsPurged )
+        //				AssociateCopyOfShape(oaTarget,ovTargetShape);
+        //
+        //			return oaTarget;
+        //		}
+
+        public virtual Visio.Shape DuplicateShape(VisioShape oaSourceShape, VisioShape oaTargetShape)
+        {
+            Visio.Shape ovSourceShape = FindShapeforGUID(oaSourceShape.Name);
+            Visio.Shape ovTargetShape = ShapeBuilder.DuplicateShape(ovSourceShape, true);
+
+            ShapeBuilder.SetASIModelGUID(ovTargetShape, ShapeBuilder.EstablishGUIDforShape(ovTargetShape));
+            AssociateCopyOfShape(oaTargetShape, ovTargetShape, true);
+            return ovTargetShape;
+        }
+
+        public virtual void TrackPresentation(VisioShape oaPresentation, ModelComponent oModelObject)
+        {
+        }
+
+        public virtual void AssociateCopyOfShape(VisioShape oaTargetShape, Visio.Shape ovTargetShape, bool bDeep)
+        {
+        }
+
+        public VisioShape EstablishShapeViewForShape(Visio.Shape ovShape)
+        {
+            return EstablishShapeViewForShape(ovShape, null, true);
+        }
+        protected bool AssociateShapePresentationObject(Visio.Shape ovShape, VisioShape oaShape)
+        {
+            string sGUID = ShapeBuilder.EstablishGUIDforShape(ovShape);
+            if (sGUID.Length == 0 || oaShape == null)
+                return false;
+
+            ShapeBuilder.SetASIModelGUID(ovShape, sGUID);
+
+            oaShape.Name = sGUID;
+            if (oaShape.IsCustomNamed(sGUID))
+                oaShape.CustomName = ovShape.ContainingPage.Name;
+
+            SetPresentationObject(oaShape, sGUID);
+            return true;
+        }
+
+        public VisioShape FindShapeViewForShape(Visio.Shape ovShape)
+        {
+            string sGUID = ShapeBuilder.EstablishGUIDforShape(ovShape);
+            VisioShape oaShape = GetPresentationObject(sGUID) as VisioShape;
+            return oaShape;
+        }
+
+        public virtual bool EstablishAlternateViews(VisioShape oaShape)
+        {
+            return false;
+        }
+
+        public virtual bool RemoveAlternateViews(VisioShape oaShape, bool bPurge)
+        {
+            return false;
+        }
+
+        public virtual VisioShape EstablishShapeViewForShape(Visio.Shape ovShape, Visio.Shape ovParent, bool bForce)
+        {
+            return null;
+        }
+
+        public VisioShape RemoveShapeViewForShape(Visio.Shape ovShape)
+        {
+            return RemoveShapeViewForShape(ovShape, null);
+        }
+
+        public virtual VisioShape RemoveShapeViewForShape(Visio.Shape ovShape, Visio.Shape ovParent)
+        {
+            return GetPresentationObject(ovShape);
+        }
+        public InstanceObject GetInstanceObject(object oObject)
+        {
+            Visio.Shape ovShape = oObject as Visio.Shape;
+            return GetInstanceObject(ovShape, null, false);
+        }
+        public InstanceObject GetInstanceObject(Visio.Shape ovShape, Visio.Connect ovConnect, bool bOnlyIfPrimary)
+        {
+            //if we are not working with a primary view then exit
+            VisioShape oaShape = GetPresentationObject(ovShape);
+            if (oaShape == null)
+                return null;
+
+            if (bOnlyIfPrimary && !oaShape.IsPrimaryView())
+                return null;
+
+            InstanceObject oResult = oaShape.ViewOf();
+            if (oResult != null && ovConnect != null)
+                if (ovConnect.ToPart >= (short)Visio.VisToParts.visConnectionPoint)
+                {
+                    string sCell = "";
+                    try
+                    {
+                        sCell = ovConnect.ToCell.RowNameU;
+                    }
+                    catch { }
+                    InstanceObject oaFeature = sCell.Length > 0 ? oResult.Component(sCell, false) : null;
+                    oResult = oaFeature != null ? oaFeature : oResult;
+                }
+
+            return oResult;
+        }
+
+        public InstanceObject GetInstanceObject(string sHandle)
+        {
+            PresentationObject oaShape = GetPresentationObject(sHandle);
+            if (oaShape == null)
+                return null;
+
+            return oaShape.ViewOf();
+        }
+
+        public VisioShape GetPresentationObject(Visio.Shape ovShape, bool bUp)
+        {
+            VisioShape oShape = GetPresentationObject(ovShape);
+            if (oShape != null || !bUp)
+                return oShape;
+
+            short iType = ovShape.Type;
+            switch (iType)
+            {
+                case (short)Visio.VisShapeTypes.visTypePage:
+                    return EstablishPageViewForShape(ovShape) as VisioShape;
+                case (short)Visio.VisShapeTypes.visTypeDoc:
+                    return null;
+            }
+
+            Visio.Shape ovParent = ovShape.Parent as Visio.Shape;
+            if (ovParent == null)
+                ovParent = ovShape.ContainingPage.PageSheet;
+
+            return GetPresentationObject(ovParent, true);
+        }
+
+        public VisioShape GetPresentationObject(Visio.Shape ovShape)
+        {
+            return GetPresentationObject(ShapeBuilder.EstablishGUIDforShape(ovShape)) as VisioShape;
+        }
+
+        public override PresentationObject GetPresentationObject(string sHandle)
+        {
+            if (m_oaShapes == null)
+                return null;
+
+            if (m_oaShapes.ContainsKey(sHandle))
+                return m_oaShapes[sHandle] as PresentationObject;
+
+            return null;
+        }
+
+        public override PresentationObject SetPresentationObject(PresentationObject oaShape, string sKey)
+        {
+            if (m_oaShapes != null)
+                try
+                {
+                    if (!m_oaShapes.ContainsKey(sKey))
+                        m_oaShapes.Add(sKey, oaShape);
+
+                    return oaShape;
+                }
+                catch (Exception e)
+                {
+                    ApprenticeObject.ReportException(e);
+                }
+
+            return null;
+        }
+        public override PresentationObject RemovePresentationObject(PresentationObject oaShape, string sKey)
+        {
+            if (m_oaShapes != null)
+                try
+                {
+                    if (m_oaShapes.ContainsKey(sKey))
+                        m_oaShapes.Remove(sKey);
+
+                    return oaShape;
+                }
+                catch (Exception e)
+                {
+                    ApprenticeObject.ReportException(e);
+                }
+            return null;
+        }
+
+        public bool CopyMastersToDocument(FileObject oFile)
+        {
+            Visio.Document ovStencil = OpenStencilReadOnly(oFile);
+            if (ovStencil == null)
+                return false;
+
+            Visio.Document ovDocument = Document;
+            foreach (Visio.Master ovMaster in ovStencil.Masters)
+                if (ShapeBuilder.DoesMasterExist(ovMaster.NameU, ovDocument) == null)
+                    ovDocument.Drop(ovMaster, 0, 0);
+
+            ovStencil.Close();
+            return true;
+        }
+        public string ExportDocument(string sExt, string sDirectory)
+        {
+            string sFile = "";
+
+            foreach (Visio.Page ovPage in m_ovTargetDoc.Pages)
+            {
+                if (ovPage.Background == (short)visTF.TRUE)
+                    continue;
+
+                if (ShapeBuilder.RetrieveCellValue(ovPage.PageSheet, "UIVisibility") == 1.0)
+                    continue;
+
+                sFile = ExportPage(ovPage, "", sExt, sDirectory);
+            }
+            return sFile;
+        }
+        public string ExportPage(string sFilename, string sExt, string sDirectory)
+        {
+            return ExportPage(m_ovTargetDoc.Application.ActivePage, sFilename, sExt, sDirectory);
+        }
+        public string ExportPage(Visio.Page ovPage, string sFilename, string sExt, string sDirectory)
+        {
+            string sExtension = sExt.Length == 0 ? ".jpg" : sExt;
+            string sPage = ApprenticeObject.CreateInternalName(ovPage.Name);
+            string sFile = sFilename.Length != 0 ? sFilename : string.Format(@"{0}\{1}{2}", sDirectory, sPage, sExtension);
+
+            if (IsVisioVisible)
+            {
+                int hValue = ovPage.Picture.Handle;
+                Metafile oVisioMetafile = new Metafile((IntPtr)hValue, false);
+                oVisioMetafile.Save(sFile);
+                oVisioMetafile.Dispose();
+            }
+            else
+            {
+                ovPage.Export(sFile);
+            }
+            return sFile;
+        }
+
+        public override bool SaveDocument(string sFilename)
+        {
+            Visio.Document ovDoc = Document;
+            if (ovDoc == null)
+                return false;
+
+            ovDoc.SaveAs(sFilename);
+            ovDoc.Saved = true;
+            return true;
+        }
+        public virtual bool SaveAsFile(FileObject oFile)
+        {
+            SaveDocument(oFile.Name);
+            Name = oFile.Name;
+            CustomName = oFile.FilenameExtension;
+            Caption = oFile.Filename;
+            return true;
+        }
+        public override bool SaveToFile()
+        {
+            if (IsChanged())
+                return SaveToFile(Name);
+            return true;
+        }
+        public override bool SaveToFile(string sFilename)
+        {
+            return SaveDocument(sFilename);
+        }
+        public void CloseAllWindows()
+        {
+            if (m_ovControl == null)
+                return;
+
+            foreach (Visio.Window ovWindow in m_ovControl.Window.Windows)
+                if (ovWindow.Visible == true)
+                    ovWindow.Close();
+        }
+
+        public void ShapeSearchWindow(bool bVisible)
+        {
+            if (m_ovControl == null)
+                return;
+
+            Visio.Window ovWindow = m_ovControl.Window;
+            Visio.Window ovSearch = ovWindow.Windows.get_ItemFromID((int)Visio.VisWinTypes.visWinIDShapeSearch);
+            ovSearch.Visible = bVisible;
+        }
+        public void PageTabWindowRefresh()
+        {
+            if (m_ovControl == null)
+                return;
+
+            Visio.Window ovWindow = m_ovControl.Window;
+            Visio.Page ovCurrentPage = ovWindow.PageAsObj;
+
+            foreach (Visio.Page ovPage in ovCurrentPage.Document.Pages)
+                if (ShapeBuilder.RetrieveCellValue(ovPage.PageSheet, "UIVisibility") == 0.0)
+                {
+                    if (ovCurrentPage == ovPage)
+                        continue;
+
+                    ovWindow.PageFromName = ovPage.Name;
+                    break;
+                }
+
+            ovWindow.PageFromName = ovCurrentPage.Name;
+        }
+
+        public void PageTabWindow(bool bVisible)
+        {
+            if (m_ovControl == null)
+                return;
+
+            m_ovControl.Window.ShowPageTabs = bVisible;
+        }
+        //		public void StencilWindow(bool bVisible)
+        //		{
+        //			if ( m_ovControl == null )
+        //				return;
+        //
+        //			Visio.Window ovWindow = m_ovControl.Window;
+        //			Visio.Window ovSearch = ovWindow.Windows.get_ItemFromID((int)Visio.VisWinTypes.visDockedStencilBuiltIn);
+        //			ovSearch.Visible = bVisible;
+        //		}
+        public void DrawingWindow(bool bVisible)
+        {
+            if (m_ovControl == null)
+                return;
+
+            Visio.Window ovWindow = m_ovControl.Window;
+            Visio.Window ovSearch = ovWindow.Windows.get_ItemFromID((int)Visio.VisWinTypes.visDockedStencilBuiltIn);
+            ovSearch.DeselectAll();
+        }
+        public bool DisplayPage(Visio.Page ovPage)
+        {
+            if (m_ovControl == null || ovPage == null)
+                return false;
+
+            Visio.Window ovWindow = m_ovControl.Window;
+            ovWindow.Activate();
+            string sName = ovPage.Name;
+            try
+            {
+                ovWindow.PageFromName = sName;
+                return true;
+            }
+            catch { }
+            return false;
+        }
+        public bool DisplayPage(string sPage)
+        {
+            Visio.Page ovTargetPage = EstablishPage(sPage);
+            EstablishPageViewForPage(ovTargetPage);
+            return DisplayPage(ovTargetPage);
+        }
+        public bool RenamePage(string sPage, string sNewName, bool bDisplay)
+        {
+            Visio.Page ovTargetPage = DoesPageExist(sPage);
+            if (ovTargetPage == null)
+                return false;
+
+            VisioPage oaPage = EstablishPageViewForPage(ovTargetPage);
+            oaPage.CustomName = sNewName;
+
+            short iEvents = SetEventsOff();
+            ovTargetPage.Name = sNewName;
+            ovTargetPage.NameU = sNewName;
+            EventsEnabled = iEvents;
+
+            if (bDisplay)
+                DisplayPage(ovTargetPage);
+
+            return true;
+        }
+        public bool DeletePage(string sName)
+        {
+            Visio.Page ovPage = DoesPageExist(sName);
+            if (ovPage == null)
+                return false;
+
+            try
+            {
+                ovPage.Delete(0);
+            }
+            catch { };
+            return true;
+        }
+        public Visio.Page EstablishPage(string sName)
+        {
+            Visio.Page ovPage = DoesPageExist(sName);
+            if (ovPage != null)
+                return ovPage;
+
+            ovPage = m_ovTargetDoc.Pages.Add();
+            ovPage.Name = sName;
+
+            return ovPage;
+        }
+        public VisioPage EstablishPageView(string sName, string sPageMaster, bool bDisplay)
+        {
+            Visio.Page ovCurrentPage = m_ovTargetApp.ActivePage;
+
+            m_aDefaultMaster = FindPageMaster(sPageMaster);
+            Visio.Page ovPage = EstablishPage(sName);
+            VisioPage oaPage = EstablishPageViewForPage(ovPage);
+            oaPage.CustomName = sName;
+            m_aDefaultMaster = null;
+
+            if (bDisplay)
+                DisplayPage(ovPage);
+            else
+                DisplayPage(ovCurrentPage);
+
+            return oaPage;
+        }
+        public Visio.Document OpenNewStencil(string sName)
+        {
+            Visio.Document ovDoc = Application.Documents.Add("vss");
+            if (sName.Length > 0)
+                ovDoc.Title = sName;
+            return ovDoc;
+        }
+        public Visio.Document FindOrOpenNewStencil(string sName)
+        {
+            Array oStencils = null;
+            Visio.Window oWindow = Application.ActiveWindow;
+            oWindow.DockedStencils(out oStencils);
+
+            Visio.Document ovDoc = null;
+            foreach (string sRealPath in oStencils)
+            {
+                ovDoc = Application.Documents[sRealPath];
+                if (ovDoc.Title == sName)
+                    return ovDoc;
+            }
+            ovDoc = OpenNewStencil(sName);
+            return ovDoc;
+        }
+        public Visio.Document OpenDockedStencil(Visio.Documents ovDocs, string sFullPath, StencilOpenMode iDocked)
+        {
+            short iOpen;
+
+            switch (iDocked)
+            {
+                case StencilOpenMode.ReadHidden:
+                    iOpen = (short)((short)Visio.VisOpenSaveArgs.visOpenRO + (short)Visio.VisOpenSaveArgs.visOpenHidden + (short)Visio.VisOpenSaveArgs.visOpenDontList);
+                    break;
+                case StencilOpenMode.WriteHidden:
+                    iOpen = (short)((short)Visio.VisOpenSaveArgs.visOpenRW + (short)Visio.VisOpenSaveArgs.visOpenHidden + (short)Visio.VisOpenSaveArgs.visOpenDontList);
+                    break;
+                case StencilOpenMode.ReadOnly:
+                    iOpen = (short)((short)Visio.VisOpenSaveArgs.visOpenRO + (short)Visio.VisOpenSaveArgs.visOpenDocked + (short)Visio.VisOpenSaveArgs.visOpenDontList);
+                    break;
+                case StencilOpenMode.ReadWrite:
+                    iOpen = (short)((short)Visio.VisOpenSaveArgs.visOpenRW + (short)Visio.VisOpenSaveArgs.visOpenDocked + (short)Visio.VisOpenSaveArgs.visOpenDontList);
+                    break;
+                case StencilOpenMode.FindToClose:
+                    iOpen = (short)((short)Visio.VisOpenSaveArgs.visOpenRO + (short)Visio.VisOpenSaveArgs.visOpenDontList);
+                    break;
+                case StencilOpenMode.FindToDelete:
+                    iOpen = (short)((short)Visio.VisOpenSaveArgs.visOpenRO + (short)Visio.VisOpenSaveArgs.visOpenDontList);
+                    break;
+                default:
+                    return null;
+            }
+
+            if (sFullPath == null || !File.Exists(sFullPath))
+                return null;
+
+            try
+            {
+                Visio.Document ovStencil = ovDocs.OpenEx(sFullPath, iOpen);
+                if (ovStencil != null)
+                    switch (iDocked)
+                    {
+                        case StencilOpenMode.FindToClose:
+                            ovStencil.Saved = true;
+                            ovStencil.Close();
+                            return null;
+                        case StencilOpenMode.FindToDelete:
+                            ovStencil.Saved = true;
+                            ovStencil.Close();
+                            ApprenticeObject.XDelete(sFullPath);
+                            return null;
+                    }
+
+                return ovStencil;
+            }
+            catch (Exception e)
+            {
+                ApprenticeObject.ReportException(e);
+            }
+            return null;
+        }
+        public Visio.Document OpenStencilReadOnly(FileObject oFile)
+        {
+            if (!m_bIsEditable)
+                return null;
+
+            string sRealPath = oFile.RemapFullPath();
+            return OpenDockedStencil(Application.Documents, sRealPath, StencilOpenMode.ReadOnly);
+        }
+        public Visio.Document OpenStencilReadHidden(FileObject oFile)
+        {
+            if (!m_bIsEditable)
+                return null;
+
+            string sRealPath = oFile.RemapFullPath();
+            return OpenDockedStencil(Application.Documents, sRealPath, StencilOpenMode.ReadHidden);
+        }
+
+        public Visio.Document OpenStencilReadWrite(FileObject oFile)
+        {
+            if (!m_bIsEditable)
+                return null;
+
+            string sRealPath = oFile.RemapFullPath();
+            return OpenDockedStencil(Application.Documents, sRealPath, StencilOpenMode.ReadWrite);
+        }
+        public Visio.Document OpenStencilWriteHidden(FileObject oFile)
+        {
+            if (!m_bIsEditable)
+                return null;
+
+            string sRealPath = oFile.RemapFullPath();
+            return OpenDockedStencil(Application.Documents, sRealPath, StencilOpenMode.WriteHidden);
+        }
+        public bool ShutWindow(string sName)
+        {
+            try
+            {
+                foreach (Visio.Window ovSearch in m_ovControl.Window.Windows)
+                {
+                    string sCaption = ovSearch.Caption;
+                    if (sCaption.Length > 0 && StringStartCompare(sName, sCaption))
+                    {
+                        ovSearch.Close();
+                        return true;
+                    }
+                }
+            }
+            catch { }
+            return false;
+        }
+        public bool CloseStencils()
+        {
+            Array oStencils = null;
+            Visio.Window oWindow = Application.ActiveWindow;
+            oWindow.DockedStencils(out oStencils);
+
+            Visio.Documents oDocuments = Application.Documents;
+            foreach (string sRealPath in oStencils)
+                OpenDockedStencil(oDocuments, sRealPath, StencilOpenMode.FindToClose);
+
+            ShutWindow("Shapes");
+            return true;
+        }
+        public bool GenerateStencils(CommunicationManager oaManager, Workspace oaAssets, bool bDelete)
+        {
+            bool bEditable = m_bIsEditable;
+            m_bIsEditable = true;
+
+            MyApplicationStencils = (oaAssets == null) ? "" : oaAssets.MySession.IncludedStencils;
+
+            int iScope = BeginUndoScope("GenerateStencils");
+
+            bool bResult = true;
+            if (!bDelete)
+            {
+                //WorkFile oProject = MyMentor != null ? MyMentor.AssetWorkspace.CurrentWorkFile : MyApplication.ActiveWorkspace.CurrentWorkFile;
+                WorkFile oProject = MyApplication.ActiveWorkspace.CurrentWorkFile;
+                MySession.ProgressStart(0, oaManager.TotalMasters(), "Generate Stencils...");
+                bResult = GenerateDeploymentStencils(oaManager, oaAssets, oProject.Directory, null);
+                MySession.ProgressEnd();
+
+                VisioDoCmd(Visio.VisUICmds.visCmdDRPointerTool);
+            }
+            else if (IsRunningMentor)
+            {
+                WorkFile oProject = oaAssets.CurrentWorkFile;
+                string sDirectory = oProject.Directory;
+                Visio.Documents oDocuments = Application.Documents;
+
+                foreach (VisioStencil oaStencil in oaManager.VisioStencils())
+                    OpenDockedStencil(oDocuments, oaStencil.CalculatePath(sDirectory), StencilOpenMode.FindToDelete);
+            }
+
+            EndUndoScope(iScope);
+
+            m_bIsEditable = bEditable;
+            return bResult;
+        }
+
+        public bool GenerateDeploymentStencils(CommunicationManager oaManager, Workspace oaAssets, string sDirectory, SolutionFile oSolutionFile)
+        {
+            if (m_ovControl == null)
+                return false;
+
+            bool bResult = false;
+
+            VisioGetFocus();
+            SessionObject oSession = MySession;
+
+            ObjectCollection oStencils = oaManager.VisioStencils();
+
+            string sKey = "";
+            ApprenticeHash oCloseReadOnly = new ApprenticeHash(10);
+            ApprenticeHash oCloseAndSave = new ApprenticeHash(10);
+
+            Visio.Documents ovDocs = Application.Documents;
+            foreach (VisioStencil oaStencil in oStencils)
+            {
+                if (oaStencil.IsDynamic)
+                {
+                    string sRealPath = oaStencil.Category;
+                    oSession.ProgressDoAction(sRealPath);
+                    if (OpenDockedStencil(ovDocs, sRealPath, StencilOpenMode.ReadOnly) != null)
+                        MyApplicationStencils += sRealPath + ";";
+
+                    continue;
+                }
+
+                Visio.Document ovTargetStencil = null;
+                Visio.Document ovSourceStencil = null;
+
+                string sBehaviors = oaStencil.UserTagValueAsString(UserTagNames.Behaviors, "");
+
+                if (oaStencil.IsMetaStencil)
+                {
+                    FileObject oSourceStencil = oaStencil.SourceStencil;
+                    ovSourceStencil = OpenStencilReadHidden(oSourceStencil);
+                    if (ovSourceStencil == null)
+                        ovSourceStencil = Document;
+
+                    sKey = ovSourceStencil.Name;
+                    if (!oCloseReadOnly.ContainsKey(sKey))
+                        oCloseReadOnly.Add(sKey, ovSourceStencil);
+
+                    bool bAddKnowledge = oaStencil.Status.IsPublic;
+
+                    string sCaption = oaStencil.Caption;
+                    string sConcept = oaStencil.DefaultConcept;
+                    bool bSearchSubShapes = oaStencil.SearchSubShapes;
+
+
+                    if (!oCloseAndSave.ContainsKey(sCaption))
+                        oCloseAndSave.Add(sCaption, OpenNewStencil(sCaption));
+
+                    ovTargetStencil = oCloseAndSave[sCaption] as Visio.Document;
+
+                    foreach (Visio.Master ovMaster in ovSourceStencil.Masters)
+                    {
+                        string sText = ovMaster.Name;
+                        string sMasterName = ShapeBuilder.TrimMasterName(sText);
+                        string sMaster = InternalName(sMasterName);
+
+                        Visio.Master ovNewMaster = ovTargetStencil.Drop(ovMaster, 0, 0);
+                        ovNewMaster.NameU = sMaster;
+                        ovNewMaster.Name = sMasterName;
+                        oSession.ProgressDoAction(string.Format("{0} : {1} -> {2}", sCaption, sMasterName, ovNewMaster.NameU));
+                        Visio.Shape ovShape = ovNewMaster.Shapes[1];
+                        ShapeBuilder.PublishASIBehaviors(ovShape, sBehaviors, sText);
+
+                        if (bAddKnowledge)
+                            ShapeBuilder.PublishASIStencil(ovShape, sMaster, sMaster, sConcept, oaStencil, bSearchSubShapes);
+                        else
+                            ShapeBuilder.PublishASIAnnotation(ovShape, oaStencil);
+                    }
+                }
+
+                ObjectCollection oSorted = SortUsingSortOrder(oaStencil.VisioMasters());
+                foreach (VisioMaster oaMaster in oSorted)
+                {
+                    if (oSolutionFile != null && oaMaster.IsDebugOnly)
+                        continue;
+
+                    string sSourceMaster = oaMaster.SourceMaster;
+                    if (sSourceMaster.Length == 0)
+                        continue;
+
+                    bool bSearchSubShapes = oaMaster.SearchSubShapes;
+
+                    FileObject oSourceStencil = oaMaster.SourceStencil;
+                    ovSourceStencil = OpenStencilReadHidden(oSourceStencil);
+                    if (ovSourceStencil == null)
+                    {
+                        CommunicationManager oManager = oaAssets.ActiveCommunicationManager;
+                        VisioStencil oFound = oManager.FindVisioStencilWithMasterU(sSourceMaster);
+                        ovSourceStencil = (oFound == null ? OpenStencilReadHidden(oSourceStencil) : OpenStencilReadHidden(oFound.SourceStencil));
+                    }
+
+                    if (ovSourceStencil == null)
+                        continue;
+
+                    sKey = ovSourceStencil.Name;
+                    if (!oCloseReadOnly.ContainsKey(sKey))
+                        oCloseReadOnly.Add(sKey, ovSourceStencil);
+
+                    sKey = oaStencil.Caption;
+                    if (!oCloseAndSave.ContainsKey(sKey))
+                        oCloseAndSave.Add(sKey, OpenNewStencil(sKey));
+
+                    ovTargetStencil = oCloseAndSave[oaStencil.Caption] as Visio.Document;
+
+                    Visio.Master ovMaster = CopyMaster(sSourceMaster, ovSourceStencil, ovTargetStencil);
+                    if (ovMaster != null)
+                    {
+                        string sMasterBehaviors = oaMaster.UserTagValueAsString(UserTagNames.Behaviors, sBehaviors, true);
+
+                        oSession.ProgressDoAction(string.Format("{0} : {1}", oaStencil.Caption, oaMaster.Caption));
+                        ovMaster.Name = oaMaster.Caption;
+                        ovMaster.NameU = oaMaster.Name;
+                        ovMaster.Hidden = (short)(oaMaster.Visible ? visTF.FALSE : visTF.TRUE);
+                        Visio.Shape ovShape = ovMaster.Shapes[1];
+                        ShapeBuilder.PublishASIMaster(ovShape, oaMaster, oaStencil, bSearchSubShapes);
+                        ShapeBuilder.PublishASIBehaviors(ovShape, sMasterBehaviors, oaMaster.Caption);
+                    }
+                }
+                oSorted.Purge();
+            }
+
+            foreach (Visio.Document ovDoc in oCloseAndSave.Values)
+            {
+                string sName = ovDoc.Title;
+
+                string sFormat = oSolutionFile == null ? @"MQT {0}.vss" : "{0}.vss";
+                string sPath = string.Format(sFormat, sName);
+                if (sDirectory.Length > 0)
+                    sPath = System.IO.Path.Combine(sDirectory, sPath);
+
+                oSession.ProgressDoAction(sPath);
+                if (oSolutionFile != null)
+                {
+                    bResult = true;
+                    ovDoc.SaveAs(sPath); // do this now so addfilepath does not change the location
+                    oSolutionFile.AddFileObject(sPath);
+                }
+                else if (IsRunningMentor)
+                {
+                    MyApplicationStencils += sPath + ";";
+                    ApprenticeObject.XDelete(sPath);
+
+                    ovDoc.SaveAs(sPath);
+                }
+                ovDoc.Close();
+            }
+
+            oCloseAndSave.Clear();
+
+            foreach (Visio.Document ovDoc in oCloseReadOnly.Values)
+            {
+                if (ovDoc == Document)
+                    continue;
+
+                string sName = ovDoc.Name;
+                ovDoc.Saved = true;
+                ovDoc.Close();
+            }
+
+            oCloseReadOnly.Clear();
+
+            return bResult;
+        }
+
+        //		public Visio.Window OpenDockableWindow(string sCaption, Type oType, SemanticObject oSponsor)
+        //		{
+        //			if ( m_ovTargetApp == null )
+        //				return null;
+        //
+        //			object oWinStates = Visio.VisWindowStates.visWSAnchorMerged & Visio.VisWindowStates.visWSAnchorRight & Visio.VisWindowStates.visWSVisible;
+        //			object oWinType = Visio.VisWinTypes.visAnchorBarAddon;
+        //			object oWinDock = Visio.VisWindowStates.visWSDockedRight; 
+        //
+        //			ApprenticeControl oControl = Create(oType) as ApprenticeControl;		
+        //			if (oControl == null)
+        //				return null;
+        //
+        //
+        //			Visio.Window oWindow = m_ovTargetApp.ActiveWindow.Windows.Add(sCaption, oWinStates, oWinType, 1, 1, 200, 200,null,null,oWinDock);
+        //			APIMethods.SetParent((IntPtr)oControl.Handle,(IntPtr)oWindow.WindowHandle32);
+        //			oControl.Show();
+        //			JiggleWindow(oWindow);
+        //			oControl.Login(oSponsor);
+        //			oWindow.WindowState = (int)oWinDock;
+        //
+        //			return oWindow;
+        //		}
+        //		public static void JiggleWindow(Visio.Window oWindow)
+        //		{
+        //			APIMethods.RECT hRect = new APIMethods.RECT();
+        //			if ( APIMethods.GetWindowRect((IntPtr)oWindow.WindowHandle32, out hRect) == false )
+        //				return;
+        //
+        //			int left = hRect.left;
+        //			int top = hRect.top;
+        //			int width = hRect.right - hRect.left;
+        //			int height = hRect.top - hRect.bottom;
+        //			uint flags = 3;
+        //
+        //			APIMethods.SetWindowPos((IntPtr)oWindow.WindowHandle32,(IntPtr)0,left,top,width+1,height+1,flags);
+        //			APIMethods.SetWindowPos((IntPtr)oWindow.WindowHandle32,(IntPtr)0,left,top,width,height,flags);
+        //		}
+        //
+
+        public Visio.Master CopyMaster(string sSourceName, Visio.Document ovSource, Visio.Document ovTarget)
+        {
+            try
+            {
+                Visio.Master ovMaster = ovSource.Masters[sSourceName];
+                return ovTarget.Drop(ovMaster, 0, 0);
+            }
+            catch { }
+            return null;
+        }
+
+        public Visio.Master CopyMaster(string sSourceName, Visio.Document ovTarget)
+        {
+            return CopyMaster(sSourceName, m_ovTargetDoc, ovTarget);
+        }
+
+        public void ReplaceASIKnowledge(string sOld, string sNew)
+        {
+            foreach (Visio.Page ovPage in Document.Pages)
+                foreach (Visio.Shape ovShape in ovPage.Shapes)
+                    ReplaceASIKnowledge(ovShape, sOld, sNew);
+        }
+        public void ReplaceASIKnowledge(Visio.Shape ovShape, string sOld, string sNew)
+        {
+            string sKnow = ShapeBuilder.GetASIKnowledge(ovShape);
+            if (StringCompare(sKnow, sOld))
+                ShapeBuilder.SetASIKnowledge(ovShape, sNew);
+
+            foreach (Visio.Shape ovSubShape in ovShape.Shapes)
+                ReplaceASIKnowledge(ovSubShape, sOld, sNew);
+        }
+
+
+        private void OCXMouseDownEvent(object sender, AxVisOcx.EVisOcx_MouseDownEvent e)
+        {
+            AfterOCXMouseDown(e);
+        }
+        private void OCXMouseMoveEvent(object sender, AxVisOcx.EVisOcx_MouseMoveEvent e)
+        {
+            AfterOCXMouseMove(e);
+        }
+        private void OCXMouseUpEvent(object sender, AxVisOcx.EVisOcx_MouseUpEvent e)
+        {
+            AfterOCXMouseUp(e);
+        }
+
+    }
+}

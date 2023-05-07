@@ -1,0 +1,37 @@
+
+//Tweener.cs
+
+    public Tween Tween<T>(T target, object? values, float duration, float delay = 0) where T : class
+    {
+        var targetInfo = target.GetType().GetTypeInfo();
+        if (targetInfo.IsValueType)
+            throw new Exception("Target of tween cannot be a struct!");
+
+        var tween = new Tween
+        {
+            Target = target,
+            Duration = duration,
+            Delay = delay
+        };
+
+        AddTween(tween);
+
+        if (values == null) // in case of timer
+            return tween;
+
+        foreach (PropertyInfo property in values.GetType().GetTypeInfo().DeclaredProperties)
+        {
+            var info = new UnglideInfo(target, property.Name);
+            var to = Convert.ToSingle(new UnglideInfo(values, property.Name, false).Value);
+
+            float s = Convert.ToSingle(info.Value);
+            float r = to - s;
+
+            tween._vars.Add(info);
+            tween._start.Add(s);
+            tween._range.Add(r);
+            tween._end.Add(to);
+        }
+
+        return tween;
+    }

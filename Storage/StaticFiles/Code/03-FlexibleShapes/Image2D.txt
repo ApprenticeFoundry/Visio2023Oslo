@@ -1,0 +1,52 @@
+public class FoImage2D : FoGlyph2D, IImage2D
+{
+    public static bool RefreshImages { get; set; } = true;
+
+    private double scaleX = 1.0;
+    public double ScaleX 
+    { 
+        get { return this.scaleX; } 
+        set { this.scaleX = AssignDouble(value, scaleX); } 
+    }
+
+
+    private double scaleY = 1.0;
+    public double ScaleY 
+    { 
+        get { return this.scaleY; } 
+        set { this.scaleY = AssignDouble(value, scaleY); } 
+    }
+
+    public double ImageWidth { get; set; }
+    public double ImageHeight { get; set; }
+
+    private string imageUrl = "";
+    public string ImageUrl 
+    { 
+        get { return this.imageUrl; } 
+        set { 
+            this.imageUrl = value; 
+            waitcount = 0; 
+            FoImage2D.RefreshImages = true; 
+        } 
+    }
+
+    private ElementReference imageRef;
+    public ElementReference ImageRef 
+    { 
+        get { return this.imageRef; } 
+        set { this.imageRef = value; } 
+    }
+
+    private int waitcount = 0;
+
+    public FoImage2D() : base()
+    {
+    }
+    public FoImage2D(int width, int height, string color) : base("", width, height, color)
+    {
+    }
+    public FoImage2D(string name, int width, int height, string color) : base(name, width, height, color)
+    {
+    }
+}

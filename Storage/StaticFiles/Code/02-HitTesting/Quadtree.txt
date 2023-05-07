@@ -1,0 +1,54 @@
+
+   /// Insert an item into this QuadTree object.
+
+    public void Insert(T item)
+    {
+        // If this quad doesn't intersect the items rectangle, do nothing
+        if (!m_rect.IntersectsWith(item.Rect()))
+            return;
+
+        if (m_objects == null || (m_childTL == null && m_objects.Count + 1 <= MAX_OBJECTS_PER_NODE))
+            Add(item); // If there's room to add the object, just add it
+        else
+        {
+            // No quads, create them and bump objects down where appropriate
+            if (m_childTL == null)
+                Subdivide();
+            
+
+            // Find out which tree this object should go in and add it there
+            var destTree = GetDestinationTree(item);
+            if (destTree == this)
+                Add(item);
+            else
+                destTree.Insert(item);
+        }
+    }
+
+   /// Subdivide this QuadTree and move it's children into the appropriate Quads where applicable.
+
+    private void Subdivide()
+    {
+        // We've reached capacity, subdivide...
+        Point size = new(m_rect.Width / 2, m_rect.Height / 2);
+        Point mid = new(m_rect.X + size.X, m_rect.Y + size.Y);
+
+        m_childTL = new QuadTree<T>(new Rectangle(m_rect.Left, m_rect.Top, size.X, size.Y));
+        m_childTR = new QuadTree<T>(new Rectangle(mid.X, m_rect.Top, size.X, size.Y));
+        m_childBL = new QuadTree<T>(new Rectangle(m_rect.Left, mid.Y, size.X, size.Y));
+        m_childBR = new QuadTree<T>(new Rectangle(mid.X, mid.Y, size.X, size.Y));
+
+        // If they're completely contained by the quad, bump objects down
+        for (int i = 0; i < m_objects?.Count; i++)
+        {
+            QuadTree<T> destTree = GetDestinationTree(m_objects[i]);
+
+            if (destTree != this)
+            {
+                // Insert to the appropriate tree, remove the object, and back up one in the loop
+                destTree.Insert(m_objects[i]);
+                Remove(m_objects[i]);
+                i--;
+            }
+        }
+    }

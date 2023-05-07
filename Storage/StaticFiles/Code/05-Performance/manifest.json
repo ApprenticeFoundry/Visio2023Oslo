@@ -1,0 +1,32 @@
+{
+  "Status": "Ready",
+  "Title": "05 - Performance",
+  "ImageURL": "{Path}/framerate.gif",
+  "MemeURL": "{Path}/pairprog.gif",
+  "Description":"Lots of techniques to improve performance. This is why I keep the frame rate visible.",
+  "Samples": [
+    {
+      "Title": "Let html5 canvas send you event when it is ready",
+      "Filename": "CanvasRender.txt"
+    },
+    {
+      "Title": "Create the canvas context and call the render chain",
+      "Filename": "RenderFrame.txt"
+    },
+    {
+      "Title": "Be smart, do not interrupt drawing with mouse events",
+      "ImageURL": "{Path}/queueinaction.png",
+      "Filename": "CurrentlyRendering.txt"
+    },
+    {
+      "Title": "Later when the render is complete, process the events",
+      "Filename": "CurrentlyProcessing.txt",
+      "ImageURL": "{Path}/performance.gif"
+    },
+      {
+      "Title": "ASP.NET Core Kestrel: Adventures in building a fast web server - Damian Edwards & David Fowler",
+      "ImageURL": "{Path}/kestrel.png",
+      "DemoURL": "https://www.youtube.com/watch?v=kej3YJDMAW4"
+    }
+  ]
+}

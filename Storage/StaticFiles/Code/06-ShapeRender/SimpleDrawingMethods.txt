@@ -1,0 +1,42 @@
+    
+// FoGlyph2D.cs
+
+
+    public Action<Canvas2DContext, FoGlyph2D> DrawBox = async (ctx, obj) =>
+    {
+        await ctx.BeginPathAsync();
+        await ctx.StrokeRectAsync(0, 0, obj.Width, obj.Height);
+        await ctx.StrokeAsync();
+    };
+
+    public Action<Canvas2DContext, FoGlyph2D> DrawRect = async (ctx, obj) =>
+    {
+        await ctx.FillRectAsync(0, 0, obj.Width, obj.Height);
+    };
+
+    public Action<Canvas2DContext, FoGlyph2D> DrawCircle = async (ctx, obj) =>
+    {
+        await ctx.BeginPathAsync();
+        //await ctx.ArcAsync(obj.X, obj.Y, obj.Width, 0*Math.PI,2*Math.PI);
+        await ctx.ArcAsync(obj.Width / 2, obj.Height / 2, obj.Width / 3, 0 * Math.PI, 2 * Math.PI);
+        await ctx.FillAsync();
+        await ctx.StrokeAsync();
+    };
+
+    public Action<Canvas2DContext, FoGlyph2D> DrawSelected = async (ctx, obj) =>
+    {
+        await ctx.SetFillStyleAsync("White");
+        await ctx.SetLineWidthAsync(4);
+        await obj.DrawOutline(ctx);
+        await obj.DrawPin(ctx);
+    };
+
+    public async Task DrawOutline(Canvas2DContext ctx)
+    {
+        await ctx.BeginPathAsync();
+        await ctx.SetLineDashAsync(new float[] { 15, 5 });
+        await ctx.StrokeRectAsync(0, 0, Width, Height);
+        await ctx.StrokeAsync();
+    }
+
+ 

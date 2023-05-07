@@ -1,0 +1,14 @@
+
+//CommandService.cs
+
+    PubSub.SubscribeTo<FoGlyph2D>(args =>
+    {
+        SendShapeMoved(args);
+    });
+
+
+    public void SendShapeMoved(FoGlyph2D shape)
+    {
+        var move = new D2D_Move(shape);
+        SendSyncMessage(move);
+    }

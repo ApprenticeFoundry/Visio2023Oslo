@@ -1,0 +1,33 @@
+{
+  "Status": "Ready",
+  "Title": "03 - User Extensible Shapes",
+  "Description": "Create a platform where developers and create their own shape classes and add them to the system.",
+  "ImageURL": "{Path}/classes.png",
+  "Samples": [
+    {
+      "ImageURL": "{Path}/Transform.png",
+      "Title": "FoGlyph2D",
+      "Filename": "Glyph2D.txt"
+    },
+    {
+      "Title": "FoShape2D",
+      "ImageURL": "{Path}/Shape2DSS.png",
+      "Filename": "Shape2D.txt"
+    },
+    {
+      "Title": "FoShape1D",
+      "ImageURL": "{Path}/Shape1DSS.png",
+      "Filename": "Shape1D.txt"
+    },
+    {
+      "Title": "FoImage2D",
+      "ImageURL": "{Path}/Image.png",
+      "Filename": "Image2D.txt"
+    },
+    {
+      "Title": "FoText2D",
+      "ImageURL": "{Path}/Text.png",
+      "Filename": "Text2D.txt"
+    }
+  ]
+}

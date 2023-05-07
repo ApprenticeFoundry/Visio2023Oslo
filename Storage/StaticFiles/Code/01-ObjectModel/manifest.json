@@ -1,0 +1,46 @@
+{
+  "Status": "Ready",
+  "Title": "01 - Building a Flexable Shape Object Model",
+  "Description": "Replicate most of Visio shapeSheet functionality in a C# object model",
+  "ImageURL": "{Path}/Shape2DSS.png",
+  "MemeURL": "{Path}/programmers-worry.jpg",
+  "Samples": [
+      {
+      "Title": "Javascript framework used to dynamically create a shape model",
+      "Filename": "Sample2.txt"
+    },
+    {
+      "Title": "Shape models need to be able to track parent / child relationships",
+      "Notes": "Lessons: hard to serialize if there is a circular reference:  Funct vs Property",
+      "Filename": "Example1.txt"
+    },
+    {
+      "Title": "There are many different types of shapes with different properties and behaviors",
+      "Filename": "Example2.txt"
+    },
+    {
+      "Title": "What is the best way to keep track of all the different types shapes?",
+      "Filename": "Example3.txt"
+    },
+    {
+      "Title": "Question:  Create SlotGroups?",
+      "Notes": "Informed by the Visio shapesheet, Learned over time to create a dynamically extensable object",
+      "ImageURL": "{Path}/rules.png",
+      "Filename": "SlotGroups.txt"
+    },
+    {
+      "Title": "Focus on making SlotGroups are easy to use",
+      "Filename": "Example4.txt"
+    },
+    {
+      "Title": "This is the current interface for the shape model",
+      "Filename": "Interface.txt"
+    },
+    {
+      "Title": "For this implementation, Slots are the solution to manage the shape data model",
+      "ImageURL": "{Path}/ControlsSS.png",
+      "DemoURL": "/visio2023drawing/playground",
+      "Filename": "Final.txt"
+    }
+  ]
+}

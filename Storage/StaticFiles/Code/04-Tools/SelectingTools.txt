@@ -1,0 +1,54 @@
+
+// FoDrawing2D.cs
+
+    protected bool TestRule(BaseInteraction interact, CanvasMouseArgs args)
+    {
+        if (interact.IsDefaultTool(args) == false)
+            return false;
+
+        SetInteraction(interact.Style);
+        return true;
+    }
+
+    //virtual so others can modify the Rules
+    protected virtual void SelectInteractionByRuleFor(CanvasMouseArgs args)
+    {
+        foreach (var rule in interactionRules)
+        {
+            if (TestRule(rule, args)) return;    
+        }
+        SetInteraction(InteractionStyle.ReadOnly);
+    }
+
+
+// more in the EventPubSub Topic
+
+    private void ApplyMouseArgs(CanvasMouseArgs args)
+    {
+        if (args == null) return;
+
+        try
+        {
+            SetCurrentlyProcessing(true);
+            // call IsDefaultTool method on each interaction to
+            // determine what is the right interaction for this case?
+
+            var isEventHandled = (args.Topic) switch
+            {
+                ("ON_MOUSE_DOWN") => SelectInteractionByRuleFor(args).MouseDown(args),
+                ("ON_MOUSE_MOVE") => GetInteraction().MouseMove(args),
+                ("ON_MOUSE_UP") => GetInteraction().MouseUp(args),
+                ("ON_MOUSE_IN") => GetInteraction().MouseIn(args),
+                ("ON_MOUSE_OUT") => GetInteraction().MouseOut(args),
+                _ => false
+            };
+        }
+        catch (Exception ex)
+        {
+            $" {args.Topic} {ex.Message}".WriteLine();
+        }
+        finally
+        {
+            SetCurrentlyProcessing(false);
+        }
+    }

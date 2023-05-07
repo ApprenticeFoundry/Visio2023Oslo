@@ -1,0 +1,31 @@
+
+
+public class FoShape2D: FoGlyph2D
+{
+}
+
+
+public class FoShape1D: FoGlyph2D
+{
+}
+
+public class FoText2D: FoGlyph2D
+{
+}
+
+public class FoGroup2D: FoGlyph2D
+{
+}
+
+
+public class FoHandle2D: FoGlyph2D
+{
+}
+
+public class FoConnectionPoint2D: FoHandle2D
+{
+}
+
+public class FoImage2D: FoGlyph2D
+{
+}

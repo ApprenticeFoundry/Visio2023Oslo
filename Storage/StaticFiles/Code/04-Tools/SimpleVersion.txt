@@ -1,0 +1,17 @@
+
+// FoDrawing2D.cs   (Obsolite)
+
+    protected virtual void SelectInteractionByRuleFor(CanvasMouseArgs args)
+    {
+        if (TestRule(InteractionStyle.PagePanAndZoom, args)) return;
+
+        if (TestRule(InteractionStyle.ModelLinking, args)) return;
+
+        if (TestRule(InteractionStyle.ShapeConnecting, args)) return;
+
+        if (TestRule(InteractionStyle.ShapeResizing, args)) return;
+
+        if (TestRule(InteractionStyle.ShapeDragging, args)) return;
+
+        TestRule(InteractionStyle.ShapeSelection, args);
+    }

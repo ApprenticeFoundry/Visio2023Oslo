@@ -1,0 +1,32 @@
+    
+// Canvas2DComponent.razor.cs
+    
+    public async Task RenderFrame(double fps)
+    {
+        if (Ctx == null) return;
+        tick++;
+
+        // give notice to the workspace if it needs to prepare
+        Workspace?.PreRender(tick);
+
+        var drawing = Workspace?.GetDrawing();
+        if (drawing == null) return;
+
+        // if you are already rendering then skip it this cycle
+        if (drawing.SetCurrentlyRendering(true)) return;
+
+        await Ctx.BeginBatchAsync();
+        await Ctx.SaveAsync();
+
+        // pass render control to the drawing instance
+        await drawing.RenderDrawing(Ctx, tick, fps);
+        Workspace?.RenderWatermark(Ctx, tick);
+
+        await Ctx.RestoreAsync();
+        await Ctx.EndBatchAsync();
+
+        // remove guard on mouse interaction
+        drawing.SetCurrentlyRendering(false);
+
+        Workspace?.PostRender(tick);
+    }

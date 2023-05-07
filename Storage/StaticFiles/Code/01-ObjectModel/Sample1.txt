@@ -1,0 +1,40 @@
+//FoundryShape
+(function (ns, fo, create, undefined) {
+  var tween = create.Tween;
+  var utils = fo.utils;
+
+  ns.updateShapeForLayout = function (shape) {};
+
+  var FoundryShape = function (properties, subcomponents, parent) {
+    var shapeSpec = {
+      isVisible: true,
+      context: function () {
+        //should be overriden by properties.. if not try to find in model
+        if (!this.contextType) return;
+        var model = fo.newInstance(this.contextType);
+        return model;
+      },
+      geom: function () {
+        return create.createShape();
+      },
+      update: function () {
+        if (!this.geom) return false;
+        this.geom.graphics.clear();
+        return false;
+      },
+    };
+
+    this.base = fo.Component;
+    this.base(utils.union(shapeSpec, properties), subcomponents, parent);
+    this.myType = (properties && properties.myType) || "FoundryShape";
+
+    return this;
+  };
+
+  FoundryShape.prototype = (function () {
+    var anonymous = function () {
+      this.constructor = FoundryShape;
+    };
+    anonymous.prototype = fo.Component.prototype;
+    return new anonymous();
+  })();

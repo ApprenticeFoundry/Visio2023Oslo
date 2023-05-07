@@ -1,0 +1,30 @@
+  
+  // FoGlyph2D.cs
+  
+    public virtual async Task<bool> RenderConcise(Canvas2DContext ctx, double scale, Rectangle region)
+    {
+        if (!IsVisible) return false;
+
+        if (!IsInRegion(region)) return false;
+
+        try
+        {
+            await ctx.SaveAsync();
+            await UpdateContext(ctx, 0);
+
+            if (ShouldRender)
+                await ctx.FillRectAsync(0, 0, Width, Height);
+            else
+                await ctx.StrokeRectAsync(0, 0, Width, Height);
+        }
+        catch (System.Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            await ctx.RestoreAsync();
+        }
+
+        return true;
+    }

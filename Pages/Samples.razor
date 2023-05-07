@@ -1,0 +1,15 @@
+@page "/samples"
+@inherits SamplesBase
+
+<PageTitle>Samples</PageTitle>
+
+<h1 style="padding-top: 40px;padding-bottom: 40px;"><center>Needed Functionality:  Delivery Technique</center></h1>
+
+@foreach (var manifest in Manifests)
+{
+    <div>
+    <span>@manifest.Status</span>
+    <a class="btn btn-dark m-1" href="@ComputeLink(manifest)" >@manifest.Title</a>
+    </div>
+    <h4 style="padding-left:140px;padding-bottom:10px; max-width:1200px">@manifest.Description</h4>
+}

@@ -1,0 +1,33 @@
+
+// this is a collection of IFoCollection<> of type T 
+
+public class SlotGroups : Dictionary<string, object>
+{
+    public IFoCollection EstablishSlotFor(Type TypeSpec)
+    {
+        var key = TypeSpec.Name;
+        if (ContainsKey(key) == false)
+        {
+            // create a generic type dynamically...
+
+            var type = typeof(FoCollection<>).MakeGenericType(TypeSpec);
+            
+            var result = Activator.CreateInstance(type);
+            Add(key, result!);
+        }
+        return (this[key] as IFoCollection)!;
+    }
+}
+
+
+//  a dictionary of uniform types, that also acts list a list
+
+public class FoCollection<T>: IFoCollection where T : FoBase
+{
+    private readonly Dictionary<string, T> members = new();
+
+    public List<T> Values()
+    {
+        return this.members.Values.ToList<T>();
+    }
+}

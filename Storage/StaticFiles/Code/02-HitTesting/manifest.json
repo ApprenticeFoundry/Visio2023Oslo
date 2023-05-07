@@ -1,0 +1,25 @@
+{
+  "Status": "Ready",
+  "Title": "02 - Shape Hit Testing with a QuadTree",
+  "Description": "Use position data (X,Y) to locate a shape quickly.",
+  "ImageURL": "{Path}/picture2.png",
+  "Samples": [
+    {
+      "Title": "Typescript solution using linear list search",
+      "Filename": "EarlySample.txt",
+      "Notes": "This is a very slow way to do hit testing."
+    },
+    {
+      "Title": "QuadTree: Inserting and Storing Data",
+      "Filename": "QuadTree.txt",
+      "ImageURL": "{Path}/quadtree.gif",
+      "DemoURL": "/visio2023drawing/playground"
+    },
+    {
+      "Title": "Hit Test In Action, QuadTree finding objects",
+      "Description": "This sample shows how to use a quadtree to speed up hit testing.",
+      "Filename": "Service.txt",
+      "DemoURL": "/visio2023drawing/stencil"
+    }
+  ]
+}

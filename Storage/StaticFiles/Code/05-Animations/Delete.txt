@@ -1,0 +1,23 @@
+
+
+    // Hello
+    // This is a useless comment.
+    //
+    public List<FoGlyph2D> DeleteSelectionsWithAnimations()
+    {
+        var list = new List<FoGlyph2D>();
+        Selections().ForEach(shape =>
+        {
+            if ( shape.IsSelected ) 
+            {
+                list.Add(shape);
+                shape.MarkSelected(false);
+                shape.AnimatedResizeTo(0, 0).OnComplete(() =>
+                {
+                    ExtractShapes(shape.GlyphId);
+                    shape.UnglueAll();
+                });
+            }
+        });
+        return list;
+    }

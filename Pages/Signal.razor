@@ -1,0 +1,329 @@
+@page "/signal"
+@using Microsoft.AspNetCore.SignalR.Client
+
+@using FoundryBlazor.Message
+@using FoundryBlazor.Shape
+@using FoundryBlazor.Shared
+@inject NavigationManager Navigation
+@inject IToast toast;
+@inject ICommand Command;
+@inject ComponentBus PubSub;
+@implements IAsyncDisposable
+
+<PageTitle>SignalR Chat</PageTitle>
+
+<h1 style="padding-top: 120px;"><center>Hello, NDC Oslo</center></h1>
+
+<div style="margin-left:100px; margin-bottom:50px">
+    <div class="form-group">
+        <label>
+            User:
+            <input @bind="userInput" />
+        </label>
+    </div>
+
+    <div class="form-group">
+        <label>
+            Message:
+            <input @bind="messageInput" size="50" />
+        </label>
+    </div>
+</div>
+
+<div style="margin-left:100px; margin-bottom:10px">
+    <button @onclick="Send" disabled="@(!IsConnected)">Send</button>
+    <button @onclick="Create" disabled="@(!IsConnected)">Create</button>
+    <button @onclick="Move" disabled="@(!IsConnected)">Move</button>
+    <button @onclick="Destroy" disabled="@(!IsConnected)">Destroy</button>
+    <button @onclick="Toast" disabled="@(!IsConnected)">Toast</button>
+    <button @onclick="Ping" disabled="@(!IsConnected)">Ping</button>
+</div>
+<div style="margin-left:100px; margin-bottom:10px">
+
+    <button @onclick="CreateCMD" disabled="@(!IsConnected)">Create CMD</button>
+    <button @onclick="MoveCMD" disabled="@(!IsConnected)">Move CMD</button>
+    <button @onclick="DestroyCMD" disabled="@(!IsConnected)">Destroy CMD</button>
+    <button @onclick="ToastCMD" disabled="@(!IsConnected)">Toast CMD</button>
+    <button @onclick="PingCMD" disabled="@(!IsConnected)">Ping CMD</button>
+</div>
+<hr>
+
+<ul id="d2dList">
+    @foreach (var message in D2D_List)
+    {
+        <li>@message</li>
+    }
+</ul>
+
+<ul id="messagesList">
+    @foreach (var message in messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+
+@code {
+    private HubConnection? hubConnection;
+    private List<string> messages = new List<string>();
+    private List<D2D_Base> D2D_List = new List<D2D_Base>();
+
+    private string? userInput;
+    private string? messageInput;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            var encodedMsg = $"{user}: {message}";
+            messages.Add(encodedMsg);
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<string>("Pong", (payload) =>
+        {
+            toast.Info(payload);
+            var encodedMsg = payload;
+            messages.Add(encodedMsg);
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<D2D_Create>("Create", (msg) =>
+        {
+            D2D_List.Add(msg);
+            PubSub.Publish<D2D_Create>(msg);
+            var usertoast = new D2D_UserToast();
+            usertoast.Success(msg.Topic());
+            toast.RenderToast(usertoast);
+
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<D2D_Move>("Move", (msg) =>
+        {
+            D2D_List.Add(msg);
+            PubSub.Publish<D2D_Move>(msg);
+            var usertoast = new D2D_UserToast();
+            usertoast.Warning(msg.Topic());
+            toast.RenderToast(usertoast);
+
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<D2D_Destroy>("Destroy", (msg) =>
+        {
+            D2D_List.Add(msg);
+            PubSub.Publish<D2D_Destroy>(msg);
+            var usertoast = new D2D_UserToast();
+            usertoast.Error(msg.Topic());
+            toast.RenderToast(usertoast);
+
+            InvokeAsync(StateHasChanged);
+        });
+
+
+
+        hubConnection.On<D2D_UserToast>("UserToast", (msg) =>
+        {
+            D2D_List.Add(msg);
+            PubSub.Publish<D2D_UserToast>(msg);
+            toast.RenderToast(msg);
+
+            InvokeAsync(StateHasChanged);
+        });
+
+
+        var defaultHubURI = Navigation.ToAbsoluteUri("/DrawingSyncHub").ToString();
+        if (!Command.HasHub())
+        {
+            EstablishDrawingSyncHub(defaultHubURI);
+            Command.StartHub();
+            var note = $"Command SignalR Hub:{defaultHubURI}";
+            toast?.Success(note);
+            Command.SendToast(ToastType.Info, note);
+            AddCommandEvents();
+        }
+
+        await hubConnection.StartAsync();
+    }
+
+    public void AddCommandEvents()
+    {
+        var hub = Command.GetSignalRHub();
+        hub?.On<D2D_Create>("Create", (msg) =>
+        {
+            D2D_List.Add(msg);
+            //PubSub.Publish<D2D_Create>(msg);
+            var usertoast = new D2D_UserToast();
+            usertoast.Success(msg.Topic());
+            toast.RenderToast(usertoast);
+            InvokeAsync(StateHasChanged);
+        });
+
+        hub?.On<D2D_Move>("Move", (msg) =>
+        {
+            D2D_List.Add(msg);
+            //PubSub.Publish<D2D_Move>(msg);
+            var usertoast = new D2D_UserToast();
+            usertoast.Warning(msg.Topic());
+            toast.RenderToast(usertoast);
+
+            InvokeAsync(StateHasChanged);
+        });
+
+        hub?.On<D2D_Destroy>("Destroy", (msg) =>
+        {
+            D2D_List.Add(msg);
+            //PubSub.Publish<D2D_Destroy>(msg);
+            var usertoast = new D2D_UserToast();
+            usertoast.Error(msg.Topic());
+            toast.RenderToast(usertoast);
+
+            InvokeAsync(StateHasChanged);
+        });
+
+    }
+
+    public HubConnection EstablishDrawingSyncHub(string defaultHubURI)
+    {
+        if (Command.HasHub()) 
+            return Command.GetSignalRHub()!;
+
+        //var secureHub = defaultHubURI.Replace("http://", "https://");
+        var secureHubURI = new Uri(defaultHubURI);
+
+
+        var hub = new HubConnectionBuilder()
+            .WithUrl(secureHubURI)
+            .Build();
+
+        Command.SetSignalRHub(hub, secureHubURI, "visio", toast);
+        SetSignalRHub(hub, "visio");
+
+        //Toast?.Success($"HubConnection {secureHubURI} ");
+
+        return hub;
+    }
+
+ public bool SetSignalRHub(HubConnection hub, string panid)
+    {
+        hub.Closed += async (error) =>
+       {
+           var rand = new Random();
+           await Task.Delay(rand.Next(0, 5) * 1000);
+           await hub.StartAsync();
+       };
+
+        hub.Reconnecting += async (error) =>
+        {
+            var rand = new Random();
+            await Task.Delay(rand.Next(0, 5) * 1000);
+        };
+
+        hub.Reconnected += async (error) =>
+        {
+            var rand = new Random();
+            await Task.Delay(rand.Next(0, 5) * 1000);
+        };
+        return true;
+    }
+
+    private async Task Ping()
+    {
+        if (hubConnection is not null)
+        {
+            var message = $"Ping {DateTime.Now}";
+            await hubConnection.SendAsync("Ping", message);
+        }
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+        }
+    }
+
+    private async Task Create()
+    {
+        var create = new D2D_Create();
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync(create.Topic(), create);
+        }
+    }
+
+    private async Task Move()
+    {
+         var move = new D2D_Move();
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync(move.Topic(), move);
+        }
+    }
+
+    private async Task Destroy()
+    {
+        var destroy = new D2D_Destroy();
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync(destroy.Topic(),destroy);
+        }
+    }
+    private async Task Toast()
+    {
+        var userToast = new D2D_UserToast();
+        userToast.Info("Testing Toast");
+
+	    if (hubConnection is not null)
+            {
+                await hubConnection.SendAsync("UserToast", userToast);
+            }
+	}
+    
+    private async Task CreateCMD()
+    {
+        var create = new D2D_Create();
+        await Command.Send(create);
+    }
+
+    private async Task MoveCMD()
+    {
+         var move = new D2D_Move();
+        await Command.Send(move);
+    }
+
+    private async Task DestroyCMD()
+    {
+        var destroy = new D2D_Destroy();
+        await Command.Send(destroy);
+    }
+
+    private async Task ToastCMD()
+    {
+        var userToast = new D2D_UserToast();
+        userToast.Info("CMD Testing Toast");
+
+        await Command.Send(userToast);
+	}
+        
+    private async Task PingCMD()
+    {
+        var msg = $"Sending PingCMD";
+        await Command.Ping(msg);
+    }
+
+    public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

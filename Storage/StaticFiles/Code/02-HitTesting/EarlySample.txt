@@ -1,0 +1,51 @@
+
+//Typescript.ts
+
+  findHitShape(
+    hit: iPoint2D,
+    deep: boolean = true,
+    exclude: foGlyph2D = null
+  ): foGlyph2D {
+    let found: foGlyph2D;
+    for (let i: number = 0; i < this.nodes.length; i++) {
+      const shape = this.nodes.getMember(i);
+      if (shape === exclude) { continue; }
+      found = shape.findObjectUnderPoint(hit, deep);
+      if (found) { return found; }
+    }
+  }
+
+
+
+
+  findObjectUnderFrame(
+    source: foGlyph2D,
+    hit: iFrame,
+    deep: boolean
+  ): foGlyph2D {
+    let found: foGlyph2D = this.overlapTest(hit) ? this : undefined;
+
+    if (deep) {
+      const child = this.findChildObjectUnderFrame(source, hit);
+      found = child ? child : found;
+    }
+    return found;
+  }
+
+  protected findChildObjectUnderFrame(
+    source: foGlyph2D,
+    hit: iFrame
+  ): foGlyph2D {
+    const children = this.nodes;
+    if (children.isSelectable) {
+      for (let i = 0; i < children.length; i++) {
+        const child: foGlyph2D = children.getMember(i);
+        if (source.hasAncestor(child)) continue;
+        const found = child.findChildObjectUnderFrame(source, hit);
+        if (found) return found;
+      }
+    }
+    if (this.overlapTest(hit)) {
+      return this;
+    }
+  }

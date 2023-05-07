@@ -1,0 +1,20 @@
+{
+  "Status":"Draft",
+  "Title": "08 - Event and Pub/Sub listening",
+  "Description": "Commanding / Events / Menus / Messaging / RX /PubSub",
+   "Samples": [
+    {
+      "Title": "Starts with JS Interop capture mouse events",
+      "Filename": "CaptureMouse.txt",
+      "Description": "Focus on reporting the events, forward through ComponentBus"
+    },
+    {
+      "Title": "Subscribe to the events from ComponentBus",
+      "Filename": "Subscribe.txt"
+    },
+    {
+      "Title": "Listen to PubSub For events",
+      "Filename": "ForwardTheEvent.txt"
+    }
+  ]
+}

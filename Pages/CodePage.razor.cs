@@ -1,0 +1,64 @@
+using BlazorComponentBus;
+using Foundry.Helpers;
+using FoundryBlazor.Extensions;
+using FoundryBlazor.PubSub;
+using Microsoft.AspNetCore.Components;
+using Visio2023Foundry.Model;
+
+namespace Visio2023Foundry.Pages;
+
+public class CodePageBase : ComponentBase
+{
+    [Inject] private ICodeDisplayService? CodeDisplay { get; set; }
+    [Parameter] public string? Folder { get; set; }
+    public string Path { get; set; } = "";
+
+    public CodeManifest? Manifest { get; set; }
+    public List<CodeSample> Samples { get; set; } = new();
+    
+    public string? Payload { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+  
+        var data = CodeDisplay!.GetCodeLibrary();
+        if (!string.IsNullOrEmpty(Folder))
+        {
+            Path = data.Storage;
+            Manifest = data.Manifests.FirstOrDefault(x => x.Folder.Matches(Folder));
+            Samples = Manifest!.Samples;
+            Payload = StorageHelpers.Dehydrate<CodeManifest>(Manifest!, false);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public bool HasImage()
+    {
+        //$"ImageURL =[{Sample!.ImageURL}]".WriteInfo();
+        return !string.IsNullOrEmpty(Manifest?.ImageURL);
+    }
+    public bool HasDemo()
+    {
+        // $"DemoURL =[{Sample!.DemoURL}]".WriteInfo();
+        return !string.IsNullOrEmpty(Manifest?.DemoURL);
+    }
+    public bool HasMeme()
+    {
+        //$"ImageURL =[{Sample!.ImageURL}]".WriteInfo();
+        return !string.IsNullOrEmpty(Manifest?.MemeURL);
+    }
+}
+
+
