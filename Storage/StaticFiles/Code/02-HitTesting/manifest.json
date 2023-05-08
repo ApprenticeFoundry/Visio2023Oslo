@@ -1,8 +1,8 @@
 {
   "Status": "Ready",
   "Title": "02 - Shape Hit Testing",
-  "Tip": "Use a QuadTree to 'sort' the shapes on the page. ",
   "ImageURL": "{Path}/picture2.png",
+  "Tip": "Use a QuadTree to 'sort' the shapes on the page. ",
   "Summary": {
     "What": "Nearly event user task starts with a hit test",
     "Why": "Make it as efficient as possable",
