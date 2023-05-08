@@ -1,0 +1,24 @@
+   
+// Playground.cs 
+
+   private void CreateGluePlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
+
+        var s1 = drawing.AddShape(new FoShape2D(50, 50, "Green"));
+        s1?.MoveTo(200, 200);
+
+        var s2 = drawing.AddShape(new FoShape2D(50, 50, "Orange"));
+        s2?.MoveTo(800, 400);
+
+        var wire2 = new FoShape1D("Arrow", "Red")
+        {
+            Height = 50,
+            ShapeDraw = async (ctx, obj) => await DrawSteveArrowAsync(ctx, obj.Width, obj.Height, obj.Color)
+        };
+        
+        wire2.GlueStartTo(s1, "RIGHT");
+        wire2.GlueFinishTo(s2, "LEFT");
+        drawing.AddShape(wire2);
+    }
