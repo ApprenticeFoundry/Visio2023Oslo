@@ -3,7 +3,13 @@
   "Title": "08 - Actions, Commanding and Menus",
   "ImageURL": "{Path}/drawmenu.gif",
   "MemeURL": "{Path}/VisioTools.png",
-  "Description": "Integrate actions with a command service, Shapes become menus",
+  "Tip": "Use the shape model as a shared resource to create other UI elements.",
+  "Summary": {
+    "What": "Define the command actions as part of the shape model. The write code to project the 'view' through out the solution.",
+    "Why": "Code is simplified and reliability is improved, when there is a single action for each command.",
+    "How": "Deligate the command details to a common object, use functions with clousers as necessary."
+  },
+  "Description": "Integrate actions with a command service, then list the shapes become menus",
    "Samples": [
     {
       "Title": "Leverage the standard web menus and do much more",
@@ -11,7 +17,7 @@
       "Filename": "hardmenu.txt"
     },
     {
-      "Title": "Simple API to execute commands",
+      "Tip": "Simple API to associate actions with command names",
       "Filename": "simpleAPI.txt"
     },
     {
@@ -28,7 +34,7 @@
       "Filename": "Button.txt"
     },
     {
-      "Title": "You can build a menu traditional web from a menu shapes",
+      "Tip": "You can build a traditional web menu from a menu shapes",
       "ImageURL": "{Path}/linemenu.png",
       "Filename": "razormenu.txt"
     },

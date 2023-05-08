@@ -1,5 +1,5 @@
 {
-  "Status": "Ready",
+  "Status": "Done",
   "Title": "02 - Shape Hit Testing",
   "ImageURL": "{Path}/quadtree.gif",
   "Tip": "Use a QuadTree to 'sort' the shapes on the page. ",

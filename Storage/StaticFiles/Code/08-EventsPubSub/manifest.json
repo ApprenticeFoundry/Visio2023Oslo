@@ -3,6 +3,12 @@
   "Title": "08 - Pub/Sub and Reactive Programming",
   "ImageURL": "{Path}/pubsub.png",
   "Description": "How to use Pub/Sub and Reactive Programming in Blazor",
+  "Tip":"Process all events as messages with topics, it will simplify your code when you inplementcollaberation between users.",
+  "Summary": {
+    "What": "Treat every event as a message with a topic, advoid doing a direct function call to another component.",
+    "Why": "Pub/Sub promotes loose coupling. The Message object simplifies recording/playback senerios and testing.",
+    "How": "Use a Topic / Message structure to share event data, then leverage the BlazorComponentBus service",
+  },
    "Samples": [
     {
       "Title": "Use ComponentBus as a service to publish and subscribe to events among components",
