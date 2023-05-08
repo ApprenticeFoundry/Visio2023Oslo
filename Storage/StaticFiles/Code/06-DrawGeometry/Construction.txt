@@ -1,0 +1,23 @@
+
+// FoShape2D.cs
+
+    public FoShape2D() : base()
+    {
+        ShapeDraw = DrawRect;
+    }
+
+// FoShape1D.cs
+
+    public FoShape1D() : base()
+    {
+        ShapeDraw = DrawSimpleLine;
+        ShapeDrawSelected = DrawDashedLine;
+        this.height = 10;
+    }
+
+// FoGroup2D.cs
+
+    public FoGroup2D() : base()
+    {
+        ShapeDraw = DrawBox;
+    }
