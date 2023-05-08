@@ -1,10 +1,26 @@
-    protected void SendModelCreated<T>(T model) where T : Boid
-    {
-        var create = new D2D_ModelCreate()
-        {
-            PayloadType = model.GetType().Name,
-            Payload = StorageHelpers.Dehydrate<T>(model, false)
-        };
 
-        Command.SendSyncMessage(create);
-    } 
+//Stencil.cs
+
+public class Stencil : FoWorkbook
+{
+
+    public Stencil(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
+        base(space, command, dialog, js, pubSub)
+    {
+    }
+
+    public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
+    {
+        space.EstablishMenu2D<FoMenu2D, FoButton2D>("Create", new Dictionary<string, Action>()
+        {
+            { "GPT4 Arrow", () => SetDoCreateGPT4Arrow()},
+            { "Steve Arrow", () => SetDoCreateSteveArrow()},
+            { "Blue Shape", () => SetDoCreateBlue()},
+            { "Text Shape", () => SetDoCreateText()},
+            { "Image URL", () => SetDoAddImage()},
+            { "Video URL", () => SetDoAddVideo()},
+            { "Glue", () => CreateGluePlayground()},
+            { "QR Code", () => SetDoAddQRCode()},
+        }, true);
+
+    }

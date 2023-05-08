@@ -1,9 +1,22 @@
 {
-  "Title": "18 - Workspace and Workbook",
+  "Title": "18 - Workspace and Custom Workbooks",
+  "ImageURL": "{Path}/workbook.png",
+  "Tip": "Introduce custom extensions with a Workspace and Workbook.",
+  "Summary": {
+    "What": "Create your own shapes and models with C# Workbook class.",
+    "Why": "I want to build on this platform",
+    "How": "Follow the examples in this code."
+  },
   "Samples": [
     {
-      "Title": "FoWorkspace",
-      "Filename": "workspace.txt"
+      "Tip": "Include the FoundaryBlazor library part of your next blazor project.",
+      "Title": "Standard code for creating a Blazor component",
+      "Filename": "integration.txt"
+     },
+    {
+      "Tip": "Add as many workbooks as you like to your project.",
+      "Title": "Create a 'Stencil' workbook using class inheritance",
+      "Filename": "workbook.txt"
      }
   ]
 }

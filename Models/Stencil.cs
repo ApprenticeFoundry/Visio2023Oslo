@@ -46,14 +46,12 @@ public class Stencil : FoWorkbook
 
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
-        "Stencil CreateMenus".WriteWarning();
         space.EstablishMenu2D<FoMenu2D, FoButton2D>("Create", new Dictionary<string, Action>()
         {
             { "GPT4 Arrow", () => SetDoCreateGPT4Arrow()},
             { "Steve Arrow", () => SetDoCreateSteveArrow()},
             { "Blue Shape", () => SetDoCreateBlue()},
             { "Text Shape", () => SetDoCreateText()},
-            //{ "Image Shape", () => SetDoCreateImage()},
             { "Image URL", () => SetDoAddImage()},
             { "Video URL", () => SetDoAddVideo()},
             { "Glue", () => CreateGluePlayground()},

@@ -1,16 +1,18 @@
 {
-  "Status": "Early",
+  "Status": "Done",
   "Title": "13 - 3D Models And Rendering",
-  "ImageURL": "{Path}/ticker.png",
+  "ImageURL": "{Path}/ticker.gif",
   "Tip": "Focus on loading completed 3D Models levage the shape model from 2D",
   "Summary": {
     "What": "Render existing 3D models and scenes using Three.js primitives.",
-    "Why": "Thr right tool for the job, we just need to share models on the web, not build video games.",
+    "Why": "The right tool for the job, we just need to share models on the web, not build video games.",
     "How": "Use an open source library to integrate Blazor with Three.js."
   },
   "Samples": [
     {
-      "Tip": "First let's recognize that .Net is a giving Community, Thank You Roman giving me access to your Blazor / Three.js integration",
+      "Tip": "First let's recognize that .Net is a giving Community.",
+      "Title": "Thank You Roman Simuta!",
+      "Description": "for giving me access to your Blazor / Three.js integration",
       "ImageURL": "{Path}/letter.png"
     },
     {
