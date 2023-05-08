@@ -1,0 +1,24 @@
+{
+  "Status": "started",
+  "Title": "06 - Position Geometry",
+  "ImageURL": "{Path}/visiopins.png",
+  "MemeURL": "{Path}/matrix.gif",
+  "Tip": "Commit to understanding how the matrix controls the rendering of your shape.",
+  "Summary": {
+    "What": "Shapes are positioned by a matrix. I follow the convention from Visio.",
+    "Why": "The visio convention is easly mapped into HTML5 Canvas.",
+    "How": "The details follow below, step by step"
+  },
+  "Samples": [
+      {
+      "Tip": "Make the matrix calculation parametric ",
+      "Title": "Compute the matrix based on the shape's properties",
+      "Filename": "GetMatrix.txt"
+    },
+    {
+      "Tip": "map the matrix into the context",
+      "Title": "Canvas2DContext TransformAsync  controls the result of all the draw commands",
+      "Filename": "contextmap.txt"
+    }
+  ]
+}

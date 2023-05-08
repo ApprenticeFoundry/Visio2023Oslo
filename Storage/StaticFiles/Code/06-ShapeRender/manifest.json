@@ -9,6 +9,12 @@
     "How": "Integrate NO-OP function pointers into the render methods, then set there values dynamically as needed."
   },
   "Samples": [
+      {
+      "Tip": "Make rendering a sequence of method calls, that trigger function to do the drawing",
+      "Title": "method RenderDetailed() calls method UpdateContext() and Draw()",
+      "Description": "method RenderDetailed() calls method Draw()",
+      "Filename": "RenderShapeDetails.txt"
+    }
     {
       "Tip": "Include a 'tick' argument in your render method so each drawing can be unique",
       "Title": "use 'tick' to do unique render",
