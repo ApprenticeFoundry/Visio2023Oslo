@@ -1,0 +1,92 @@
+
+//Gamer.cs
+
+    public void DoLoad3dModel(string filename)
+    {
+        var arena = Workspace.GetArena();
+        if (arena == null) return;
+
+
+        // var baseURL = Path.Join(Workspace.GetBaseUrl(), "storage", "StaticFiles");
+        var baseURL = $"{Workspace.GetBaseUrl()}storage/StaticFiles";
+        baseURL.WriteSuccess();
+        arena.Load3DModelFromFile("3DModels", filename, baseURL);
+
+    }
+
+//FoShape3D.cs
+
+
+    public FoGroup3D Load3DModelFromFile(string folder, string filename, string baseURL)
+    {
+        var name = Path.GetFileNameWithoutExtension(filename);
+        var platform = new FoGroup3D()
+        {
+            GlyphId = Guid.NewGuid().ToString(),
+            PlatformName = folder,
+            Name = name
+        };
+        platform.EstablishBox("Platform", 1, 1, 1);
+
+
+        var url = Path.Join(baseURL, folder, filename);
+
+        platform
+            .CreateUsing<FoShape3D>(name)
+            .CreateGlb(url, 1, 2, 3);
+
+        platform
+            .CreateUsing<FoText3D>("Label-1")
+            .CreateTextAt(name, 0.0, 5.0, 0.0);
+
+
+        PreRenderPlatform(platform);
+        RenderPlatformToScene(platform);
+
+        return platform;
+    }
+    public override bool PreRender(FoArena3D arena, Viewer viewer, bool deep = true)
+    {
+        //is symbol ends with ....
+        //LoadingURL = Symbol.Replace("http:", "https:");
+        LoadingURL = Symbol;
+        var result = Type switch
+        {
+            "Collada" => PreRenderImport(arena, viewer, Import3DFormats.Collada),
+            "Fbx" => PreRenderImport(arena, viewer, Import3DFormats.Fbx),
+            "Obj" => PreRenderImport(arena, viewer, Import3DFormats.Obj),
+            "Stl" => PreRenderImport(arena, viewer, Import3DFormats.Stl),
+            "Glb" => PreRenderImport(arena, viewer, Import3DFormats.Gltf),
+            _ => false
+        };
+        return result;
+    }
+
+    private bool PreRenderImport(FoArena3D arena, Viewer viewer, Import3DFormats format)
+    {
+        if (string.IsNullOrEmpty(LoadingURL)) return false;
+        $"PreRenderImport symbol [{LoadingURL}] ".WriteInfo(1);
+
+        var settings = new ImportSettings
+        {
+            Uuid = Guid.NewGuid(),
+            Format = format,
+            FileURL = LoadingURL,
+            Position = Position?.AsVector3() ?? new Vector3(),
+            Rotation = Rotation?.AsEuler() ?? new Euler(),
+            OnComplete = async (Scene scene, Object3D object3D) =>
+            {
+                if (object3D != null) ShapeObject3D = object3D;
+                else "Unexpected empty object3D".WriteError(1);
+
+                if (LoadingGUID != null) await viewer.RemoveByUuidAsync((Guid)(LoadingGUID));
+            }
+        };
+
+        Task.Run(async () =>
+        {
+            await viewer.Request3DModel(settings);
+            arena.Add<FoShape3D>(settings.Uuid.ToString(), this);
+        });
+        return true;
+    }

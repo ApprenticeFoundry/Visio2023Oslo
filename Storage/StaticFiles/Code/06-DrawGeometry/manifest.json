@@ -1,7 +1,7 @@
 {
-  "Status": "Ready",
+  "Status": "Done",
   "Title": "06 - Draw Geometry",
-  "ImageURL": "{Path}/shaperender.gif",
+  "ImageURL": "{Path}/redraw.gif",
   "Tip": "Use Functions to draw the geometry, it gives you tremendious flexibility.",
   "Summary": {
     "What": "Use methods to ensure a repeatable render process. Deligate the 'drawing' of geometry to a function.",
@@ -9,34 +9,27 @@
     "How": "Integrate NO-OP function pointers into the render methods, then set there values dynamically as needed."
   },
   "Samples": [
-    {
-      "Title": "Early: javascript code to create shape ",
-      "Filename": "EarlySample.txt"
+      {
+      "Tip": "Change the draw function dynamically to render different shapes",
+      "Filename": "multidraw.txt"
     },
     {
-      "Title": "Simple functions to draw geometry",
+      "Tip": "Simple functions to draw geometry",
       "Filename": "SimpleDrawingMethods.txt"
     },
     {
-      "Title": "Specify the draw function during construction",
-      "Filename": "Construction.txt"
+      "Tip": "Advanced functions to draw geometry",
+      "Filename": "AdvancedDrawingMethods.txt"
     },
+
     {
-      "Title": "The process of rendering details",
-      "Filename": "RenderShapeDetails.txt"
-    },
-    {
-      "Title": "Setting ShapeDraw Function dynamically",
+      "Tip": "Setting ShapeDraw Function after you create the shape",
       "ImageURL": "{Path}/ring.png",
       "Filename": "ring.txt"
     },
+
     {
-      "Title": "Advanced functions to draw geometry",
-      "ImageURL": "{Path}/stencil.png",
-      "Filename": "AdvancedDrawingMethods.txt"
-    },
-    {
-      "Title": "Setting HoverDraw Function dynamically",
+      "Tip": "Setting HoverDraw Function dynamically",
       "ImageURL": "{Path}/shaperender.gif",
       "Filename": "lasthover.txt"
     }

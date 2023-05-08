@@ -1,0 +1,71 @@
+//FoShape3D.cs
+
+
+    private bool Cylinder(Scene ctx)
+    {
+        var box = BoundingBox ?? new FoVector3D(1, 1, 1);
+        ShapeMesh = new Mesh
+        {
+            Geometry = new CylinderGeometry(radiusTop: box.X / 2, radiusBottom: box.X / 2, height: box.Y),
+            Position = GetPosition().AsVector3(),
+            Material = GetMaterial()
+        };
+        ctx.Add(ShapeMesh);
+        return true;
+    }
+
+    private bool Sphere(Scene ctx)
+    {
+        var box = BoundingBox ?? new FoVector3D(1, 1, 1);
+
+        ShapeMesh = new Mesh
+        {
+            Geometry = new SphereGeometry(radius: box.X / 2),
+            Position = GetPosition().AsVector3(),
+            Material = GetMaterial()
+        };
+        ctx.Add(ShapeMesh);
+        return true;
+    }
+
+    private bool Circle(Scene ctx)
+    {
+        var box = BoundingBox ?? new FoVector3D(1, 1, 1);
+
+        ShapeMesh = new Mesh
+        {
+            Geometry = new CircleGeometry(radius: box.X / 2),
+            Position = GetPosition().AsVector3(),
+            Material = GetMaterial()
+        };
+        ctx.Add(ShapeMesh);
+        return true;
+    }
+
+    private bool Capsule(Scene ctx)
+    {
+        var box = BoundingBox ?? new FoVector3D(1, 1, 1);
+
+        ShapeMesh = new Mesh
+        {
+            Geometry = new CapsuleGeometry(radius: box.X / 2, box.Y),
+            Position = GetPosition().AsVector3(),
+            Material = GetMaterial()
+        };
+        ctx.Add(ShapeMesh);
+        return true;
+    }
+
+    private bool Cone(Scene ctx)
+    {
+        var box = BoundingBox ?? new FoVector3D(1, 1, 1);
+
+        ShapeMesh = new Mesh
+        {
+            Geometry = new ConeGeometry(radius: box.X / 2, height: box.Y),
+            Position = GetPosition().AsVector3(),
+            Material = GetMaterial()
+        };
+        ctx.Add(ShapeMesh);
+        return true;
+    }
