@@ -1,8 +1,13 @@
 {
   "Status": "Ready",
   "Title": "05 - Techniques for Improving User Interaction",
-  "ImageURL": "{Path}/framerate.gif",
-  "Description":"Monitor performance by keeping the frame rate visible.",
+  "ImageURL": "{Path}/performance.gif",
+  "Tip": "Queue user interaction events while the canvas is rendering.",
+  "Summary": {
+    "What": "Advoid processing events that may cause the render to change during the render process",
+    "Why": "Doing 'work' on the UI thread will cause the canvas to feel slugish.",
+    "How": "Set a busy flags while UI is rendering, queue any events to processing when the render is complete."
+  },
   "Samples": [
     {
       "Title": "Let html5 canvas send you an event when it is ready to draw the next frame",
@@ -22,7 +27,7 @@
       "Filename": "CurrentlyProcessing.txt",
       "ImageURL": "{Path}/performance.gif"
     },
-      {
+    {
       "Title": "ASP.NET Core Kestrel: Adventures in building a fast web server - Damian Edwards & David Fowler",
       "ImageURL": "{Path}/kestrel.png",
       "DemoURL": "https://www.youtube.com/watch?v=kej3YJDMAW4"
