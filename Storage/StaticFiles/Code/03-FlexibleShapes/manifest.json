@@ -1,7 +1,7 @@
 {
   "Status": "Ready",
-  "Title": "03 - User Extensible Shapes",
-  "Description": "Create a platform where developers and create their own shape classes and add them to the system.",
+  "Title": "03 - Developer Extensible Shapes",
+  "Description": "Create a platform where developers can create their own shape classes and add them to the system.",
   "ImageURL": "{Path}/classes.png",
   "Samples": [
     {

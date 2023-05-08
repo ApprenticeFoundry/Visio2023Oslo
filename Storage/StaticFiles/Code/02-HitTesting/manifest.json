@@ -3,6 +3,10 @@
   "Title": "02 - Shape Hit Testing with a QuadTree",
   "Description": "Use position data (X,Y) to locate a shape quickly.",
   "ImageURL": "{Path}/picture2.png",
+  "Tip": "Use a QuadTree to 'sort' the shapes on the page. ",
+  "Summary": {
+    "Title": "Nearly event user task starts with a hit test. Make it as efficient as possable"
+  },
   "Samples": [
     {
       "Title": "Typescript solution using linear list search",

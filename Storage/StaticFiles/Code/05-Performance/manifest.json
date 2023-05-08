@@ -1,12 +1,12 @@
 {
   "Status": "Ready",
-  "Title": "05 - Performance",
+  "Title": "05 - Techniques for Improving Performance",
   "ImageURL": "{Path}/framerate.gif",
   "MemeURL": "{Path}/pairprog.gif",
-  "Description":"Lots of techniques to improve performance. This is why I keep the frame rate visible.",
+  "Description":"Monitor performance by keeping the frame rate visible.",
   "Samples": [
     {
-      "Title": "Let html5 canvas send you event when it is ready",
+      "Title": "Let html5 canvas send you an event when it is ready to draw the next frame",
       "Filename": "CanvasRender.txt"
     },
     {

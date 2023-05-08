@@ -2,7 +2,7 @@
   "Status": "Ready",
   "Title": "05 - Animations",
   "ImageURL": "{Path}/letsdance.gif",
-  "Description":"Animation are a good way to signal to the user that something is happening. They can also be used to make your app feel more alive. In this section we will look at how to use animations in your app.",
+  "Description":"Animations are a good way to signal to the user that something is happening. They can also be used to make your app feel more alive. In this section we will look at how to use animations in your app.",
   "Notes": "Copilot wrote the description above.",
   "Samples": [
     {

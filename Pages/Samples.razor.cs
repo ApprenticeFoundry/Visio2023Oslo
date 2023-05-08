@@ -25,7 +25,7 @@ public class SamplesBase : ComponentBase
 
   
         var data = CodeDisplay!.GetCodeLibrary();
-        Manifests = data.Manifests;
+        Manifests = data.Manifests.Where(item => item.HasTip()).ToList();
         Payload = StorageHelpers.Dehydrate<CodeLibrary>(data, false);
 
        // SettingsHelpers.WriteData("Storage/StaticFiles/Code", "test.json", Payload);

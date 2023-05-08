@@ -1,7 +1,6 @@
 
 
-    // Hello
-    // This is a useless comment.
+
     //
     public List<FoGlyph2D> DeleteSelectionsWithAnimations()
     {
