@@ -17,9 +17,9 @@ namespace Visio2023Foundry.Model;
 
 	public class SPEC_ImageURL
 	{
-        public int width { get; set; }
-        public int height { get; set; }
-        public string url { get; set; }
+        public int width { get; set; } = 0;
+        public int height { get; set; } = 0;
+        public string url { get; set; } = "";
 
 		//https://stackoverflow.com/questions/60797390/generate-random-image-by-url
 		public static SPEC_ImageURL RandomSpec()

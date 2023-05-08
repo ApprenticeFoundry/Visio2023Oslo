@@ -3,7 +3,7 @@
   "Title": "01 - Building a Flexable Shape Object Model",
   "Description": "Replicate most of Visio shapeSheet functionality in a C# object model",
   "ImageURL": "{Path}/Shape2DSS.png",
-  "MemeURL": "{Path}/programmers-worry.jpg",
+  "Tip": "Create a base class that can share parent/child relationships and use it to construct shapes, pages and drawings",
   "Samples": [
       {
       "Title": "Javascript framework used to dynamically create a shape model",

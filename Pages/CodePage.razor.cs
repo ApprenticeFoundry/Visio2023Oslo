@@ -14,6 +14,7 @@ public class CodePageBase : ComponentBase
     public string Path { get; set; } = "";
 
     public CodeManifest? Manifest { get; set; }
+    public CodeSummary? Summary { get; set; }
     public List<CodeSample> Samples { get; set; } = new();
     
     public string? Payload { get; set; }
@@ -30,6 +31,7 @@ public class CodePageBase : ComponentBase
             Path = data.Storage;
             Manifest = data.Manifests.FirstOrDefault(x => x.Folder.Matches(Folder));
             Samples = Manifest!.Samples;
+            Summary = Manifest!.Summary;
             Payload = StorageHelpers.Dehydrate<CodeManifest>(Manifest!, false);
         }
     }
@@ -43,11 +45,15 @@ public class CodePageBase : ComponentBase
 
         await base.OnAfterRenderAsync(firstRender);
     }
-
     public bool HasImage()
     {
         //$"ImageURL =[{Sample!.ImageURL}]".WriteInfo();
         return !string.IsNullOrEmpty(Manifest?.ImageURL);
+    }
+    public bool HasSummary()
+    {
+        //$"ImageURL =[{Sample!.ImageURL}]".WriteInfo();
+        return Summary != null;
     }
     public bool HasDemo()
     {

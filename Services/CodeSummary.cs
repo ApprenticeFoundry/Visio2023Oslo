@@ -5,11 +5,10 @@ namespace Visio2023Foundry.Model;
 
 public class CodeSummary
 {
-    public string Title { get; set; } = "";
-    public string Description { get; set; } = "";
-    public string Notes { get; set; } = "";
+    public string What { get; set; } = "";
+    public string Why { get; set; } = "";
+    public string How { get; set; } = "";
     public string Filename { get; set; } = "";
-    public string Language { get; set; } = "C#";
     public string ImageURL { get; set; } = "";
     public string DemoURL { get; set; } = "";
     public string MemeURL { get; set; } = "";

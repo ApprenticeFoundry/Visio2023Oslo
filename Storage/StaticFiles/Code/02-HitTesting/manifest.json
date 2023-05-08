@@ -1,11 +1,12 @@
 {
   "Status": "Ready",
-  "Title": "02 - Shape Hit Testing with a QuadTree",
-  "Description": "Use position data (X,Y) to locate a shape quickly.",
-  "ImageURL": "{Path}/picture2.png",
+  "Title": "02 - Shape Hit Testing",
   "Tip": "Use a QuadTree to 'sort' the shapes on the page. ",
+  "ImageURL": "{Path}/picture2.png",
   "Summary": {
-    "Title": "Nearly event user task starts with a hit test. Make it as efficient as possable"
+    "What": "Nearly event user task starts with a hit test",
+    "Why": "Make it as efficient as possable",
+    "How": "Use a QuadTree, it segments the page into smaller and smaller spaces"
   },
   "Samples": [
     {
