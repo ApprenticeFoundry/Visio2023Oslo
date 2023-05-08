@@ -5,6 +5,7 @@ namespace Visio2023Foundry.Model;
 
 public class CodeSample
 {
+    public string Tip { get; set; } = "";
     public string Title { get; set; } = "";
     public string Description { get; set; } = "";
     public string Filename { get; set; } = "";
@@ -13,6 +14,11 @@ public class CodeSample
     public string DemoURL { get; set; } = "";
     public string MemeURL { get; set; } = "";
 
+    public bool HasTip() 
+    {
+        return !string.IsNullOrEmpty(this.Tip);
+    }
+    
     public void ModifyImageUrl(string path)
     {
         if ( !string.IsNullOrEmpty(ImageURL) && ImageURL.Contains("{Path}"))

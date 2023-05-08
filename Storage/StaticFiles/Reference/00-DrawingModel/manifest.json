@@ -1,0 +1,13 @@
+{
+  "Status": "Ready",
+  "Title": "00 - Composition of a Visio Drawing",
+  "Description": "Understanding the objects and relationships that describes a drawing is necessary before diving into the other code examples",
+  "ImageURL": "{Path}/DrawingModel.png",
+  "Samples": [
+    {
+      "Title": "Simplified Shape Model",
+      "Filename": "ShapeModel.txt",
+      "DemoURL": "/visio2023drawing/composition"
+    }
+  ]
+}

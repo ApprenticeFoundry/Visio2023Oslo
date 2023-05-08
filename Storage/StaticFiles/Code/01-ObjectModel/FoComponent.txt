@@ -1,0 +1,75 @@
+
+// example interface 
+
+public interface IFoComponent
+{
+
+    public bool HasSlot<T>() where T : FoBase;
+
+    public virtual IFoCollection DynamicSlot(Type type);
+
+    public virtual FoCollection<T> Slot<T>() where T : FoBase;
+
+    public virtual FoCollection<T>? GetSlot<T>() where T : FoBase;
+
+    public virtual T Add<T>(T value) where T : FoBase;
+
+    public virtual T Add<T>(string key, T value) where T : FoBase;
+
+    public virtual T Remove<T>(T value) where T : FoBase;
+
+    public virtual bool Remove<T>(string key) where T : FoBase;
+
+    public virtual T? Find<T>(string key) where T : FoBase;
+
+    public virtual List<T>? GetMembers<T>() where T : FoBase;
+
+    public virtual List<T> Members<T>() where T : FoBase;
+
+    public virtual T Establish<T>(string key) where T : FoBase;
+}
+
+
+// use case examples
+
+    public List<FoImage2D> CollectImages(List<FoImage2D> list, bool deep = true)
+    {
+        Slot<FoPage2D>().ForEach(item => item.CollectImages(list, deep));
+        return list;
+    }
+
+    public List<FoVideo2D> CollectVideos(List<FoVideo2D> list, bool deep = true)
+    {
+        Slot<FoPage2D>().ForEach(item => item.CollectVideos(list, deep));
+        return list;
+    }
+
+    public virtual List<FoHandle2D>? GetHandles()
+    {
+        if (!this.HasSlot<FoHandle2D>())
+            return this.Members<FoHandle2D>();
+        return null;
+    }
+
+    public List<IFoMenu> CollectMenus(List<IFoMenu> list)
+    {
+        GetMembers<FoMenu2D>()?.ForEach(item => list.Add(item));
+        GetMembers<FoMenu3D>()?.ForEach(item => list.Add(item));
+
+        return list;
+    }
+
+   public U EstablishMenu2D<U>(string name, bool clear) where U : FoMenu2D
+    {
+        var menu = Find<U>(name);
+        if (menu == null)
+        {
+            RefreshMenus = true;
+            menu = Activator.CreateInstance(typeof(U), name) as U;
+            Add<U>(menu!);
+        }
+        if (clear)
+            menu?.Clear();
+
+        return menu!;
+    }

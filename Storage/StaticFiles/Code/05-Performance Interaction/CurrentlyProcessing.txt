@@ -1,0 +1,17 @@
+// FoDrawing2D.cs
+
+    public bool SetCurrentlyProcessing(bool isProcessing)
+    {
+        var oldValue = IsCurrentlyProcessing;
+        if (!isProcessing)
+        {
+            while (MouseArgQueue.Count > 0)
+            {
+                var args = MouseArgQueue.Dequeue();
+                //$"is Dequeueing {args.Topic} ".WriteSuccess(2);
+                ApplyMouseArgs(args);
+            }
+        }
+        IsCurrentlyProcessing = isProcessing;
+        return oldValue;
+    }

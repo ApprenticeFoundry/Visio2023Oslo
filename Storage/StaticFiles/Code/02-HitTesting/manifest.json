@@ -1,23 +1,19 @@
 {
   "Status": "Ready",
   "Title": "02 - Shape Hit Testing",
-  "ImageURL": "{Path}/picture2.png",
+  "ImageURL": "{Path}/quadtree.gif",
   "Tip": "Use a QuadTree to 'sort' the shapes on the page. ",
   "Summary": {
-    "What": "Nearly event user task starts with a hit test",
-    "Why": "Make it as efficient as possable",
-    "How": "Use a QuadTree, it segments the page into smaller and smaller spaces"
+    "What": "Nearly event user task starts with finding the shapes under the mouse.",
+    "Why": "Make performing a hit test as efficient as possable.",
+    "How": "Use a QuadTree, it segments the page into smaller and smaller spaces."
   },
   "Samples": [
     {
-      "Title": "Typescript solution using linear list search",
-      "Filename": "EarlySample.txt",
-      "Notes": "This is a very slow way to do hit testing."
-    },
-    {
-      "Title": "QuadTree: Inserting and Storing Data",
-      "Filename": "QuadTree.txt",
-      "ImageURL": "{Path}/quadtree.gif",
+      "Tip": "Reuse discarded QuadTree nodes; Advoid creating and destroying objects",
+      "Title": "Subdivide the page into smaller and smaller spaces",
+      "Description": "The tree is dynamic, rebuild after every frame render, save and reuse discarded nodes.",
+      "Filename": "ReuseQuadTree.txt",
       "DemoURL": "/visio2023drawing/playground"
     },
     {

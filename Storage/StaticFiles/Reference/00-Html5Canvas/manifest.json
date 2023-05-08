@@ -1,0 +1,28 @@
+{
+  "Status": "Ready",
+  "Title": "00 - Coding using HTML5 Canvas API",
+  "Description": "The canvas API is about 'painting' on the screen, state is managed using a context object.",
+
+  "DemoURL": "https://codepen.io/waisbren89/pen/gwvVpP",
+  "ImageURL":  "{Path}/sparks.gif",
+  "Samples": [
+    {
+      "Title": "Javascript example",
+      "Filename": "javascript.txt",
+      "Description": "You draw in HTML5 Canvas using a 'context' and a set of instructions",
+      "DemoURL": "https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API"
+    },
+    {
+      "Title": "Blazor extensions",
+      "Filename": "Sample.txt",
+      "Description": "You need to add the Blazor extensions to your project to use the canvas API",
+      "DemoURL": "https://github.com/BlazorExtensions/Canvas"
+    },
+    {
+      "Title": "Blazor extensions",
+      "Filename": "Transform.txt",
+      "Description": "You need to add the Blazor extensions to your project to use the canvas API",
+      "DemoURL": "https://github.com/BlazorExtensions/Canvas"
+    }
+  ]
+}

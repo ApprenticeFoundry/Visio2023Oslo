@@ -1,0 +1,30 @@
+
+
+
+   /// Subdivide this QuadTree and move it's children into the appropriate Quads where applicable.
+
+    private void Subdivide()
+    {
+        // We've reached capacity, subdivide...
+        Point size = new(m_rect.Width / 2, m_rect.Height / 2);
+        Point mid = new(m_rect.X + size.X, m_rect.Y + size.Y);
+
+        m_childTL = new QuadTree<T>(new Rectangle(m_rect.Left, m_rect.Top, size.X, size.Y));
+        m_childTR = new QuadTree<T>(new Rectangle(mid.X, m_rect.Top, size.X, size.Y));
+        m_childBL = new QuadTree<T>(new Rectangle(m_rect.Left, mid.Y, size.X, size.Y));
+        m_childBR = new QuadTree<T>(new Rectangle(mid.X, mid.Y, size.X, size.Y));
+
+        // If they're completely contained by the quad, bump objects down
+        for (int i = 0; i < m_objects?.Count; i++)
+        {
+            QuadTree<T> destTree = GetDestinationTree(m_objects[i]);
+
+            if (destTree != this)
+            {
+                // Insert to the appropriate tree, remove the object, and back up one in the loop
+                destTree.Insert(m_objects[i]);
+                Remove(m_objects[i]);
+                i--;
+            }
+        }
+    }

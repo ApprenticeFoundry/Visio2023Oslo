@@ -12,12 +12,9 @@ public class CodePageBase : ComponentBase
     [Inject] private ICodeDisplayService? CodeDisplay { get; set; }
     [Parameter] public string? Folder { get; set; }
     public string Path { get; set; } = "";
-
     public CodeManifest? Manifest { get; set; }
     public CodeSummary? Summary { get; set; }
     public List<CodeSample> Samples { get; set; } = new();
-    
-    public string? Payload { get; set; }
 
 
     protected override void OnInitialized()
@@ -30,9 +27,9 @@ public class CodePageBase : ComponentBase
         {
             Path = data.Storage;
             Manifest = data.Manifests.FirstOrDefault(x => x.Folder.Matches(Folder));
-            Samples = Manifest!.Samples;
             Summary = Manifest!.Summary;
-            Payload = StorageHelpers.Dehydrate<CodeManifest>(Manifest!, false);
+            Samples = Manifest!.Samples.Where(x => x.HasTip()).ToList();
+            //Payload = StorageHelpers.Dehydrate<CodeManifest>(Manifest!, false);
         }
     }
 
