@@ -1,8 +1,8 @@
 {
   "Status": "Done",
-  "Title": "06 - Position Geometry",
+  "Title": "06 - Positioning Geometry",
   "ImageURL": "{Path}/visiopins.png",
-  "MemeURL": "{Path}/matrix-4.jpg",
+  "MemeURL": "{Path}/matrix.jpg",
   "Tip": "Commit to understanding how the matrix controls the rendering of your shape.",
   "Summary": {
     "What": "Shapes are positioned by a matrix. I follow the convention from Visio.",
@@ -24,8 +24,7 @@
     {
       "Tip": "Prevent garbage collection by reusing the matrix instance when 'smashed'",
       "Title": "Static methods for NewMatrix and SmashMatrix",
-      "Filename": "SmashRestore.txt",
-      "ImageURL": "{Path}/matrix.gif"
+      "Filename": "SmashRestore.txt"
     }
   ]
 }

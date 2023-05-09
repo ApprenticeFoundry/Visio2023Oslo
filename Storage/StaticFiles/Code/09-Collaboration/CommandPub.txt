@@ -1,0 +1,40 @@
+
+
+       hub.On<string>("Pong", (msg) =>
+         {
+             Toast?.Success($"Pong {msg}");
+         });
+
+        hub.On<D2D_Create>("Create", (create) =>
+         {
+             UpdateCreate(create);
+         });
+
+        hub.On<D2D_Glue>("Glue", (glue) =>
+        {
+            UpdateGlue(glue);
+        });
+
+        hub.On<D2D_Unglue>("Unglue", (glue) =>
+        {
+            UpdateUnglue(glue);
+        });
+        hub.On<D2D_Move>("Move", (move) =>
+        {
+            UpdateMove(move);
+        });
+
+        hub.On<D2D_Destroy>("Destroy", (destroy) =>
+        {
+            UpdateDestroy(destroy);
+        });
+
+        hub.On<D2D_UserMove>("UserMove", (usermove) =>
+        {
+            var MyUser = GetDrawing().UpdateOtherUsers(usermove, toast);
+        });
+
+        hub.On<D2D_UserToast>("UserToast", (usertoast) =>
+        {
+            toast.RenderToast(usertoast);
+        });

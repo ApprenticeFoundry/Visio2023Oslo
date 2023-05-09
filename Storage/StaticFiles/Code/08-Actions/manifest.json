@@ -1,5 +1,5 @@
 {
-  "Status":"Ready",
+  "Status":"Done",
   "Title": "08 - Actions, Commanding and Menus",
   "ImageURL": "{Path}/drawmenu.gif",
   "MemeURL": "{Path}/VisioTools.png",
@@ -39,8 +39,10 @@
       "Filename": "razormenu.txt"
     },
     {
+      "Tip": "Follow the demo link at try it out",
       "Title": "Actions can also render menus to the canvas",
       "ImageURL": "{Path}/drawmenu.gif",
+      "DemoURL": "/visio2023drawing/playground",
       "Filename": "menuPlayground.txt"
     }
   ]

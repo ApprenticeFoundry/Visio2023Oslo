@@ -1,6 +1,6 @@
 {
-  "Status": "Ready",
-  "Title": "07 - Page Rendering",
+  "Status": "Done",
+  "Title": "06 - Page Rendering",
   "ImageURL": "{Path}/drawwhatyousee.png",
   "Tip": "Only render what the user can see.",
   "Summary": {

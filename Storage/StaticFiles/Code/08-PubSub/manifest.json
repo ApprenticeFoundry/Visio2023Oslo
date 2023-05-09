@@ -1,5 +1,5 @@
 {
-  "Status":"Ready",
+  "Status":"Done",
   "Title": "08 - Pub/Sub and Reactive Programming",
   "ImageURL": "{Path}/pubsub.png",
   "Description": "How to use Pub/Sub and Reactive Programming in Blazor",
@@ -11,30 +11,16 @@
   },
    "Samples": [
     {
-      "Title": "Use ComponentBus as a service to publish and subscribe to events among components",
+      "Tip": "Use ComponentBus as a service to publish and subscribe to events among components",
       "ImageURL": "{Path}/github.png",
       "Filename": "BusService.txt",
       "DemoURL": "https://github.com/cpear/BlazorComponentBus",
       "Description": "Focus on reporting the events, forward through ComponentBus"
     },
+
     {
-      "Title": "This simplifies working with mouse and keyboard events",
-      "Description": "Same data structure for all events, But a different topic",
-      "Filename": "CaptureMouse.txt"
-    },
-    {
-      "Title": "The Drawing subscribe's to the events it can process",
-      "Filename": "DrawingSub.txt"
-    },
-    {
-      "Title": "The Command Service subscribe's to the events it will share to other clients",
-      "Filename": "CommandSub.txt"
-    },
-    {
-      "Title": "The Selection service publishes the the interaction events",
-      "Filename": "SelectionPub.txt"
-    },
-    {
+      "Tip": "Subscribe to messages from any component",
+            "ImageURL": "{Path}/encoding.png",
       "Title": "The AttachAssetFileEvent travels across application boundaries",
       "Filename": "AttachFile.txt"
     }

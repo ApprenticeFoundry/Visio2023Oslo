@@ -1,6 +1,6 @@
 {
-  "Title": "09 - Glueing 1D Shapes to 2D Shapes",
-  "Status": "Ready",
+  "Title": "07 - Glueing 1D Shapes to 2D Shapes",
+  "Status": "Done",
   "ImageURL": "{Path}/glue.gif",
   "Description": "1D and 2D 'Glue' will adjust other shapes as a result of moving the selected shape",
   "Tip": "1D Glue requires the shape to reference another. Do this through an intermediary object the links the source and target.",
@@ -11,23 +11,26 @@
   },
   "Samples": [
     {
+      "Tip": "The API will let you 'glue' to a connection point or the center of a 2D Shape",
       "Title": "Setting Glue on a 1D shape",
-       "ImageURL": "{Path}/glue.gif",
       "Filename": "ArrowGlue.txt"
-     },
+    },
     {
-      "Title": "First understand the 1D Shape",
-       "ImageURL": "{Path}/glue1dmove.gif",
+      "Tip": "1D shapes can only glue once at the start and finish",
+      "Title": "1D Shape and the Glue API",
+      "ImageURL": "{Path}/glue1dmove.gif",
       "Filename": "Shape1D.txt"
-     },
+    },
     {
-      "Title": "Is there a Glue Shape?",
+      "Tip": "The glue object tracks the target shape and notifies the 1D shape when it moves",
+      "Title": "A instance of 'Glue' is created and shared between 1D and 2D shapes",
+      "ImageURL": "{Path}/glue1d.gif",
       "Filename": "GlueClass.txt"
-     },
+    },
     {
       "Tip": "Cache Invalidation, The concept that make it all work",
-       "ImageURL": "{Path}/smashing.png",
+      "ImageURL": "{Path}/smashing.png",
       "Filename": "Smash.txt"
-     }
+    }
   ]
 }

@@ -1,37 +1,46 @@
 
-// CanvasHelper.razor.cs
-
-    [Inject] private ComponentBus? PubSub { get; set; }
-
-
-    [Parameter] public EventCallback<CanvasMouseArgs> MouseDown { get; set; }
-
-    [Parameter] public EventCallback<CanvasMouseArgs> MouseUp { get; set; }
-
-    [JSInvokable]
-    public async Task OnMouseDown(CanvasMouseArgs args)
-    {
-        args.Topic = "ON_MOUSE_DOWN";
-        PubSub?.Publish<CanvasMouseArgs>(args);
-        await MouseDown.InvokeAsync(args);
-    }
-
-
-    [JSInvokable]
-    public async Task OnMouseUp(CanvasMouseArgs args)
-    {
-        args.Topic = "ON_MOUSE_UP";
-        PubSub?.Publish<CanvasMouseArgs>(args);
-        await MouseUp.InvokeAsync(args);
-    }
-
 
 // FoDrawing2D.cs
+
+
+    private void InitSubscriptions()
+    {
+        PubSub!.SubscribeTo<InputStyle>(style =>
+        {
+            //...
+        });
+
+        PubSub!.SubscribeTo<CanvasMouseArgs>(args =>
+        {
+            //...
+
+            ApplyMouseArgs(args);
+        });
+
+        PubSub!.SubscribeTo<CanvasKeyboardEventArgs>(args =>
+         {
+            //...
+         });
+
+        PubSub!.SubscribeTo<CanvasWheelChangeArgs>(args =>
+        {
+            //...
+        });
+
+        PubSub!.SubscribeTo<CanvasResizeArgs>(args =>
+        {
+            //...
+        });
+    }
+
+
 
     private void ApplyMouseArgs(CanvasMouseArgs args)
     {
 
         //...
+
+        // consult the tool service through GetInteraction method
 
         var isEventHandled = (args.Topic) switch
         {

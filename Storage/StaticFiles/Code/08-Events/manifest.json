@@ -1,8 +1,7 @@
 {
-  "Status":"Ready",
+  "Status":"Done",
   "Title": "08 - Events and Reactive Programming",
-  "ImageURL": "{Path}/pubsub.png",
-  "Description": "How to use Pub/Sub and Reactive Programming in Blazor",
+  "ImageURL": "{Path}/encoding.png",
   "Tip":"Process all events as messages with topics, it will simplify your code when you inplement collaberation between users.",
   "Summary": {
     "What": "Treat every event as a message with a topic, advoid doing a direct function call to another component.",
@@ -11,32 +10,20 @@
   },
    "Samples": [
     {
-      "Title": "Use ComponentBus as a service to publish and subscribe to events among components",
-      "ImageURL": "{Path}/github.png",
-      "Filename": "BusService.txt",
-      "DemoURL": "https://github.com/cpear/BlazorComponentBus",
-      "Description": "Focus on reporting the events, forward through ComponentBus"
+      "Tip": "Encode all events as messages with topics, as soon as possable",
+      "Title": "This simplifies working with mouse and keyboard events",
+      "Filename": "CanvasEncoders.txt"
     },
     {
-      "Title": "This simplifies working with mouse and keyboard events",
-      "Description": "Same data structure for all events, But a different topic",
+      "Tip": "This simplifies working with mouse and keyboard events",
+      "Title": "Same data structure for all events, But a different topic",
       "Filename": "CaptureMouse.txt"
     },
     {
-      "Title": "The Drawing subscribe's to the events it can process",
-      "Filename": "DrawingSub.txt"
-    },
-    {
-      "Title": "The Command Service subscribe's to the events it will share to other clients",
-      "Filename": "CommandSub.txt"
-    },
-    {
-      "Title": "The Selection service publishes the the interaction events",
-      "Filename": "SelectionPub.txt"
-    },
-    {
-      "Title": "The AttachAssetFileEvent travels across application boundaries",
-      "Filename": "AttachFile.txt"
+      "Tip": "Process the streaming events to complete Foundry service action",
+      "Title": "Resizing: Another Tool Example",
+      "ImageURL": "{Path}/imageresize.gif",
+      "Filename": "Resizing.txt"
     }
   ]
 }
