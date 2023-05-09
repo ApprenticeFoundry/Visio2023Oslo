@@ -1,5 +1,5 @@
 {
-  "Status": "Ready",
+  "Status": "Done",
   "Title": "06 - Shape Rendering",
   "ImageURL": "{Path}/shaperender.gif",
   "Tip": "Design your rendering process with a combination of method calls and a series of optional function calls,",
@@ -11,14 +11,13 @@
   "Samples": [
       {
       "Tip": "Make rendering a sequence of method calls, that trigger function to do the drawing",
-      "Title": "method RenderDetailed() calls method UpdateContext() and Draw()",
-      "Description": "method RenderDetailed() calls method Draw()",
-      "Filename": "RenderShapeDetails.txt"
+      "Title": "RenderDetailed() calls UpdateContext() and Draw()",
+      "Filename": "RenderShapeDetails.txt",
+      "ImageURL": "{Path}/process.png"
     },
       {
       "Tip": "Create Functions with a common signature for drawing",
-      "Title": "method RenderDetailed() calls method UpdateContext() and Draw()",
-      "Description": "method RenderDetailed() calls method Draw()",
+      "Title": "List of render functions with common signature",
       "Filename": "CommonFunction.txt"
     },
     {
