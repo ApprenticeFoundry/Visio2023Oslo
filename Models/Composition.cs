@@ -136,7 +136,6 @@ public class Composition : FoWorkbook
             });
         }
 
-
         return node;
     }
 
@@ -262,7 +261,6 @@ public class Composition : FoWorkbook
         LayoutTree.HorizontalLayoutConnections<FoConnector1D>(drawing.Pages());
 
         drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);
-
     }
 
     private void DoCreateVerticalTree(TreeModel model)
@@ -278,7 +276,7 @@ public class Composition : FoWorkbook
 
         LayoutTree.VerticalLayout(pt.X, pt.Y, MarginV);
         LayoutTree.VerticalLayoutConnections<FoConnector1D>(drawing.Pages());
-
+        drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);
     }
 
 

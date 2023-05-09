@@ -1,0 +1,47 @@
+
+
+    private void DoCreateHorizontalTree(TreeModel model)
+    {
+        DoClear();
+        var drawing = Workspace.GetDrawing();
+        if (drawing == null) return;
+
+        var page = drawing.CurrentPage();
+        var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
+
+        LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) =>shape.TagAsComposition(tree));
+        
+        LayoutTree.HorizontalLayout(pt.X, pt.Y, MarginH);
+        LayoutTree.HorizontalLayoutConnections<FoConnector1D>(drawing.Pages());
+
+        drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);
+    }
+
+    public FoLayoutTree<V> CreateShapeParentTree<V>(TreeModel model, Action<V,TreeModel> TagAction) where V : CompShape2D
+    {
+
+        var shape = Activator.CreateInstance<V>();
+        ModelLookup.Add(shape.GetGlyphId(), model);
+        ShapeLookup.Add(shape.GetGlyphId(), shape);
+
+        TagAction?.Invoke(shape, model);
+        Workspace.GetDrawing()?.AddShape<V>(shape);
+
+        var node = new FoLayoutTree<V>(shape);
+        return CreateShapeChildTree<V>(model, node, TagAction!);
+    }
+
+
+    public FoLayoutTree<V> CreateShapeChildTree<V>(TreeModel model,  FoLayoutTree<V> node, Action<V,TreeModel> TagAction ) where V : CompShape2D
+    {
+        if ( model.IsExpanded ) 
+        {
+            model.Children()?.ForEach(step =>
+            {
+                var subNode = CreateShapeParentTree<V>(step, TagAction!);
+                node.AddChildNode(subNode);
+            });
+        }
+
+        return node;
+    }

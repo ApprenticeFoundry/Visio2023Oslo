@@ -1,0 +1,64 @@
+
+
+    public void ComputeNodeBranchSize(Point margin, List<BoxLayoutStyle>? styleList=null)
+    {
+        if (!_item.IsVisible)
+        {
+            _branchSize = new Size(0, 0);
+            return;
+        }
+
+        if ( styleList != null ) 
+        {
+            if (this.level >= styleList.Count) return;
+            _layoutStyle = styleList[this.level];
+        }
+        //$"{style} for level {level} BranchSize".WriteLine(ConsoleColor.DarkBlue);
+
+        var width = _item.Width + margin.X;
+        var height = _item.Height + margin.Y;
+
+        if (_children == null || _children.Count == 0)
+        {
+            _branchSize = new Size(width, height);
+        }
+        else
+        {
+            _children.ForEach(child => child.ComputeNodeBranchSize(margin, styleList));
+
+            //now we calculate the full box based for node and children
+
+            if (_layoutStyle == BoxLayoutStyle.Horizontal)
+            {
+                width = _children.Select(item => item._branchSize.Width).Sum();
+                height = _children.Select(item => item._branchSize.Height).Max();
+                width = Math.Max(width, _item.Width + margin.X);
+                height = height + _item.Height + margin.Y;
+            }
+            else if (_layoutStyle == BoxLayoutStyle.Vertical)
+            {
+                width = _children.Select(item => item._branchSize.Width).Max();
+                height = _children.Select(item => item._branchSize.Height).Sum();
+                width = width + _item.Width + margin.X;
+                height = Math.Max(height, _item.Height + margin.Y);
+            }
+            else if (_layoutStyle == BoxLayoutStyle.HorizontalStacked)
+            {
+                width = _children.Select(item => item._branchSize.Width).Max();
+                height = _children.Select(item => item._branchSize.Height).Sum();
+                width = width + _item.Width + margin.X;
+                height = Math.Max(height, _item.Height + margin.Y);
+            }
+            else if (_layoutStyle == BoxLayoutStyle.VerticalStacked)
+            {
+                width = _children.Select(item => item._branchSize.Width).Sum();
+                height = _children.Select(item => item._branchSize.Height).Max();
+                width = Math.Max(width, _item.Width + margin.X);
+                height = height + _item.Height + margin.Y;
+            }
+            _branchSize = new Size(width, height);
+        }
+
+        //$"NodeBranchSize {level}.{index}  W:{_branchSize.Width}  H:{_branchSize.Height}".WriteLine(ConsoleColor.DarkCyan);
+
+    }
