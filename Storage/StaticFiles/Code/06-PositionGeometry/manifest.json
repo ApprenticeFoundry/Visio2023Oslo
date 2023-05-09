@@ -2,7 +2,7 @@
   "Status": "started",
   "Title": "06 - Position Geometry",
   "ImageURL": "{Path}/visiopins.png",
-  "MemeURL": "{Path}/matrix.gif",
+  "MemeURL": "{Path}/matrix-4.jpg",
   "Tip": "Commit to understanding how the matrix controls the rendering of your shape.",
   "Summary": {
     "What": "Shapes are positioned by a matrix. I follow the convention from Visio.",
@@ -13,7 +13,8 @@
       {
       "Tip": "Make the matrix calculation parametric ",
       "Title": "Compute the matrix based on the shape's properties",
-      "Filename": "GetMatrix.txt"
+      "Filename": "GetMatrix.txt",
+       "MemeURL": "{Path}/shapesheet.png"
     },
     {
       "Tip": "Map the matrix into the context",
@@ -23,7 +24,8 @@
     {
       "Tip": "Prevent garbage collection by reusing the matrix instance when 'smashed'",
       "Title": "Static methods for NewMatrix and SmashMatrix",
-      "Filename": "SmashRestore.txt"
+      "Filename": "SmashRestore.txt",
+      "ImageURL": "{Path}/matrix.gif"
     }
   ]
 }

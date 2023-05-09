@@ -1,14 +1,13 @@
+
 // Matrix2D.cs
 
-
     private static readonly Queue<Matrix2D> cashe = new Queue<Matrix2D>();
+    
     public static Matrix2D NewMatrix()
     {
         if (cashe.Count == 0)
             cashe.Enqueue(new Matrix2D());
-    
 
-        //$"Recycle Matrix2D {cashe.Count}".WriteInfo();
         var result = cashe.Dequeue();
         return result;
     }
@@ -19,6 +18,5 @@
 
         source.Zero();
         cashe.Enqueue(source);
-       // $"Smash Matrix2D {cashe.Count}".WriteNote();
         return null;
     }
