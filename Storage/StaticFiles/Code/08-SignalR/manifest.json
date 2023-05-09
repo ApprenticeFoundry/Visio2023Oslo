@@ -1,16 +1,34 @@
 {
   "Title": "08 - SignalR and Reactive Programming",
-  "Tip": "Extend the command service to broker the SignalR connection to the server.",
-    "ImageURL": "{Path}/decoding.png",
+  "Tip": "Build a command service to broker the SignalR messages.",
+    "ImageURL": "{Path}/colabflow.png",
+  "Status"  : "Done",
   "Summary": {
-    "What": "The best collabertion demo is two different users pulling on two blocks and the arrow stretches .",
-    "Why": "1D shapes must adjust there soze and orientation to stay connected in the diagram.",
-    "How": "The function is executed as part of the source shapes render cycle."
+    "What": "The command service is the central point for processing all messages to and from other clients.",
+    "Why": "The code here will focus syncronizing the state of the drawing across all clients.",
+    "How": "Listening to both SignalR and BlazorComponentBus."
   },
   "Samples": [
     {
-      "Title": "Early:  Listening to events",
-      "Filename": "Sample.txt"
+      "Tip": "Build a family of messages to communicate with SignalR hub",
+      "Title": "D2D_Move message class",
+      "Filename": "Messages.txt"
+    },    
+    {
+      "Tip": "Foundry services should call Command service => SignalR hub.",
+      "Title": "Publish to SignalR / Subscribe to BlazorComponentBus",
+      "Filename": "BusToSignalR.txt"
+    },
+    {
+      "Tip": " SignalR client => Command service call Foundry service.",
+      "Title": "Subscribe to SignalR / Publish to BlazorComponentBus",
+      "Filename": "SignalRtoBus.txt"
+    },
+    {
+      "Tip": " SignalR client => Command service call Foundry service.",
+       "ImageURL": "{Path}/marble.png",
+      "Title": "SignalR DrawingSyncHub is part of the FoundryBlazor library",
+      "Filename": "Hub.txt"
     }
   ]
 }
