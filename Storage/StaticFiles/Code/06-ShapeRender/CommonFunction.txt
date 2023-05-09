@@ -1,0 +1,8 @@
+
+// fields on a FoGlyph that point to render functions;
+
+public Action<Canvas2DContext, FoGlyph2D>? PreDraw;
+public Action<Canvas2DContext, FoGlyph2D>? HoverDraw;
+public Action<Canvas2DContext, FoGlyph2D>? PostDraw;
+public Action<Canvas2DContext, FoGlyph2D>? ShapeDraw;
+public Action<Canvas2DContext, FoGlyph2D>? ShapeDrawSelected;

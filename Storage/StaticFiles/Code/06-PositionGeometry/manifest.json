@@ -16,9 +16,14 @@
       "Filename": "GetMatrix.txt"
     },
     {
-      "Tip": "map the matrix into the context",
+      "Tip": "Map the matrix into the context",
       "Title": "Canvas2DContext TransformAsync  controls the result of all the draw commands",
-      "Filename": "contextmap.txt"
+      "Filename": "UpdateContext.txt"
+    },
+    {
+      "Tip": "Prevent garbage collection by reusing the matrix instance when 'smashed'",
+      "Title": "Static methods for NewMatrix and SmashMatrix",
+      "Filename": "SmashRestore.txt"
     }
   ]
 }

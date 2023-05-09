@@ -1,8 +1,9 @@
 {
   "Title": "10 - Collaboration with other clients",
   "Tip": "Extend the command service to broker the SignalR connection to the server.",
+    "ImageURL": "{Path}/signalr.gif",
   "Summary": {
-    "What": "When the target shape is moved, the source shape must adjust to stay connected.",
+    "What": "The best collabertion demo is two different users pulling on two blocks and the arrow stretches .",
     "Why": "1D shapes must adjust there soze and orientation to stay connected in the diagram.",
     "How": "The function is executed as part of the source shapes render cycle."
   },

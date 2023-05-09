@@ -14,7 +14,13 @@
       "Title": "method RenderDetailed() calls method UpdateContext() and Draw()",
       "Description": "method RenderDetailed() calls method Draw()",
       "Filename": "RenderShapeDetails.txt"
-    }
+    },
+      {
+      "Tip": "Create Functions with a common signature for drawing",
+      "Title": "method RenderDetailed() calls method UpdateContext() and Draw()",
+      "Description": "method RenderDetailed() calls method Draw()",
+      "Filename": "CommonFunction.txt"
+    },
     {
       "Tip": "Include a 'tick' argument in your render method so each drawing can be unique",
       "Title": "use 'tick' to do unique render",
