@@ -1,0 +1,23 @@
+
+// SelectionService.cs
+
+
+    public FoGlyph2D AddItem(FoGlyph2D item)
+    {
+        item.MarkSelected(true);
+        if (Members.IndexOf(item) == -1)
+            Members.Add(item);
+
+        PubSub.Publish<SelectionChanged>(SelectionChanged.Changed(Members));
+        return item;
+    }
+    public void MouseReselect()
+    {
+        if ( Members.Count > 0)
+            PubSub.Publish<SelectionChanged>(SelectionChanged.Reselected(Members));
+    }
+    public void MouseDropped()
+    {
+        if ( Members.Count > 0)
+            PubSub.Publish<SelectionChanged>(SelectionChanged.Dropped(Members));
+    }

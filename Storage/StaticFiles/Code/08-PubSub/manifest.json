@@ -3,7 +3,7 @@
   "Title": "08 - Pub/Sub and Reactive Programming",
   "ImageURL": "{Path}/pubsub.png",
   "Description": "How to use Pub/Sub and Reactive Programming in Blazor",
-  "Tip":"Process all events as messages with topics, it will simplify your code when you inplement collaberation between users.",
+  "Tip":"Add a topic to every message object",
   "Summary": {
     "What": "Treat every event as a message with a topic, advoid doing a direct function call to another component.",
     "Why": "Pub/Sub promotes loose coupling. The Message object simplifies recording/playback senerios and testing.",

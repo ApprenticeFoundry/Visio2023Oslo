@@ -1,0 +1,34 @@
+
+[JSInvokable]
+public async Task OnMouseDown(CanvasMouseArgs args)
+{
+    args.Topic = "ON_MOUSE_DOWN";
+    PubSub?.Publish<CanvasMouseArgs>(args);
+    await MouseDown.InvokeAsync(args);
+}
+
+
+[JSInvokable]
+public async Task OnMouseUp(CanvasMouseArgs args)
+{
+    args.Topic = "ON_MOUSE_UP";
+    PubSub?.Publish<CanvasMouseArgs>(args);
+    await MouseUp.InvokeAsync(args);
+}
+
+[JSInvokable]
+public async Task OnKeyDown(CanvasKeyboardEventArgs args)
+{
+    args.Topic = "ON_KEY_DOWN";
+    PubSub?.Publish<CanvasKeyboardEventArgs>(args);
+    await KeyDown.InvokeAsync(args);
+}
+
+
+[JSInvokable]
+public async Task OnKeyUp(CanvasKeyboardEventArgs args)
+{
+    args.Topic = "ON_KEY_UP";
+    PubSub?.Publish<CanvasKeyboardEventArgs>(args);
+    await KeyUp.InvokeAsync(args);
+}
