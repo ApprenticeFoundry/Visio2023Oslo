@@ -1,0 +1,42 @@
+
+// FoShape1D.cs
+
+public class FoShape1D : FoGlyph2D, IGlueOwner, IShape1D
+{
+    private static int gluecount = 0;
+    protected int x1 = 0;
+    public int StartX { get { return this.x1; } set { this.x1 = AssignInt(value, x1); } }
+    protected int y1 = 0;
+    public int StartY { get { return this.y1; } set { this.y1 = AssignInt(value, y1); } }
+    protected int x2 = 0;
+    public int FinishX { get { return this.x2; } set { this.x2 = AssignInt(value, x2); } }
+    protected int y2 = 0;
+    public int FinishY { get { return this.y2; } set { this.y2 = AssignInt(value, y2); } }
+
+    private double rotation = 0;
+    public float AntiRotation { get { return (float)(-1.0 * this.rotation * Matrix2D.DEG_TO_RAD); } }
+
+
+    public FoGlue2D? GlueStartTo(FoGlyph2D? target, string child="")
+    {
+        if (target == null) return null;
+        var part = string.IsNullOrEmpty(child) ? target : target.FindConnectionPoint(child, true) ?? target;
+
+        var glue = new FoGlue2D($"START_{part.Name}_{gluecount++}");
+        glue.GlueTo(this, part);
+        Smash(false);
+        return glue;
+    }
+
+    public FoGlue2D? GlueFinishTo(FoGlyph2D? target, string child="")
+    {
+        if (target == null) return null;
+        var part = string.IsNullOrEmpty(child) ? target : target.FindConnectionPoint(child, true) ?? target;
+
+        var glue = new FoGlue2D($"FINISH_{part.Name}_{gluecount++}");
+        glue.GlueTo(this, part);
+        Smash(false);
+        return glue;
+    }
+
+}

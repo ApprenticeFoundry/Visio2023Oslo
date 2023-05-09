@@ -1,0 +1,53 @@
+
+//Glyph2D.cs
+
+    protected int x = 0;
+    public int PinX { get { return this.x; } set { this.x = AssignInt(value, x); } }
+    protected int y = 0;
+    public int PinY { get { return this.y; } set { this.y = AssignInt(value, y); } }
+
+//-----------------------------------------------------------
+
+    protected int AssignInt(int newValue, int oldValue)
+    {
+        if (Math.Abs(newValue - oldValue) > 0)
+            Smash(true);
+
+        return newValue;
+    }
+
+//-----------------------------------------------------------
+
+
+    public virtual bool Smash(bool force)
+    {
+        if (_matrix == null && !force) return false;
+
+        ResetHitTesting = true;
+        this._matrix = Matrix2D.SmashMatrix(this._matrix);
+        this._invMatrix = Matrix2D.SmashMatrix(this._invMatrix);
+
+        return this.SmashGlue();
+    }
+
+
+    public virtual bool SmashGlue()
+    {
+        var list = GetMembers<FoGlue2D>();
+        if (list == null) return false;
+        
+        // time to notify the glue
+
+        list.ForEach(item => item.TargetMoved(this));
+        return true;
+    }
+
+//-----------------------------------------------------------
+
+// FoGlue2D.cs  
+
+    public bool TargetMoved(FoGlyph2D target)
+    {
+        if ( !HasTarget(target) || Target == null) return false;
+        return Source?.Smash(false) ?? false;
+    }

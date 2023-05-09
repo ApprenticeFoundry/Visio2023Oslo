@@ -12,13 +12,16 @@ public class SamplesBase : ComponentBase
     [Inject] private ICodeDisplayService? CodeDisplay { get; set; }
 
     public List<CodeManifest> Manifests { get; set; } = new();
-    public string? Payload { get; set; }
 
     public static string ComputeLink(CodeManifest sample)
     {
         return $"/codepage/{sample.Folder}";
     }
-
+    public static string ComputeComplete(CodeManifest sample)
+    {
+        var complete =  sample.Status.Matches("Done") ? "btn btn-dark m-1" : "btn btn-light m-1";
+        return complete;
+    }
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -26,7 +29,8 @@ public class SamplesBase : ComponentBase
   
         var data = CodeDisplay!.GetCodeLibrary();
         Manifests = data.Manifests.Where(item => item.HasTip()).ToList();
-        Payload = StorageHelpers.Dehydrate<CodeLibrary>(data, false);
+        //Payload = StorageHelpers.Dehydrate<CodeLibrary>(data, false);
+
 
        // SettingsHelpers.WriteData("Storage/StaticFiles/Code", "test.json", Payload);
     }

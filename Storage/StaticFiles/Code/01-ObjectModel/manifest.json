@@ -1,11 +1,16 @@
 {
   "Status": "Ready",
   "Title": "01 - Building a Flexable Shape Object Model",
-  "Description": "Replicate most of Visio shapeSheet functionality in a C# object model",
-  "ImageURL": "{Path}/Shape2DSS.png",
+  "ImageURL": "{Path}/DrawingModel.png",
   "Tip": "Create a base class that can share parent/child relationships and use it to construct shapes, pages and drawings",
+   "Summary": {
+    "What": "All object classes that get rendered, share parent / child relationships, as well as geometry attributes.",
+    "Why": "Simplify and share code for shapes, handles, menus, buttons, pages, and drawings.",
+    "How": "Design a c# class that can manage dynamic list of properties and child objects."
+  },
+ 
   "Samples": [
-      {
+    {
       "Title": "Javascript framework used to dynamically create a shape model",
       "Filename": "Sample2.txt"
     },
@@ -15,18 +20,9 @@
       "Filename": "Example1.txt"
     },
     {
-      "Title": "There are many different types of shapes with different properties and behaviors",
-      "Filename": "Example2.txt"
-    },
-    {
-      "Title": "What is the best way to keep track of all the different types shapes?",
-      "Filename": "Example3.txt"
-    },
-    {
-      "Title": "Question:  Create SlotGroups?",
-      "Notes": "Informed by the Visio shapesheet, Learned over time to create a dynamically extensable object",
+      "Tip": "I used these rules, then focused on the interface to manage the shape model",
       "ImageURL": "{Path}/rules.png",
-      "Filename": "SlotGroups.txt"
+      "Filename": "FoComponent.txt"
     },
     {
       "Title": "Focus on making SlotGroups are easy to use",

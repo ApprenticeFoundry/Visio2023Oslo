@@ -47,11 +47,11 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
     {
 
         // $"LocationChanged {e.Location}".WriteInfo();
-        RefreshWorkPieceMenus();
+        RefreshWorkbookMenus();
         StateHasChanged();
     }
 
-    private void RefreshWorkPieceMenus()
+    private void RefreshWorkbookMenus()
     {
         if (Workspace != null)
         {
@@ -81,7 +81,7 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
     {
         if (Workspace != null)
         {
-            RefreshWorkPieceMenus();
+            RefreshWorkbookMenus();
 
             var url = ""; //RestAPI?.GetServerUrl() ?? "";
             Workspace.CreateCommands(Workspace, JsRuntime!, Navigation!, url);

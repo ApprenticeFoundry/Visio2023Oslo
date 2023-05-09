@@ -1,0 +1,36 @@
+
+// Playground.cs  
+   
+   private void CreateMultiShapePlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
+
+        var shape = new FoShape2D(300, 300, "Red");
+        shape.AnimatedMoveTo(200, 200);
+
+        var mock = new MockDataMaker();
+        var list = new List<Action<Canvas2DContext, FoGlyph2D>>()
+        {
+            shape.DrawCircle,
+            shape.DrawRect,
+            shape.DrawBox,
+            async (ctx,obj) => await obj.DrawTriangle(ctx, obj.Color),
+            async (ctx,obj) => await obj.DrawStar(ctx, obj.Color),
+        };
+
+
+        shape.ContextLink = (obj,tick) => 
+        {
+            if ( tick == 0 ) return;
+            var change = tick % 30 == 0;
+            if ( change  ) {
+                obj.Color = mock.GenerateColor();
+                var i = mock.GenerateInt(0, list.Count);
+                obj.ShapeDraw = list[i];
+            }
+        };
+
+        drawing.AddShape<FoShape2D>(shape);
+        Command.SendShapeCreate(shape);
+    }

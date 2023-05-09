@@ -1,4 +1,5 @@
 
+using Blazor.Extensions.Canvas.Canvas2D;
 using BlazorComponentBus;
 using FoundryBlazor.Canvas;
 using FoundryBlazor.Extensions;
@@ -27,18 +28,25 @@ public class Playground : FoWorkbook
         PlaygroundMenu = space.EstablishMenu2D<FoMenu2D, FoButton2D>("Playground", new Dictionary<string, Action>()
         {
 
-            //{ "Capture", () => CreateCapturePlayground()},
+            { "Clear", () => DoClear() },
             { "Guid Test", () => CreateGuidTest()},
             { "Group", () => CreateGroupShape()},
             { "Ring", () => CreateRingGroupPlayground()},
+            { "Multi-Shape", () => CreateMultiShapePlayground()},
             { "Glue 1D", () => CreateGlue1DPlayground()},
             { "Glue 2D", () => CreateGlue2DPlayground()},
             { "Ticker", () => CreateTickPlayground()},     
             { "Line", () => CreateLinePlayground()},
             { "Menu", () => CreateMenuPlayground()},
             { "Lets Dance", () => LetsDance()},
-            //{ "Side Dialog", () => SideDialog()}
         }, true);
+    }
+
+    private void DoClear()
+    {
+        var drawing = Workspace.GetDrawing();
+        if (drawing == null) return;
+        drawing.ClearAll();
     }
 
     private void CreateGuidTest()
@@ -194,7 +202,7 @@ public class Playground : FoWorkbook
         for (int i = 0; i <= 360; i += 30)
         {
             var a = Math.PI / 180.0 * i;
-            var x = (int)(radius * Math.Cos(a)) + 1200;
+            var x = (int)(radius * Math.Cos(a)) + 600;
             var y = (int)(radius * Math.Sin(a)) + 300;
             var shape = new FoShape2D(30, 30, "Cyan");
             shape.MoveTo(x, y);
@@ -204,7 +212,40 @@ public class Playground : FoWorkbook
         }
     }
 
+    private void CreateMultiShapePlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
 
+        var shape = new FoShape2D(300, 300, "Red");
+        shape.AnimatedMoveTo(200, 200);
+
+        var mock = new MockDataMaker();
+        var list = new List<Action<Canvas2DContext, FoGlyph2D>>()
+        {
+            shape.DrawCircle,
+            shape.DrawRect,
+            shape.DrawBox,
+            async (ctx,obj) => await obj.DrawTriangle(ctx, obj.Color),
+            async (ctx,obj) => await obj.DrawStar(ctx, obj.Color),
+        };
+
+
+        shape.ContextLink = (obj,tick) => 
+        {
+            if ( tick == 0 ) return;
+            var change = tick % 30;
+            //$"{tick} {change}".WriteLine(ConsoleColor.Yellow);
+            if ( change == 0 ) {
+                obj.Color = mock.GenerateColor();
+                var i = mock.GenerateInt(0, list.Count);
+                obj.ShapeDraw = list[i];
+            }
+        };
+
+        drawing.AddShape<FoShape2D>(shape);
+        Command.SendShapeCreate(shape);
+    }
     private void LetsDance()
     {
         var rand = new Random();

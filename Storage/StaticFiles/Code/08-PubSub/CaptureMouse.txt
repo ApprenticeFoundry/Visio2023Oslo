@@ -1,0 +1,46 @@
+
+// CanvasHelper.razor.cs
+
+    [Inject] private ComponentBus? PubSub { get; set; }
+
+
+    [Parameter] public EventCallback<CanvasMouseArgs> MouseDown { get; set; }
+
+    [Parameter] public EventCallback<CanvasMouseArgs> MouseUp { get; set; }
+
+    [JSInvokable]
+    public async Task OnMouseDown(CanvasMouseArgs args)
+    {
+        args.Topic = "ON_MOUSE_DOWN";
+        PubSub?.Publish<CanvasMouseArgs>(args);
+        await MouseDown.InvokeAsync(args);
+    }
+
+
+    [JSInvokable]
+    public async Task OnMouseUp(CanvasMouseArgs args)
+    {
+        args.Topic = "ON_MOUSE_UP";
+        PubSub?.Publish<CanvasMouseArgs>(args);
+        await MouseUp.InvokeAsync(args);
+    }
+
+
+// FoDrawing2D.cs
+
+    private void ApplyMouseArgs(CanvasMouseArgs args)
+    {
+
+        //...
+
+        var isEventHandled = (args.Topic) switch
+        {
+            ("ON_MOUSE_DOWN") => SelectInteractionByRuleFor(args).MouseDown(args),
+            ("ON_MOUSE_MOVE") => GetInteraction().MouseMove(args),
+            ("ON_MOUSE_UP") => GetInteraction().MouseUp(args),
+            ("ON_MOUSE_IN") => GetInteraction().MouseIn(args),
+            ("ON_MOUSE_OUT") => GetInteraction().MouseOut(args),
+            _ => false
+        };
+
+    }

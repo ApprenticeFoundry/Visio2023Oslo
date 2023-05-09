@@ -8,8 +8,8 @@
 @foreach (var manifest in Manifests)
 {
     <p style="padding-left:40px;">
-        <a class="btn btn-dark m-1" href="@ComputeLink(manifest)" >@manifest.Title</a>
-        <span style="padding-left:40px;padding-bottom:10px; max-width:1200px">@manifest.Tip</span>
+        <a class="@ComputeComplete(manifest)" href="@ComputeLink(manifest)" >@manifest.Title</a>
+        <span class="tip">@manifest.Tip</span>
     </p>
 }
 

@@ -2,6 +2,7 @@
   "Status": "Ready",
   "Title": "11 - Key Events and Commands",
   "Description": "Key Events generate actions that notify other Clients",
+  "Tip":"Commit to Pub/Sub events ant this code becomes amazingly simple",
   "MemeURL": "{Path}/matrix-4.jpg",
   "Samples": [
     {

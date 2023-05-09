@@ -1,0 +1,22 @@
+
+// Matrix2D.cs
+
+    private static readonly Queue<Matrix2D> cashe = new Queue<Matrix2D>();
+    
+    public static Matrix2D NewMatrix()
+    {
+        if (cashe.Count == 0)
+            cashe.Enqueue(new Matrix2D());
+
+        var result = cashe.Dequeue();
+        return result;
+    }
+
+    public static Matrix2D? SmashMatrix(Matrix2D? source)
+    {
+        if (source == null) return null;
+
+        source.Zero();
+        cashe.Enqueue(source);
+        return null;
+    }

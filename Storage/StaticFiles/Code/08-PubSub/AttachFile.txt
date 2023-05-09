@@ -1,0 +1,49 @@
+
+// ShapeConnecting.cs
+
+
+//the publish side
+
+    public override bool MouseUp(CanvasMouseArgs args)
+    {
+        if (isConnecting && selectedShape != null)
+        {
+            var msg = new AttachAssetFileEvent();
+            //...
+            pubsub?.Publish<AttachAssetFileEvent>(msg);
+            return true;
+        }
+        drawing.SetInteraction(InteractionStyle.ShapeHovering);
+        return false;
+    }
+
+
+// Schematic.cs
+
+       pubSub.SubscribeTo<AttachAssetFileEvent>(obj =>
+        {
+            if (FindModel(obj.AssetGuid) is DT_AssetFile asset)
+            {
+                if (FindModel(obj.TargetGuid) is DT_Hero target)
+                {
+                    AddAssetReference(target, asset);
+                    if (CurrentLayout != null && obj.AssetShape != null && obj.TargetShape != null)
+                    {
+                        var node = CurrentLayout.FindNodeWithName(obj.TargetShape.Name);
+                        var child = new FoLayoutTree<FoHero2D>((FoHero2D)obj.AssetShape);
+                        node?.AddChildNode(child);
+                        LayoutTree(CurrentLayout);
+                    }
+                }
+            };
+        });
+
+
+public class AttachAssetFileEvent 
+{
+    public  string? AssetGuid { get; set; }
+    public  string? TargetGuid { get; set; }
+
+    public  FoGlyph2D? AssetShape { get; set; }
+    public  FoGlyph2D? TargetShape { get; set; }
+}

@@ -1,0 +1,31 @@
+
+// Playground.cs 
+
+    private void CreateTickPlayground()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
+
+        var s1 = new FoShape2D(200, 200, "Green");
+        drawing.AddShape(s1);
+        s1.MoveTo(200, 200);
+
+        var s2 = new FoShape2D(200, 25, "Blue")
+        {
+            LocPinX = (obj) => obj.Width / 4
+        };
+        drawing.AddShape(s2);
+
+// this positions s2 based on s1 AND increments..
+// the angle every time it renders 
+
+        s2.ContextLink = (obj,tick) => {
+            obj.PinX = s1.PinX;
+            obj.PinY = s1.PinY;
+            obj.Angle += 1;
+        };
+    }
+
+// Reminder:   ContextLink is reevaluated every render cycle
+
+    

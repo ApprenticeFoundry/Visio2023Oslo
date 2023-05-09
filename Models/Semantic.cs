@@ -124,7 +124,7 @@ public class Semantic
     public async Task RenderTree(Canvas2DContext ctx)
     {
         if (CurrentLayout != null)
-            await CurrentLayout.RenderTree(ctx);
+            await CurrentLayout.RenderLayoutTree(ctx);
     }
 
     public DT_AssetFile AddAssetFile(DT_Hero hero, string filename)

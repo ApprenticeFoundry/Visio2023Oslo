@@ -46,14 +46,13 @@ public class Stencil : FoWorkbook
 
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
-        "Stencil CreateMenus".WriteWarning();
         space.EstablishMenu2D<FoMenu2D, FoButton2D>("Create", new Dictionary<string, Action>()
         {
             { "GPT4 Arrow", () => SetDoCreateGPT4Arrow()},
             { "Steve Arrow", () => SetDoCreateSteveArrow()},
+            { "Tug of War", () => SetDoTugOfWar()},
             { "Blue Shape", () => SetDoCreateBlue()},
             { "Text Shape", () => SetDoCreateText()},
-            //{ "Image Shape", () => SetDoCreateImage()},
             { "Image URL", () => SetDoAddImage()},
             { "Video URL", () => SetDoAddVideo()},
             { "Glue", () => CreateGluePlayground()},
@@ -191,6 +190,40 @@ public class Stencil : FoWorkbook
 
         wire2.GetMembers<FoGlue2D>()?.ForEach(glue => Command.SendGlue(glue));
     }
+
+    private void SetDoTugOfWar()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
+
+        var s1 = new FoShape2D(50, 50, "Blue");
+        s1.MoveTo(300, 200);
+        var s2 = new FoShape2D(50, 50, "Orange");
+        s2.MoveTo(500, 200);
+
+        var service = Workspace.GetSelectionService();
+        service.AddItem(drawing.AddShape(s1));  
+        service.AddItem( drawing.AddShape(s2));
+
+        var wire2 = new FoShape1D("Arrow", "Cyan")
+        {
+            Height = 50,
+            ShapeDraw = async (ctx, obj) => await DrawSteveArrowAsync(ctx, obj.Width, obj.Height, obj.Color)
+        };
+        wire2.GlueStartTo(s1, "RIGHT");
+        wire2.GlueFinishTo(s2, "LEFT");
+        drawing.AddShape(wire2);
+
+
+        FoGlyph2D.Animations.Tween<FoShape2D>(s1, new { PinX = s1.PinX - 150, }, 2,2.2F);
+        FoGlyph2D.Animations.Tween<FoShape2D>(s2, new { PinX = s2.PinX + 150, PinY = s2.PinY + 50, }, 2,2.4f).OnComplete(() =>
+        {
+            service.ClearAll();
+
+        });
+    }
+
+
     public void SetDoCreateText()
     {
         var drawing = Workspace.GetDrawing();

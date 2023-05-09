@@ -1,0 +1,12 @@
+    
+// FoGlyph2D.cs
+
+public virtual Matrix2D GetMatrix()
+{
+    if (_matrix == null)
+    {
+        _matrix = Matrix2D.NewMatrix();
+        _matrix.AppendTransform(this.PinX, this.PinY, 1.0, 1.0, RotationZ(this), LocPinX(this), LocPinY(this));
+    }
+    return _matrix;
+}

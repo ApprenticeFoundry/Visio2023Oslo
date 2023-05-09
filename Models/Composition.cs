@@ -1,4 +1,5 @@
 using System.Drawing;
+using Blazor.Extensions.Canvas.Canvas2D;
 using BlazorComponentBus;
 using FoundryBlazor;
 using FoundryBlazor.Extensions;
@@ -135,9 +136,13 @@ public class Composition : FoWorkbook
             });
         }
 
-
         return node;
     }
+
+    // public override async Task RenderWatermark(Canvas2DContext ctx, int tick)
+    // {
+    //     await LayoutTree?.RenderLayoutTree(ctx);
+    // }
 
     private void DoClear()
     {
@@ -254,6 +259,8 @@ public class Composition : FoWorkbook
         
         LayoutTree.HorizontalLayout(pt.X, pt.Y, MarginH);
         LayoutTree.HorizontalLayoutConnections<FoConnector1D>(drawing.Pages());
+
+        // drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);
     }
 
     private void DoCreateVerticalTree(TreeModel model)
@@ -270,6 +277,7 @@ public class Composition : FoWorkbook
         LayoutTree.VerticalLayout(pt.X, pt.Y, MarginV);
         LayoutTree.VerticalLayoutConnections<FoConnector1D>(drawing.Pages());
 
+        // drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);
     }
 
 

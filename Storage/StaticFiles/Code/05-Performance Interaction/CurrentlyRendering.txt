@@ -1,0 +1,34 @@
+// FoDrawing2D.cs
+
+
+    private readonly Stopwatch stopwatch = new();
+    private bool IsCurrentlyRendering = false;
+    private bool IsCurrentlyProcessing = false;
+    private readonly Queue<CanvasMouseArgs> MouseArgQueue = new();
+    
+    public bool SetCurrentlyRendering(bool isRendering)
+    {
+        var oldValue = IsCurrentlyRendering;
+        if (isRendering)
+        {
+            stopwatch.Restart();
+        }
+
+        if (!isRendering)
+        {
+            while (MouseArgQueue.Count > 0)
+            {
+                var args = MouseArgQueue.Dequeue();
+                $"is Dequeueing {args.Topic} ".WriteSuccess(2);
+                ApplyMouseArgs(args);
+            }
+        }
+        if (!isRendering)
+        {
+            stopwatch.Stop();
+            var fps = 1000.0 / stopwatch.ElapsedMilliseconds;
+            $"render time {stopwatch.Elapsed}  {fps}".WriteInfo();
+        }
+        IsCurrentlyRendering = isRendering;
+        return oldValue;
+    }

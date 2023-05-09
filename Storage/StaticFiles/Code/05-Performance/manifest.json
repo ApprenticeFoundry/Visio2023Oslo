@@ -2,8 +2,7 @@
   "Status": "Ready",
   "Title": "05 - Techniques for Improving Performance",
   "ImageURL": "{Path}/framerate.gif",
-  "MemeURL": "{Path}/pairprog.gif",
-  "Description":"Monitor performance by keeping the frame rate visible.",
+  "Tip":"Monitor performance by keeping the frame rate visible during development.",
   "Samples": [
     {
       "Title": "Let html5 canvas send you an event when it is ready to draw the next frame",

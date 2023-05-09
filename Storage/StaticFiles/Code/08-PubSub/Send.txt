@@ -1,0 +1,22 @@
+
+
+    public async Task<bool> Send(D2D_Base msg)
+    {
+        if (!IsRunning)
+            $"Command Service {IsRunning} {msg.Topic()}..  is NOT Sending".WriteNote();
+
+        if (_DrawingSyncHub == null)
+            return false;
+
+        //$"Sending {IsRunning} {msg.Topic()}..".WriteNote();
+
+        if (IsRunning)
+            await _DrawingSyncHub.SendAsync(msg.Topic(), msg);
+
+        if (msg is D2D_UserMove)
+            return IsRunning;
+
+        // $"Sent {IsRunning} {msg.UserID} {msg.Topic()}..".WriteNote();
+
+        return IsRunning;
+    }

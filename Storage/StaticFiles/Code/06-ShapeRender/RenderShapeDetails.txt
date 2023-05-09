@@ -8,19 +8,26 @@ public interface IRender
     public Task<bool> RenderConcise(Canvas2DContext ctx, double scale, Rectangle region);
 }
 
-// fields on a FoGlyph that point to render functions;
 
-public Action<Canvas2DContext, FoGlyph2D>? PreDraw;
-public Action<Canvas2DContext, FoGlyph2D>? HoverDraw;
-public Action<Canvas2DContext, FoGlyph2D>? PostDraw;
-public Action<Canvas2DContext, FoGlyph2D>? ShapeDraw;
-public Action<Canvas2DContext, FoGlyph2D>? ShapeDrawSelected;
+
+public virtual async Task UpdateContext(Canvas2DContext ctx, int tick)
+{
+    ContextLink?.Invoke(this, tick);  // possable null function
+
+    var mtx = this.GetMatrix();
+
+    // you must use Transform so the context can acumlate the positions
+    if (mtx != null)  
+        await ctx.TransformAsync(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
+
+    await ctx.SetFillStyleAsync(Color);
+}
 
 
 public virtual async Task Draw(Canvas2DContext ctx, int tick)
 {
     await ctx.SaveAsync();
-    ShapeDraw?.Invoke(ctx, this);
+    ShapeDraw?.Invoke(ctx, this);  // possable null function
     await ctx.RestoreAsync();
 }
 
@@ -30,19 +37,20 @@ public virtual async Task<bool> RenderDetailed(Canvas2DContext ctx, int tick, bo
     if (CannotRender()) return false;
 
     await ctx.SaveAsync();
-    await UpdateContext(ctx, tick);
+    await UpdateContext(ctx, tick);  // necessary method
 
-    PreDraw?.Invoke(ctx, this);
-    await Draw(ctx, tick);
+    PreDraw?.Invoke(ctx, this);   // possable null function
+
+    await Draw(ctx, tick);  // necessary method
     if (!IsSelected)
-        HoverDraw?.Invoke(ctx, this);
+        HoverDraw?.Invoke(ctx, this);   // possable null function
 
     await DrawTag(ctx);
 
-    PostDraw?.Invoke(ctx, this);
+    PostDraw?.Invoke(ctx, this);    // possable null function
 
     if (IsSelected)
-        await DrawWhenSelected(ctx, tick, deep);
+        await DrawWhenSelected(ctx, tick, deep);  // necessary method
 
     if (deep)
     {
@@ -50,20 +58,19 @@ public virtual async Task<bool> RenderDetailed(Canvas2DContext ctx, int tick, bo
         GetMembers<FoShape2D>()?.ForEach(async child => await child.RenderDetailed(ctx, tick, deep));
     }
 
-    if (GetMembers<FoGlue2D>()?.Count > 0)
-        await DrawTriangle(ctx, "Black");
-
-
     await ctx.RestoreAsync();
     return true;
 }
 
+
 public async virtual Task DrawWhenSelected(Canvas2DContext ctx, int tick, bool deep)
 {
     await ctx.SaveAsync();
-    ShapeDrawSelected?.Invoke(ctx, this);
+
+    ShapeDrawSelected?.Invoke(ctx, this);  // possable null function
+
     GetHandles()?.ForEach(async child => await child.RenderDetailed(ctx, tick, deep));
     GetConnectionPoints()?.ForEach(async child => await child.RenderDetailed(ctx, tick, deep));
-    //await DrawPin(ctx);
+
     await ctx.RestoreAsync();
 }
