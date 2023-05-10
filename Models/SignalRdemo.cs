@@ -1,15 +1,16 @@
 
+using Blazor.Extensions.Canvas.Canvas2D;
+using BlazorComponentBus;
 using FoundryBlazor.Canvas;
 using FoundryBlazor.Extensions;
+using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
-using Visio2023Foundry.Dialogs;
+using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
-using BlazorComponentBus;
-using FoundryBlazor.Message;
-using IoBTMessage.Models;
+using Visio2023Foundry.Dialogs;
 
 namespace Visio2023Foundry.Model;
 
@@ -21,6 +22,8 @@ public class SignalRDemo : FoWorkbook
         base(space,command,dialog,js,pubSub)
     {
     }
+
+
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
         var OpenNew = async () =>
@@ -28,7 +31,9 @@ public class SignalRDemo : FoWorkbook
             var target = nav!.ToAbsoluteUri("/");
             try
             {
-                await js.InvokeAsync<object>("open", target); //, "_blank", "height=600,width=1200");
+                //  /visio2023drawing/Signalr
+                var url = $"{target}/visio2023drawing/Signalr";
+                await js.InvokeAsync<object>("open", url); //, "_blank", "height=600,width=1200");
             }
             catch { }
         };
@@ -36,16 +41,26 @@ public class SignalRDemo : FoWorkbook
         space.EstablishMenu2D<FoMenu2D, FoButton2D>("SignalR", new Dictionary<string, Action>()
         {
             { "Open New", () => OpenNew()},
-            { "Guid Test", () => CreateGuidTest()},
-            { "Group", () => CreateGroupShape()},
+            { "Tug of War", () => SetDoTugOfWar()},
             { "Ring", () => CreateGroupPlayground()},
             { "Glue", () => CreateGluePlayground()},
-            { "Line", () => CreateLinePlayground()},
             { "Blue Shape", () => SetDoCreateBlue()},
             { "Text Shape", () => SetDoCreateText()},
             { "Image Shape", () => SetDoCreateImage()},
             { "Image URL", () => SetDoAddImage()},
+              { "Start", () => StartHub()},
+                { "Stop", () => StopHub()},
         }, true);
+    }
+
+
+    public void StartHub()
+    {
+        Command.StartHub();
+    }
+    public void StopHub()
+    {
+        Command.StopHub();
     }
 
     private void CreateGuidTest()
@@ -88,7 +103,50 @@ public class SignalRDemo : FoWorkbook
         Command.SendShapeCreate(c1);
     }
 
+    private void SetDoTugOfWar()
+    {
+        var drawing = Workspace.GetDrawing();
+        if ( drawing == null) return;
 
+        var s1 = new FoShape2D(50, 50, "Blue");
+        s1.MoveTo(300, 200);
+        var s2 = new FoShape2D(50, 50, "Orange");
+        s2.MoveTo(500, 200);
+
+        drawing.AddShape(s1);  
+        drawing.AddShape(s2);
+
+        var wire2 = new FoShape1D("Arrow", "Cyan")
+        {
+            Height = 50,
+            ShapeDraw = async (ctx, obj) => await DrawSteveArrowAsync(ctx, obj.Width, obj.Height, obj.Color)
+        };
+        wire2.GlueStartTo(s1, "RIGHT");
+        wire2.GlueFinishTo(s2, "LEFT");
+        drawing.AddShape(wire2);
+    }
+
+    private static async Task DrawSteveArrowAsync(Canvas2DContext ctx, int width, int height, string color)
+    {
+        var headWidth = 40;
+        var bodyHeight = height / 4;
+        var bodyWidth = width - headWidth;
+
+        await ctx.SetFillStyleAsync(color);
+        var y = (height - bodyHeight) / 2.0;
+        await ctx.FillRectAsync(0, y, bodyWidth, bodyHeight);
+
+        await ctx.BeginPathAsync();
+        await ctx.MoveToAsync(bodyWidth, 0);
+        await ctx.LineToAsync(width, height / 2);
+        await ctx.LineToAsync(bodyWidth,height);
+        await ctx.LineToAsync(bodyWidth, 0);
+        await ctx.ClosePathAsync();
+        await ctx.FillAsync();
+
+        await ctx.SetFillStyleAsync("#fff");
+        await ctx.FillTextAsync("→", width /2, height / 2, 20);
+    }
     private void CreateGluePlayground()
     {
         var drawing = Workspace.GetDrawing();

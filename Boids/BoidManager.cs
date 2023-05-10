@@ -87,7 +87,7 @@ public class BoidManager : FoWorkbook
     }
     public override async Task RenderWatermark(Canvas2DContext ctx, int tick)
     {
-        //watermary is used to render the boids  and move 3D boids
+        //watermark is used to render the boids  and move 3D boids
         if (Simulation.IsRunning)
             await Simulation.RenderWatermark(ctx, tick);
     }

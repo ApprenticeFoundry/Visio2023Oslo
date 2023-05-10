@@ -89,6 +89,7 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
             var defaultHubURI = Navigation!.ToAbsoluteUri("/DrawingSyncHub").ToString();
             await Workspace.InitializedAsync(defaultHubURI!);
 
+
             //Toast?.Info(LoadWorkbook ?? "No LoadWorkbook");
         }
 

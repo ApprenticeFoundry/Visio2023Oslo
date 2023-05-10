@@ -1,11 +1,9 @@
 using Blazor.Extensions.Canvas.Canvas2D;
 using BlazorComponentBus;
 using FoundryBlazor.Canvas;
-using FoundryBlazor.Extensions;
 using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
-using IoBTMessage.Extensions;
 using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -15,7 +13,7 @@ using Visio2023Foundry.Dialogs;
 
 namespace Visio2023Foundry.Model;
 
-	public class SPEC_ImageURL
+public class SPEC_ImageURL
 	{
         public int width { get; set; } = 0;
         public int height { get; set; } = 0;
