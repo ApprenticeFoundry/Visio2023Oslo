@@ -13,7 +13,19 @@
       "Tip": "Reminder, this is the way it will happen in the real world.  You will be listening to events and responding to them.",
       "ImageURL": "{Path}/colabflow.png",
       "Title": "Collaboration Flow",
-      "DemoURL": "/visio2023drawing//Signalr"
+      "DemoURL": "/visio2023drawing/Signalr"
+    },
+    {
+      "Tip": "Start with tracking the mouse",
+      "ImageURL": "{Path}/movecursor.gif",
+      "Title": "Move Cursor",
+      "DemoURL": "/visio2023drawing/Signalr"
+    },
+    {
+      "Tip": "Mow move a shape",
+      "ImageURL": "{Path}/moveshape.gif",
+      "Title": "Move Shape",
+      "DemoURL": "/visio2023drawing/Signalr"
     }
   ]
 }
