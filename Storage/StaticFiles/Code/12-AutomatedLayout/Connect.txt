@@ -1,0 +1,52 @@
+  
+  // FoLayoutTree.cs
+  
+  public void ConnectParentChildShapeTree<U>(IPageManagement pageManager, string glueStart, List<LineLayoutStyle> styleList) where U : FoConnector1D
+    {
+        var parent = this.GetShape();
+        parent.GetConnectionPoints();
+
+        if (this.level >= styleList.Count) return;
+        var style = styleList[this.level];
+        // $"{style} for level {level} ConnectParentChild".WriteLine(ConsoleColor.DarkBlue);
+
+        this.GetChildren()?.ForEach(child =>
+        {
+            var shape = child.GetShape();
+            shape.GetConnectionPoints();
+            //shape.Tag = $"Node: {child.ComputeName()}";
+
+            var shape1D = Activator.CreateInstance<U>();
+            shape1D.Layout = style;
+            shape1D.Thickness = 5;
+            shape1D.Color = "Green";
+
+            pageManager.AddShape<U>(shape1D);
+
+
+            if (glueStart.Matches("TOP") || glueStart.Matches("BOTTOM"))
+            {
+                if (FoShape1D.HasNoGlue(shape, "TOP"))
+                {                    
+                    shape1D.GlueStartTo(parent, "BOTTOM");
+                    shape1D.GlueFinishTo(shape, "TOP");
+                }
+            }
+            else if ( glueStart.Matches("LEFT") || glueStart.Matches("RIGHT"))
+            {
+                if (FoShape1D.HasNoGlue(shape, "LEFT"))
+                {
+                    shape1D.GlueStartTo(parent, "RIGHT");
+                    shape1D.GlueFinishTo(shape, "LEFT");
+                }
+            } 
+            else  
+            {
+                shape1D.GlueStartTo(parent);
+                shape1D.GlueFinishTo(shape);              
+            }
+
+            child.ConnectParentChildShapeTree<U>(pageManager, glueStart, styleList);
+        });
+
+    }

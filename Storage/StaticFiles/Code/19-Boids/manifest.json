@@ -1,6 +1,7 @@
 {
   "Title": "19 - Boids and Simulation",
   "ImageURL": "{Path}/boids.gif",
+  "Status": "MustSee",
   "Tip": "The Boids simulation is an excelent stress test.",
   "Summary": {
     "What": "Create your own shapes and models with C# Workbook class.",

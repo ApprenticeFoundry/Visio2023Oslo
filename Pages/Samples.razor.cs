@@ -20,7 +20,8 @@ public class SamplesBase : ComponentBase
     public static string ComputeComplete(CodeManifest sample)
     {
         var complete =  sample.Status.Matches("Done") ? "btn btn-secondary m-1" : "btn btn-warning m-1";
-        complete =  sample.Status.Matches("Show") ? "btn btn-success m-1" : complete;
+        complete =  sample.Status.Matches("Show") ? "btn btn-primary m-1" : complete;
+        complete =  sample.Status.Matches("MustSee") ? "btn btn-primary m-1" : complete;
         return complete;
     }
     protected override void OnInitialized()
