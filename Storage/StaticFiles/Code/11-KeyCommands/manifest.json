@@ -1,6 +1,6 @@
 {
   "Status": "Done",
-  "Title": "11 - Key Events and Commands",
+  "Title": "11 - KeyPress Events",
   "Tip":"Capturing key events using ComponentBus.",
   "ImageURL": "{Path}/keys.gif",
   "Samples": [
