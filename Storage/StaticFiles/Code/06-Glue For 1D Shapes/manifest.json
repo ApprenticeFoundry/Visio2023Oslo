@@ -1,6 +1,6 @@
 {
-  "Title": "07 - Glueing 1D Shapes to 2D Shapes",
-  "Status": "Done",
+  "Title": "06 - Glueing 1D Shapes to 2D Shapes",
+  "Status": "Show",
   "ImageURL": "{Path}/glue.gif",
   "Description": "1D and 2D 'Glue' will adjust other shapes as a result of moving the selected shape",
   "Tip": "1D Glue requires the shape to reference another. Do this through an intermediary object the links the source and target.",

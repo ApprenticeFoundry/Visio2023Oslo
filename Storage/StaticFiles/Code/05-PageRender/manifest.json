@@ -1,7 +1,7 @@
 {
-  "Status": "Done",
-  "Title": "06 - Page Rendering",
-  "ImageURL": "{Path}/drawwhatyousee.png",
+  "Status": "Show",
+  "Title": "05 - Page Rendering",
+  "ImageURL": "{Path}/pageandzoom.png",
   "Tip": "Only render what the user can see.",
   "Summary": {
     "What": "Shapes off the screen, small shapes, and detailed shapesin the distance are all good candidates for modified rendering.",
@@ -10,37 +10,30 @@
   },
   "Samples": [
     {
-      "Title": "Let html5 canvas send you event when it is ready",
-      "ImageURL": "{Path}/workspace.png",
-      "Filename": "CanvasRender.txt"
-    },
-    {
+      "Tip": "Have two seperate render chains, one for the page and one for the zoom window",
       "Title": "Create the canvas context and call the render chain",
-      "ImageURL": "{Path}/pageandzoom.png",
       "Filename": "DrawingRender.txt"
     },
     {
+      "Tip": "The page manager is responsible for updating the page and the zoom window",
+      "ImageURL": "{Path}/drawwhatyousee.png",
       "Title": "The page manager also updates the hit test service",
       "Filename": "PageManager.txt"
     },
     {
-      "Tip": "Render connections first, and handles last, the order matters",
+      "Filename": "ShouldRender.txt",
+      "Tip": "it pays to compute if the shape is in the view before rendering it",
+      "Title": "Quick test to see if the shape is in the view"
+    },
+    {
       "ImageURL": "{Path}/ordermatters.png",
       "Filename": "RenderPageDetails.txt",
       "Description": "Draw the background, then the grid, then the shapes (1D=>2D) then the tool artifacts"
     },
     {
-      "Title": "Only render what is showing on the page",
-      "ImageURL": "{Path}/drawwhatyousee.png",
-      "Filename": "ShouldRender.txt"
-    },
-      {
       "Title": "Simplify the drawing of shapes in zoom window",
       "ImageURL": "{Path}/ZoomWindow.png",
       "Filename": "RenderShapeConcise.txt"
     }
-
-
-
   ]
 }

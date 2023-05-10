@@ -1,6 +1,6 @@
 {
-  "Status": "Done",
-  "Title": "06 - Shape Rendering",
+  "Status": "Show",
+  "Title": "04 - Shape Rendering",
   "ImageURL": "{Path}/shaperender.gif",
   "Tip": "Design your rendering process with a combination of method calls and a series of optional function calls,",
   "Summary": {

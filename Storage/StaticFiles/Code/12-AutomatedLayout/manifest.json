@@ -1,5 +1,6 @@
 {
   "Title": "12 - Automated Layout of Trees",
+  "Status": "Show",
   "Tip": "Create a class that 'wraps' a shape and orchestrates that arrangement of layout of horizontal and vertical trees ",
   "ImageURL": "{Path}/layout.png",
   "Summary": {
@@ -9,8 +10,9 @@
   },
   "Samples": [
     {
-      "Title": "Early:  Listening to events",
-      "Filename": "Sample.txt"
+      "Tip": "Use a generic class to capture your shape relationships",
+      "Title": "FoLayoutTree<V> - Horizontal Tree",
+      "Filename": "LayoutRules.txt"
     }
   ]
 }

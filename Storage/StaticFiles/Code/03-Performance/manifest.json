@@ -1,6 +1,6 @@
 {
-  "Status": "Done",
-  "Title": "05 - Techniques for Improving Performance",
+  "Status": "Show",
+  "Title": "03 - Techniques for Improving Performance",
   "ImageURL": "{Path}/framerate.gif",
   "Tip":"Monitor performance by keeping the frame rate visible during development.",
   "Samples": [

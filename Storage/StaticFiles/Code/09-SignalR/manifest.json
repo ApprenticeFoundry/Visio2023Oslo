@@ -1,5 +1,5 @@
 {
-  "Title": "08 - SignalR and Reactive Programming",
+  "Title": "09 - SignalR and Reactive Programming",
   "Tip": "Build a command service to broker the SignalR messages.",
     "ImageURL": "{Path}/colabflow.png",
   "Status"  : "Done",

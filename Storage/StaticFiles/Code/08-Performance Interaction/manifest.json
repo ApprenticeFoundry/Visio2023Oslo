@@ -1,6 +1,6 @@
 {
-  "Status": "Done",
-  "Title": "05 - Techniques for Improving User Interaction",
+  "Status": "Show",
+  "Title": "08 - Techniques for Improving User Interaction",
   "ImageURL": "{Path}/performance.gif",
   "Tip": "Queue user interaction events while the canvas is rendering.",
   "Summary": {
@@ -11,14 +11,14 @@
   "Samples": [
 
     {
-      "Title": "Be smart, do not interrupt drawing with mouse events",
-      "ImageURL": "{Path}/queueinaction.png",
+      "Tip": "Be smart, do not interrupt drawing with mouse events",
+      "Title": "First, set a busy flag while the canvas is rendering",
       "Filename": "CurrentlyRendering.txt"
     },
     {
-      "Title": "Later when the render is complete, process the events",
-      "Filename": "CurrentlyProcessing.txt",
-      "ImageURL": "{Path}/performance.gif"
+      "Tip": "Later when the render is complete, process the events",
+      "Title": "Second, process the events when the render is complete",
+      "Filename": "CurrentlyProcessing.txt"
     }
   ]
 }
