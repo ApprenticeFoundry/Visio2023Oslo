@@ -124,6 +124,11 @@ public class SignalRDemo : FoWorkbook
         wire2.GlueStartTo(s1, "RIGHT");
         wire2.GlueFinishTo(s2, "LEFT");
         drawing.AddShape(wire2);
+
+        Command.SendShapeCreate(s2);
+        Command.SendShapeCreate(s1);
+        Command.SendShapeCreate(wire2);
+        wire2.GetMembers<FoGlue2D>()?.ForEach(glue => Command.SendGlue(glue));
     }
 
     private static async Task DrawSteveArrowAsync(Canvas2DContext ctx, int width, int height, string color)
