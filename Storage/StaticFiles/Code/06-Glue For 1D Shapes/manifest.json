@@ -24,7 +24,6 @@
     {
       "Tip": "The glue object tracks the target shape and notifies the 1D shape when it moves",
       "Title": "A instance of 'Glue' is created and shared between 1D and 2D shapes",
-      "ImageURL": "{Path}/glue1d.gif",
       "Filename": "GlueClass.txt"
     },
     {

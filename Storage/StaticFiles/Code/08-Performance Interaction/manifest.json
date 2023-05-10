@@ -1,5 +1,5 @@
 {
-  "Status": "Show",
+  "Status": "Done",
   "Title": "08 - Techniques for Improving User Interaction",
   "ImageURL": "{Path}/performance.gif",
   "Tip": "Queue user interaction events while the canvas is rendering.",

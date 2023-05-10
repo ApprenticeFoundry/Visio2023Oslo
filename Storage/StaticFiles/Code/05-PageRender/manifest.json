@@ -1,5 +1,5 @@
 {
-  "Status": "Show",
+  "Status": "Done",
   "Title": "05 - Page Rendering",
   "ImageURL": "{Path}/pageandzoom.png",
   "Tip": "Only render what the user can see.",
@@ -18,22 +18,13 @@
       "Tip": "The page manager is responsible for updating the page and the zoom window",
       "ImageURL": "{Path}/drawwhatyousee.png",
       "Title": "The page manager also updates the hit test service",
-      "Filename": "PageManager.txt"
+      "Filename": "ShouldRender.txt"
     },
     {
-      "Filename": "ShouldRender.txt",
-      "Tip": "it pays to compute if the shape is in the view before rendering it",
-      "Title": "Quick test to see if the shape is in the view"
-    },
-    {
+      "Tip": "Finally Order matters when rendering",
       "ImageURL": "{Path}/ordermatters.png",
       "Filename": "RenderPageDetails.txt",
       "Description": "Draw the background, then the grid, then the shapes (1D=>2D) then the tool artifacts"
-    },
-    {
-      "Title": "Simplify the drawing of shapes in zoom window",
-      "ImageURL": "{Path}/ZoomWindow.png",
-      "Filename": "RenderShapeConcise.txt"
     }
   ]
 }

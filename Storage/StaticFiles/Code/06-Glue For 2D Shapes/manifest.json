@@ -5,7 +5,7 @@
   "Tip": "2D Glue requires the shape to reference another. But this can be dynamically using a function that contains a reference to the target.",
   "Summary": {
     "What": "When the target shape is moved, the source shape must adjust to stay connected.",
-    "Why": "1D shapes must adjust there soze and orientation to stay connected in the diagram.",
+    "Why": "1D shapes must adjust their size and orientation to stay connected in the diagram.",
     "How": "The function is executed as part of the source shapes render cycle."
   },
   "Samples": [

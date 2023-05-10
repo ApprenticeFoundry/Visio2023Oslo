@@ -2,7 +2,7 @@
   "Title": "09 - SignalR and Reactive Programming",
   "Tip": "Build a command service to broker the SignalR messages.",
     "ImageURL": "{Path}/colabflow.png",
-  "Status"  : "MustSee",
+  "Status"  : "Show",
   "Summary": {
     "What": "The command service is the central point for processing all messages to and from other clients.",
     "Why": "The code here will focus syncronizing the state of the drawing across all clients.",
