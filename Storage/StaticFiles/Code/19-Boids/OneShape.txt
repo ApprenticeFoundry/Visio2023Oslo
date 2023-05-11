@@ -1,0 +1,57 @@
+
+
+    private static async Task DrawABoid(Canvas2DContext ctx, Boid boid, int size)
+    {
+        var x = boid.X;
+        var y = boid.Y;
+        var a = boid.AngleXY * Matrix2D.DEG_TO_RAD;
+
+        await ctx.SaveAsync();
+        await ctx.TranslateAsync(x, y);
+        await ctx.RotateAsync((float)a);
+        await ctx.BeginPathAsync();
+        await ctx.MoveToAsync(size, 0);
+        await ctx.LineToAsync(0, 0);
+        await ctx.LineToAsync(size / 2, size);
+        await ctx.LineToAsync(size, 0);
+
+        await ctx.ClosePathAsync();
+        await ctx.FillAsync();
+        await ctx.RestoreAsync();
+    }
+
+    
+
+   public void ToggleFieldShape()
+    {
+        IsRunning = false;
+        if (FieldShape == null)
+        {
+            var page = Drawing.CurrentPage();
+            page.ClearAll();
+
+            var BoidCount = 10;
+            CreateBoids(BoidCount, RandomColor());
+            LocalBoids.ForEach(boid => SendModelCreated<Boid>(boid));
+            IsRunning = true;
+
+            FieldShape = new FoFieldShape2D("Boids", (int)Width, (int)Height, "Pink")
+            {
+                DrawSimulation = async (ctx) =>
+                {
+                    foreach (var boid in LocalBoids)
+                        await DrawABoid(ctx, boid, 40);
+                    foreach (var boid in ForeignBoids.Values)
+                        await DrawABoid(ctx, boid, 20);
+                }
+            };
+
+            Drawing.AddShape<FoFieldShape2D>(FieldShape);
+        }
+        else
+        {
+
+            FieldShape = null;
+            ToggleBoids();
+        }
+    }

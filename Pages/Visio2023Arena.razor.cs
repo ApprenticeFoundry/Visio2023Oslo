@@ -32,13 +32,15 @@ public partial class Visio2023ArenaPage : ComponentBase
         if (Workspace != null)
         {
             Workspace.ClearAllWorkbook();
+
             Workspace.EstablishWorkbook<Gamer>();
+            if ("Boid".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<BoidManager>();
 
             var url = ""; //RestAPI?.GetServerUrl() ?? "";
             Workspace.CreateCommands(Workspace, JsRuntime!, Navigation!, url);
 
             Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
-
 
 
             var defaultHubURI = Navigation!.ToAbsoluteUri("/DrawingSyncHub").ToString();

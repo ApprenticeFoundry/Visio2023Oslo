@@ -29,21 +29,43 @@ public class BoidManager : FoWorkbook
 
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
+        var OpenNew = async () =>
+        {
+
+            try
+            {
+                await js.InvokeAsync<object>("open", nav.Uri); //, "_blank", "height=600,width=1200");
+            }
+            catch { }
+        };
+
+
         var arena = space.GetArena();
         space.EstablishMenu2D<FoMenu2D, FoButton2D>("Boids", new Dictionary<string, Action>()
         {
+            { "Toggle Field Shape", () => Simulation.ToggleFieldShape()},
             { "Start/Stop", () => Simulation.ToggleBoids()},
             { "Boids +5", () => Simulation.BoidsAdd5()},
             { "Boids -5", () => Simulation.BoidsSub5()},
             { "Boids +25", () => Simulation.BoidsAdd25()},
             { "Boids +100", () => Simulation.BoidsAdd100()},
-            { "Toggle Field Shape", () => Simulation.ToggleFieldShape()},
             { "Clear 3D", async () => await arena.ClearArena() },
             { "Jet", () => DoLoad3dModel("jet.glb")},
-            { "Porshe 911", () => DoLoad3dModel("porsche_911.glb")},
-            { "T Rex", () => DoLoad3dModel("T_Rex.glb")},
-        }, true);
+             { "T Rex", () => DoLoad3dModel("T_Rex.glb")},
+            { "Open New Window", () => OpenNew()},
+            { "Start Hub", () => StartHub()},
+            { "Stop Hub", () => StopHub()},
+       }, true);
 
+    }
+
+    public void StartHub()
+    {
+        Command.StartHub();
+    }
+    public void StopHub()
+    {
+        Command.StopHub();
     }
 
     public void DoLoad3dModel(string filename)

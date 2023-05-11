@@ -383,6 +383,7 @@ public class BoidField : IBoidField
     public static void ApplyExternalMethods(Boid boid, FoGlyph2D shape2D, FoGlyph3D shape3D)
     {
         shape2D.GlyphId = boid.BoidId;
+        
         shape2D.ShapeDraw = async (ctx, obj) =>
         {
             var w = shape2D.Width;
@@ -399,7 +400,8 @@ public class BoidField : IBoidField
             await ctx.FillAsync();
             await ctx.RestoreAsync();
         };
-        //this is using a clouser 
+
+
         shape2D.ContextLink = (obj, tick) =>
         {
             obj.PinX = (int)boid.X;
@@ -412,17 +414,6 @@ public class BoidField : IBoidField
             var z = boid.Y * 0.01;
             shape3D.UpdateMeshPosition(x, y, z);
         };
-        // shape3D.ContextLink = (obj, tick) =>
-        // {
-        //     var x = boid.X * 0.01;
-        //     var y = boid.Y * 0.01;
-        //     var z = boid.Z * 0.01;
-
-        //     var pos = obj.UpdateMeshPosition(x, y, z);
-
-        //     //$"shape.ContextLink FoGlyph3D {tick} {obj.GlyphId}".WriteInfo();
-        //     //obj.Angle = boid.AngleXY;
-        // };
     }
 
 
@@ -430,7 +421,6 @@ public class BoidField : IBoidField
     {
         if (FieldShape == null)
         {
-            //var page = Drawing.CurrentPage();
             await ctx.BeginPathAsync();
             await ctx.SetLineDashAsync(new float[] { 10, 10 });
             await ctx.SetLineWidthAsync(3);
@@ -440,12 +430,12 @@ public class BoidField : IBoidField
             var x = rect.Width + rect.X + 50;
             var y = rect.Height + rect.Y + 50;
 
-            //now draw to the right
-            rect = Drawing.TransformRect(BoidAreaZY);
-            await ctx.StrokeRectAsync(x + rect.X, rect.Y, rect.Width, rect.Height);
-            //now draw to the bottom
-            rect = Drawing.TransformRect(BoidAreaXZ);
-            await ctx.StrokeRectAsync(rect.X, y + rect.Y, rect.Width, rect.Height);
+            // //now draw to the right
+            // rect = Drawing.TransformRect(BoidAreaZY);
+            // await ctx.StrokeRectAsync(x + rect.X, rect.Y, rect.Width, rect.Height);
+            // //now draw to the bottom
+            // rect = Drawing.TransformRect(BoidAreaXZ);
+            // await ctx.StrokeRectAsync(rect.X, y + rect.Y, rect.Width, rect.Height);
 
             await ctx.StrokeAsync();
         }

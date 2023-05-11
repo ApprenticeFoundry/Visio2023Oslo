@@ -1,0 +1,15 @@
+
+// Boid.cs
+    
+    public Boid(Random rand, double width, double height, double depth, string color)
+    {
+        BoidId =  Guid.NewGuid().ToString();
+        X = rand.NextDouble() * width;
+        Y = rand.NextDouble() * height;
+        Z = rand.NextDouble() * depth;
+        Xvel = (rand.NextDouble() - .5);
+        Yvel = (rand.NextDouble() - .5);
+        Zvel = (rand.NextDouble() - .5);
+        Color = color;
+        AngleXY = GetAngleXY();
+    }
