@@ -1,0 +1,30 @@
+
+// BoidManager.cs
+
+    public override bool SetSignalRHub(HubConnection hub, string panid)
+    {
+        hub.On<D2D_ModelCreate>("ModelCreate", (obj) => Simulation.BoidModelCreate(obj));
+
+        hub.On<D2D_ModelUpdate>("ModelUpdate", (obj) => Simulation.BoidModelUpdate(obj));
+
+        hub.On<D2D_ModelDestroy>("ModelDestroy", (obj) => Simulation.BoidModelDestroy(obj));
+
+        hub.On<D2D_ModelUpdate>("ModelReflect", (obj) => Simulation.BoidModelReflect(obj));
+
+        return true;
+    }
+
+
+    protected void SendModelCreated<T>(T model) where T : Boid
+    {
+        if ( !Command.IsConnected ) return;
+
+        var create = new D2D_ModelCreate()
+        {
+            PayloadType = model.GetType().Name,
+            Payload = StorageHelpers.Dehydrate<T>(model, false)
+        };
+
+        Command.SendSyncMessage(create);
+    }
+
