@@ -1,6 +1,6 @@
 {
   "Title": "19 - Boids and Simulation",
-  "ImageURL": "{Path}/boids.gif",
+  "ImageURL": "{Path}/birds.gif",
   "Status": "MustSee",
   "Tip": "The Boids simulation is an excelent stress test.",
   "Summary": {
@@ -10,8 +10,10 @@
   },
   "Samples": [
     {
-      "Title": "FoWorkspace",
-      "Filename": "workspace.txt"
-     }
+      "Tip": "The Boids simulation is an excelent stress test.",
+      "ImageURL": "{Path}/newapproch.png",
+      "Title": "The Boid class ",
+      "Filename": "Boid.txt"
+    }
   ]
 }
