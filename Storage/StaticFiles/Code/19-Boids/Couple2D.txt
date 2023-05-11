@@ -1,0 +1,15 @@
+
+
+// BoidField.cs
+
+public static void ApplyExternalMethods(Boid boid, FoGlyph2D shape2D)
+    {
+        shape2D.GlyphId = boid.BoidId;
+
+        shape2D.ContextLink = (obj, tick) =>
+        {
+            obj.PinX = (int)boid.X;
+            obj.PinY = (int)boid.Y;
+            obj.Angle = boid.AngleXY;
+        };
+    }

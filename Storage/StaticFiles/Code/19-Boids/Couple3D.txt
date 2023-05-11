@@ -19,23 +19,4 @@ public static void ApplyExternalMethods(Boid boid, FoGlyph2D shape2D, FoGlyph3D 
             shape3D.UpdateMeshPosition(x, y, z);
         };
         
-        shape2D.ShapeDraw = async (ctx, obj) =>
-        {
-            var w = shape2D.Width;
-            var h = shape2D.Height;
-            await ctx.SaveAsync();
-
-            await ctx.BeginPathAsync();
-            await ctx.MoveToAsync(w / 2, h);
-            await ctx.LineToAsync(w, 0);
-            await ctx.LineToAsync(0, 0);
-            await ctx.LineToAsync(w / 2, h);
-
-            await ctx.ClosePathAsync();
-            await ctx.FillAsync();
-            await ctx.RestoreAsync();
-        };
-
-
-
     }
