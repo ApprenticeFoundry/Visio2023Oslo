@@ -12,13 +12,14 @@
     {
       "Tip": "The Boids simulation is an excelent stress test.",
       "ImageURL": "{Path}/newapproch.png",
-      "MemeURL": "{Path}/distributed.png",
       "Title": "The Boid class ",
+      "MemeURL": "{Path}/Rules.png",
+      "DemoURL": "https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html",
       "Filename": "Boid.txt"
     },
     {
       "Tip": "The Boids can be drawn inside a single shape",
-      "ImageURL": "{Path}/groupboid.gif",
+      "ImageURL": "{Path}/groupboids.gif",
       "Title": "One Shape - Render Everything",
       "Filename": "OneShape.txt"
     },
