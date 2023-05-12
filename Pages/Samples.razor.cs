@@ -24,6 +24,15 @@ public class SamplesBase : ComponentBase
         complete =  sample.Status.Matches("MustSee") ? "btn btn-success ms-1" : complete;
         return complete;
     }
+    public static string ModifyTitle(CodeManifest sample)
+    {
+        var title =  sample.Title.Split(" - ").Last();
+        return title;
+    }
+    public bool HasCategory(CodeManifest sample)
+    {
+        return string.IsNullOrEmpty(sample.Category);
+    }
     protected override void OnInitialized()
     {
         base.OnInitialized();

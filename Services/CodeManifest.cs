@@ -12,6 +12,7 @@ public class CodeManifest
     public string DemoURL { get; set; } = "";
     public string MemeURL { get; set; } = "";
     public string Status { get; set; } = "................";
+    public string Category { get; set; } = "";
     public CodeSummary? Summary { get; set; } 
     public List<CodeSample> Samples { get; set; } = new();
 

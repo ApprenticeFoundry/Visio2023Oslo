@@ -8,7 +8,11 @@
 @foreach (var manifest in Manifests)
 {
     <p style="padding-left:40px;">
-        <a class="@ComputeComplete(manifest)" href="@ComputeLink(manifest)" >@manifest.Title</a>
+        @if (HasCategory(manifest))
+        {
+            <span class="category">@manifest.Category</span>
+        }
+        <a class="@ComputeComplete(manifest)" href="@ComputeLink(manifest)" >@ModifyTitle(manifest)</a>
         <span class="tip">@manifest.Tip</span>
     </p>
 }
