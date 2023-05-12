@@ -3,7 +3,6 @@
 namespace Visio2023Foundry.Boids;
 public class Boid
 {
-
     public double X { get; set; }
     public double Y { get; set; }
     public double Z { get; set; }
@@ -21,18 +20,7 @@ public class Boid
         BoidId =  Guid.NewGuid().ToString();
     }
 
-    public Boid(Random rand, double width, double height, string color)
-    {
-        BoidId =  Guid.NewGuid().ToString();
-        X = rand.NextDouble() * width;
-        Y = rand.NextDouble() * height;
-        Z = 0;
-        Xvel = (rand.NextDouble() - .5);
-        Yvel = (rand.NextDouble() - .5);
-        Zvel = 0;
-        Color = color;
-        AngleXY = GetAngleXY();
-    }
+
     public Boid(Random rand, double width, double height, double depth, string color)
     {
         BoidId =  Guid.NewGuid().ToString();
@@ -45,6 +33,7 @@ public class Boid
         Color = color;
         AngleXY = GetAngleXY();
     }
+    
     public bool MoveXY(int x, int y, double angle)
     {
         (X, Y, AngleXY) = (x, y, angle);

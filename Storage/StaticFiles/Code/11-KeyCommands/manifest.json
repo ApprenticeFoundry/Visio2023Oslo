@@ -1,34 +1,14 @@
 {
-  "Status": "Ready",
-  "Title": "11 - Key Events and Commands",
-  "Description": "Key Events generate actions that notify other Clients",
-  "Tip":"Commit to Pub/Sub events ant this code becomes amazingly simple",
-  "MemeURL": "{Path}/matrix-4.jpg",
+  "Status": "Done",
+  "Title": "A - KeyPress Events",
+  "Tip": "Capturing key events using ComponentBus.",
+  "ImageURL": "{Path}/keys.gif",
+  "Badge": "Programable",
   "Samples": [
     {
-      "Title": "Subscribe to ComponentBus PubSub",
-      "Filename": "Subscribe.txt"
-    },
-    {
-      "Title": "Pattern Match KeyDown",
+      "Tip": "The code is very readable and easy to understand.",
+      "Title": "KeyDown(CanvasKeyboardEventArgs args)",
       "Filename": "KeyDown.txt"
-    },
-    {
-      "Title": "Execute that Command and share",
-      "Filename": "MoveSelectedBy.txt",
-      "MemeURL": "{Path}/howdeep.jfif"
-    },
-    {
-      "Title": "Captured in the Command Service",
-      "Filename": "CommandService.txt"
-    },
-    {
-      "Title": "Forwarded to the Other Clients",
-      "Filename": "SignalR.txt"
-    },
-    {
-      "Title": "SignalR Server Hub",
-      "Filename": "SignalRHub.txt"
     }
   ]
 }

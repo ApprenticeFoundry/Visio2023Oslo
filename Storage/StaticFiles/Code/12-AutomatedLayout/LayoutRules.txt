@@ -1,4 +1,23 @@
 
+// FoLayoutTree.cs
+
+    public enum BoxLayoutStyle
+    {
+        None = 0,
+        Horizontal = 1,
+        Vertical = 2,
+        HorizontalStacked = 3,
+        VerticalStacked = 4
+    }
+
+    public enum LineLayoutStyle
+    {
+        None = 0,
+        Straight = 1,
+        VerticalFirst = 2,
+        HorizontalFirst = 3,
+    }
+
 
     private void DoCreateHorizontalTree(TreeModel model)
     {
@@ -9,39 +28,30 @@
         var page = drawing.CurrentPage();
         var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
 
+        // build the data structure from shapes
         LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) =>shape.TagAsComposition(tree));
         
+        // Do the layout...
         LayoutTree.HorizontalLayout(pt.X, pt.Y, MarginH);
         LayoutTree.HorizontalLayoutConnections<FoConnector1D>(drawing.Pages());
-
-        drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);
     }
 
-    public FoLayoutTree<V> CreateShapeParentTree<V>(TreeModel model, Action<V,TreeModel> TagAction) where V : CompShape2D
+    private void DoCreateVerticalTree(TreeModel model)
     {
+        DoClear();
+        var drawing = Workspace.GetDrawing();
+        if (drawing == null) return;
 
-        var shape = Activator.CreateInstance<V>();
-        ModelLookup.Add(shape.GetGlyphId(), model);
-        ShapeLookup.Add(shape.GetGlyphId(), shape);
+        var page = drawing.CurrentPage();
+        var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
 
-        TagAction?.Invoke(shape, model);
-        Workspace.GetDrawing()?.AddShape<V>(shape);
+        // build the data structure from shapes
+        LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) => shape.TagAsClassification(tree));
 
-        var node = new FoLayoutTree<V>(shape);
-        return CreateShapeChildTree<V>(model, node, TagAction!);
+        // Do the layout...
+        LayoutTree.VerticalLayout(pt.X, pt.Y, MarginV);
+        LayoutTree.VerticalLayoutConnections<FoConnector1D>(drawing.Pages());
     }
 
 
-    public FoLayoutTree<V> CreateShapeChildTree<V>(TreeModel model,  FoLayoutTree<V> node, Action<V,TreeModel> TagAction ) where V : CompShape2D
-    {
-        if ( model.IsExpanded ) 
-        {
-            model.Children()?.ForEach(step =>
-            {
-                var subNode = CreateShapeParentTree<V>(step, TagAction!);
-                node.AddChildNode(subNode);
-            });
-        }
-
-        return node;
-    }
+ 

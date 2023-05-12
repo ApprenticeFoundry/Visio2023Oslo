@@ -1,0 +1,36 @@
+
+
+.slide {
+    padding-top: 600px;
+    font-size:  65px;
+    padding-bottom: 80px;
+}
+
+.bullet {
+    padding-left: 140px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    max-width: 1200p;
+    font-size: 35px;
+}
+
+.title {
+    padding-top: 80px;
+    padding-left: 140px;
+    padding-bottom: 40px;
+    max-width: 1200p;
+    font-size: 35px;
+}
+
+.subbullet {
+    padding-left: 240px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    max-width: 1200p;
+    font-size: 30px;
+}
+
+.picture {
+    padding-top: 80px;
+    padding-bottom: 80px;
+}

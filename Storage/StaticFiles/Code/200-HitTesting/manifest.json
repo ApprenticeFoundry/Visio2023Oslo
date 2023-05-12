@@ -1,0 +1,27 @@
+{
+  "Status": "MustSee",
+  "Title": "100 - Shape Hit Testing",
+  "ImageURL": "{Path}/quadtree.gif",
+  "Category": "Web Native",
+  "Tip": "Use a QuadTree to locate shapes on the page by mouse position.",
+  "Summary": {
+    "What": "Nearly event user task starts with finding the shapes under the mouse.",
+    "Why": "Make performing a hit test as efficient as possible.",
+    "How": "Use a QuadTree, it segments the page into smaller and smaller spaces."
+  },
+  "Samples": [
+    {
+      "Tip": "Reuse discarded QuadTree nodes; Avoid creating and destroying objects",
+      "Title": "Subdivide the page into smaller and smaller spaces",
+      "Description": "The tree is dynamic, rebuild after every frame render, save and reuse discarded nodes.",
+      "Filename": "ReuseQuadTree.txt",
+      "DemoURL": "/visio2023drawing/playground"
+    },
+    {
+      "Title": "Hit Test In Action, QuadTree finding objects",
+      "Description": "This sample shows how to use a quadtree to speed up hit testing.",
+      "Filename": "Service.txt",
+      "DemoURL": "/visio2023drawing/stencil"
+    }
+  ]
+}

@@ -19,8 +19,23 @@ public class SamplesBase : ComponentBase
     }
     public static string ComputeComplete(CodeManifest sample)
     {
-        var complete =  sample.Status.Matches("Done") ? "btn btn-dark m-1" : "btn btn-light m-1";
+        var complete =  sample.Status.Matches("Done") ? "btn btn-secondary ms-5" : "btn btn-warning ms-5";
+        complete =  sample.Status.Matches("Show") ? "btn btn-primary ms-5" : complete;
+        complete =  sample.Status.Matches("MustSee") ? "btn btn-success ms-1" : complete;
         return complete;
+    }
+    public static string ModifyTitle(CodeManifest sample)
+    {
+        var title =  sample.Title.Split(" - ").Last();
+        return title;
+    }
+    public bool HasCategory(CodeManifest sample)
+    {
+        return !string.IsNullOrEmpty(sample.Category);
+    }
+    public bool HasBadge(CodeManifest sample)
+    {
+        return !string.IsNullOrEmpty(sample.Badge);
     }
     protected override void OnInitialized()
     {

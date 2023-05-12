@@ -58,11 +58,22 @@ public partial class Visio2023Page : ComponentBase, IDisposable
     private void RefreshWorkbookMenus()
     {
          if (Workspace != null) {
-           // $"RefreshWorkPieceMenus".WriteInfo();
             Workspace.ClearAllWorkbook();
 
-            if ( "Boid".Matches(LoadWorkbook!) )
+            if ("Playground".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<Playground>();
+            else if ("Stencil".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<Stencil>();
+            else if ("Boid".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<BoidManager>();
+            else if ("Composition".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<Composition>();
+            else if ("Simulation".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<MoSimulation>();
+            else if ("Process".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<Process>();
+            else if ("Signalr".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<SignalRDemo>();
                 
             Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
          }

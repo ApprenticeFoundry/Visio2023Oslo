@@ -1,0 +1,46 @@
+{
+  "Title": "200 - Boids and Simulation",
+  "Category": "Model / Shape Separation",
+  "ImageURL": "{Path}/birds.gif",
+  "Status": "MustSee",
+  "Tip": "The Boids simulation is an excellent stress test.",
+  "Summary": {
+    "What": "Create your own shapes and models with C# Workbook class.",
+    "Why": "I want to build on this platform",
+    "How": "Follow the examples in this code."
+  },
+  "Samples": [
+    {
+      "Tip": "The Boids simulation is an excellent stress test.",
+      "ImageURL": "{Path}/newapproch.png",
+      "Title": "The Boid class ",
+      "MemeURL": "{Path}/Rules.png",
+      "DemoURL": "https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html",
+      "Filename": "Boid.txt"
+    },
+    {
+      "Tip": "The Boids can be drawn inside a single shape",
+      "ImageURL": "{Path}/groupboids.gif",
+      "Title": "One Shape - Render Everything",
+      "Filename": "OneShape.txt"
+    },
+    {
+      "Tip": "The Boids can be many shapes on a page",
+      "ImageURL": "{Path}/ungroupboids.gif",
+      "Title": "Many Shapes - One Page",
+      "Filename": "Couple2D.txt"
+    },
+    {
+      "Tip": "The Boids can be many types of shapes",
+      "ImageURL": "{Path}/boid3d.gif",
+      "Title": "2D and 3D Shapes",
+      "Filename": "Couple3D.txt"
+    },
+    {
+      "Tip": "The Boids can be distributed",
+      "ImageURL": "{Path}/distributed.png",
+      "Title": "SignalR - Distributed Boids",
+      "Filename": "SignalR.txt"
+    }
+  ]
+}

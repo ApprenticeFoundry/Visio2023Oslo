@@ -6,10 +6,8 @@
 @using FoundryBlazor.Extensions
 @inherits CodeDisplayBase
 
-<h3 style="padding-top:20px;padding-left:20px">@Sample?.Tip</h3>
+<h3 style="padding-top:30px;padding-left:20px">Tip: @Sample?.Tip</h3>
 
-<h3 style="padding-top:20px;"><center>@Sample?.Title</center></h3>
-<h3 style="padding-top: 10px;"><center>@Sample?.Description</center></h3>
 
 @if (HasImage())
 {
@@ -21,12 +19,14 @@
     <StandaloneCodeEditor @ref="_editor" ConstructionOptions="EditorConstructionOptions" OnDidInit="@EditorOnDidInit" />
 }
 
+<h4 style="padding-top:10px;"><center>@Sample?.Title</center></h4>
+<h4 style="padding-top: 10px;"><center>@Sample?.Description</center></h4>
+
 @if (HasDemo())
 {
     <a href="@Sample!.DemoURL" style="padding-left:80px;padding-top:40px">@Sample?.DemoURL</a>
 }
-@* 
-<h4 style="padding-bottom:50px;padding-left:80px;padding-top:20px"><i>@Sample?.Notes</i></h4> *@
+
 
 @if (HasMeme())
 {

@@ -8,7 +8,16 @@
 @foreach (var manifest in Manifests)
 {
     <p style="padding-left:40px;">
-        <a class="@ComputeComplete(manifest)" href="@ComputeLink(manifest)" >@manifest.Title</a>
+
+        <a class="@ComputeComplete(manifest)" href="@ComputeLink(manifest)" >@ModifyTitle(manifest)</a>
+        @if (HasCategory(manifest))
+        {
+            <span class="badge bg-primary ms-1 me-1">@manifest.Category</span>
+        }
+        @if (HasBadge(manifest))
+        {
+            <span class="badge bg-secondary ms-1 me-1">@manifest.Badge</span>
+        }
         <span class="tip">@manifest.Tip</span>
     </p>
 }

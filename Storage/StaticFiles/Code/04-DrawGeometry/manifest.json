@@ -1,0 +1,38 @@
+{
+  "Status": "Done",
+  "Title": "A - Draw Geometry",
+  "ImageURL": "{Path}/redraw.gif",
+  "Badge" : "Custom Shapes",
+  "Tip": "Use Functions to draw the geometry, it gives you tremendous flexibility.",
+  "Summary": {
+    "What": "Use methods to ensure a repeatable render process. Draw the geometry using a function.",
+    "Why": "Different Shape configurations have different rendering requirements.",
+    "How": "Integrate NO-OP function pointers into the render methods, then set there values dynamically as needed."
+  },
+  "Samples": [
+      {
+      "Tip": "Change the draw function dynamically to render different shapes",
+      "Filename": "multidraw.txt"
+    },
+    {
+      "Tip": "Simple functions to draw geometry",
+      "Filename": "SimpleDrawingMethods.txt"
+    },
+    {
+      "Tip": "Advanced functions to draw geometry",
+      "Filename": "AdvancedDrawingMethods.txt"
+    },
+
+    {
+      "Tip": "Setting ShapeDraw Function after you create the shape",
+      "ImageURL": "{Path}/ring.png",
+      "Filename": "ring.txt"
+    },
+
+    {
+      "Tip": "Setting HoverDraw Function dynamically",
+      "ImageURL": "{Path}/shaperender.gif",
+      "Filename": "lasthover.txt"
+    }
+  ]
+}

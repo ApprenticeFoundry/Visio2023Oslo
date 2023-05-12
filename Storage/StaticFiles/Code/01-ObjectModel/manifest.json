@@ -1,41 +1,26 @@
 {
-  "Status": "Ready",
-  "Title": "01 - Building a Flexable Shape Object Model",
+  "Status": "Done",
+  "Title": "A - Building a flexible shape object model",
   "ImageURL": "{Path}/DrawingModel.png",
-  "Tip": "Create a base class that can share parent/child relationships and use it to construct shapes, pages and drawings",
-   "Summary": {
+  "Badge": "Extensible",
+  "Tip": "Create a base class simplifies defining relationships used to construct shapes, pages and drawings",
+  "Summary": {
     "What": "All object classes that get rendered, share parent / child relationships, as well as geometry attributes.",
     "Why": "Simplify and share code for shapes, handles, menus, buttons, pages, and drawings.",
     "How": "Design a c# class that can manage dynamic list of properties and child objects."
   },
- 
+
   "Samples": [
-    {
-      "Title": "Javascript framework used to dynamically create a shape model",
-      "Filename": "Sample2.txt"
-    },
-    {
-      "Title": "Shape models need to be able to track parent / child relationships",
-      "Notes": "Lessons: hard to serialize if there is a circular reference:  Funct vs Property",
-      "Filename": "Example1.txt"
-    },
     {
       "Tip": "I used these rules, then focused on the interface to manage the shape model",
       "ImageURL": "{Path}/rules.png",
       "Filename": "FoComponent.txt"
     },
     {
-      "Title": "Focus on making SlotGroups are easy to use",
-      "Filename": "Example4.txt"
-    },
-    {
-      "Title": "This is the current interface for the shape model",
-      "Filename": "Interface.txt"
-    },
-    {
-      "Title": "For this implementation, Slots are the solution to manage the shape data model",
+      "Tip": "The shape model is a collection of properties and child objects",
+      "Title": "Examples of IFoComponent interface in application",
       "ImageURL": "{Path}/ControlsSS.png",
-      "DemoURL": "/visio2023drawing/playground",
+      "DemoURL": "/visio2023drawing/stencil",
       "Filename": "Final.txt"
     }
   ]

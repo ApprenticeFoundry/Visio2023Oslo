@@ -1,0 +1,22 @@
+
+
+// BoidField.cs
+
+public static void ApplyExternalMethods(Boid boid, FoGlyph2D shape2D, FoGlyph3D shape3D)
+    {
+        shape2D.GlyphId = boid.BoidId;
+        shape3D.GlyphId = boid.BoidId;
+
+        shape2D.ContextLink = (obj, tick) =>
+        {
+            obj.PinX = (int)boid.X;
+            obj.PinY = (int)boid.Y;
+            obj.Angle = boid.AngleXY;
+
+            var x = boid.X * 0.01;
+            var y = boid.Z * 0.01;
+            var z = boid.Y * 0.01;
+            shape3D.UpdateMeshPosition(x, y, z);
+        };
+        
+    }
