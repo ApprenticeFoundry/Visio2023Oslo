@@ -1,6 +1,6 @@
 {
   "Status":"Show",
-  "Title": "08 - Events and Reactive Programming",
+  "Title": "A - Events and Reactive Programming",
   "ImageURL": "{Path}/encoding.png",
   "Tip":"Process all events as messages with topics, it will simplify your code when you inplement collaberation between users.",
   "Summary": {

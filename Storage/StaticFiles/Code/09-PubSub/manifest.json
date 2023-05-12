@@ -1,6 +1,6 @@
 {
   "Status":"Show",
-  "Title": "09 - Pub/Sub and Reactive Programming",
+  "Title": "A - Pub/Sub and Reactive Programming",
   "ImageURL": "{Path}/pubsub.png",
   "Description": "How to use Pub/Sub and Reactive Programming in Blazor",
   "Tip":"Add a topic to every message object",

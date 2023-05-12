@@ -1,6 +1,6 @@
 {
   "Status": "Done",
-  "Title": "05 - Page Rendering",
+  "Title": "A - Page Rendering",
   "ImageURL": "{Path}/pageandzoom.png",
   "Tip": "Only render what the user can see.",
   "Summary": {

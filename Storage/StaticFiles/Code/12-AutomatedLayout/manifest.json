@@ -1,5 +1,5 @@
 {
-  "Title": "12 - Automated Layout of Trees",
+  "Title": "A - Automated Layout of Trees",
   "Status": "Show",
   "Tip": "Create a class that 'wraps' a shape and orchestrates that arrangement of layout of horizontal and vertical trees ",
   "ImageURL": "{Path}/layoutH.png",

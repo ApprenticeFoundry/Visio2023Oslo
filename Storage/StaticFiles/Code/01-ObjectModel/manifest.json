@@ -1,14 +1,14 @@
 {
   "Status": "Done",
-  "Title": "01 - Building a Flexable Shape Object Model",
+  "Title": "A - Building a Flexable Shape Object Model",
   "ImageURL": "{Path}/DrawingModel.png",
   "Tip": "Create a base class simplifies defining relationships used to construct shapes, pages and drawings",
-   "Summary": {
+  "Summary": {
     "What": "All object classes that get rendered, share parent / child relationships, as well as geometry attributes.",
     "Why": "Simplify and share code for shapes, handles, menus, buttons, pages, and drawings.",
     "How": "Design a c# class that can manage dynamic list of properties and child objects."
   },
- 
+
   "Samples": [
     {
       "Tip": "I used these rules, then focused on the interface to manage the shape model",
