@@ -1,6 +1,6 @@
 {
-  "Status":"MustSee",
-  "Title": "07 - Actions, Commanding and Menus",
+  "Status": "MustSee",
+  "Title": "400 - Actions, Commanding and Menus",
   "ImageURL": "{Path}/drawmenu.gif",
   "MemeURL": "{Path}/VisioTools.png",
   "Tip": "Use the shape model as a shared resource to create other UI elements.",
@@ -10,7 +10,7 @@
     "How": "Deligate the command details to a common object, use functions with clousers as necessary."
   },
   "Description": "Integrate actions with a command service, then list the shapes become menus",
-   "Samples": [
+  "Samples": [
     {
       "Title": "Leverage the standard web menus and do much more",
       "ImageURL": "{Path}/menus.png",

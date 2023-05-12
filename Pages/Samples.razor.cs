@@ -31,7 +31,7 @@ public class SamplesBase : ComponentBase
     }
     public bool HasCategory(CodeManifest sample)
     {
-        return string.IsNullOrEmpty(sample.Category);
+        return !string.IsNullOrEmpty(sample.Category);
     }
     protected override void OnInitialized()
     {

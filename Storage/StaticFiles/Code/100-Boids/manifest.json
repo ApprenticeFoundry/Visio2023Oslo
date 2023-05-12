@@ -1,5 +1,6 @@
 {
-  "Title": "19 - Boids and Simulation",
+  "Title": "100 - Boids and Simulation",
+  "Category": "Model / Shape Separation",
   "ImageURL": "{Path}/birds.gif",
   "Status": "MustSee",
   "Tip": "The Boids simulation is an excelent stress test.",
