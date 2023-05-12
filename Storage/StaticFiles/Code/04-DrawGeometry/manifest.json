@@ -2,9 +2,9 @@
   "Status": "Done",
   "Title": "A - Draw Geometry",
   "ImageURL": "{Path}/redraw.gif",
-  "Tip": "Use Functions to draw the geometry, it gives you tremendious flexibility.",
+  "Tip": "Use Functions to draw the geometry, it gives you tremendous flexibility.",
   "Summary": {
-    "What": "Use methods to ensure a repeatable render process. Deligate the 'drawing' of geometry to a function.",
+    "What": "Use methods to ensure a repeatable render process. Draw the geometry using a function.",
     "Why": "Different Shape configurations have different rendering requirements.",
     "How": "Integrate NO-OP function pointers into the render methods, then set there values dynamically as needed."
   },

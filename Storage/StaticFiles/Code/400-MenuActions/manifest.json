@@ -8,7 +8,7 @@
   "Summary": {
     "What": "Define the command actions as part of the shape model. The write code to project the 'view' through out the solution.",
     "Why": "Code is simplified and reliability is improved, when there is a single action for each command.",
-    "How": "Deligate the command details to a common object, use functions with clousers as necessary."
+    "How": "Delegate the command details to a common object, use functions with closures as necessary."
   },
   "Description": "Integrate actions with a command service, then list the shapes become menus",
   "Samples": [

@@ -4,8 +4,8 @@
   "ImageURL": "{Path}/performance.gif",
   "Tip": "Queue user interaction events while the canvas is rendering.",
   "Summary": {
-    "What": "Advoid processing events that may cause the render to change during the render process",
-    "Why": "Doing 'work' on the UI thread will cause the canvas to feel slugish.",
+    "What": "Avoid processing events that may cause the render to change during the render process",
+    "Why": "Doing 'work' on the UI thread will cause the canvas to feel slowish.",
     "How": "Set a busy flags while UI is rendering, queue any events to processing when the render is complete."
   },
   "Samples": [

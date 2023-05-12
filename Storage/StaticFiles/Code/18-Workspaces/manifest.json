@@ -10,7 +10,7 @@
   },
   "Samples": [
     {
-      "Tip": "Include the FoundaryBlazor library part of your next blazor project.",
+      "Tip": "Include the FoundaryBlazor library part of your next Blazor project.",
       "Title": "Standard code for creating a Blazor component",
       "Filename": "integration.txt"
      },

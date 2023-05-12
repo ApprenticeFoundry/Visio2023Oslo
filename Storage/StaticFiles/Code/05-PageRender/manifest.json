@@ -5,12 +5,12 @@
   "Tip": "Only render what the user can see.",
   "Summary": {
     "What": "Shapes off the screen, small shapes, and detailed shapesin the distance are all good candidates for modified rendering.",
-    "Why": "Rendering is an expensive process. Writing code to determins what should be drawn aways pays off.",
+    "Why": "Rendering is an expensive process. Writing code to determine what should be drawn will always pays off.",
     "How": "Characterize the shapes that are in the view before the render to determine the best way to process them."
   },
   "Samples": [
     {
-      "Tip": "Have two seperate render chains, one for the page and one for the zoom window",
+      "Tip": "Have two separate render chains, one for the page and one for the zoom window",
       "Title": "Create the canvas context and call the render chain",
       "Filename": "DrawingRender.txt"
     },

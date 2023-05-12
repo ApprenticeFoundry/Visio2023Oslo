@@ -1,9 +1,9 @@
 {
-  "Title": "100 - Boids and Simulation",
+  "Title": "200 - Boids and Simulation",
   "Category": "Model / Shape Separation",
   "ImageURL": "{Path}/birds.gif",
   "Status": "MustSee",
-  "Tip": "The Boids simulation is an excelent stress test.",
+  "Tip": "The Boids simulation is an excellent stress test.",
   "Summary": {
     "What": "Create your own shapes and models with C# Workbook class.",
     "Why": "I want to build on this platform",
@@ -11,7 +11,7 @@
   },
   "Samples": [
     {
-      "Tip": "The Boids simulation is an excelent stress test.",
+      "Tip": "The Boids simulation is an excellent stress test.",
       "ImageURL": "{Path}/newapproch.png",
       "Title": "The Boid class ",
       "MemeURL": "{Path}/Rules.png",

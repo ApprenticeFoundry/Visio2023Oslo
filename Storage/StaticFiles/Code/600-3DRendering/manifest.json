@@ -3,7 +3,7 @@
   "Title": "600 - 3D Models And Rendering",
   "Category": "3D Environment",
   "ImageURL": "{Path}/ticker.gif",
-  "Tip": "Focus on loading completed 3D Models levage the shape model from 2D",
+  "Tip": "Focus on loading completed 3D Models leverage the shape model from 2D",
   "Summary": {
     "What": "Render existing 3D models and scenes using Three.js primitives.",
     "Why": "The right tool for the job, we just need to share models on the web, not build video games.",
@@ -17,7 +17,7 @@
       "ImageURL": "{Path}/letter.png"
     },
     {
-      "Tip": "Load models using a prerender method",
+      "Tip": "Load models using a pre-render method",
       "ImageURL": "{Path}/Car1.png",
       "MemeURL": "{Path}/Car2.png",
       "Filename": "preRender.txt"
