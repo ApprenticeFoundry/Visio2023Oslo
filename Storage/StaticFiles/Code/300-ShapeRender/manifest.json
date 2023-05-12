@@ -2,6 +2,7 @@
   "Status": "MustSee",
   "Title": "300 - Shape Rendering",
   "ImageURL": "{Path}/shaperender.gif",
+  "Category": "Web Native",
   "Tip": "Design your rendering process with a combination of method calls and a series of optional function calls,",
   "Summary": {
     "What": "Use methods to ensure a repeatable render process. Deligate the 'drawing' of geometry to a function.",
@@ -9,13 +10,13 @@
     "How": "Integrate NO-OP function pointers into the render methods, then set there values dynamically as needed."
   },
   "Samples": [
-      {
+    {
       "Tip": "Make rendering a sequence of method calls, that trigger function to do the drawing",
       "Title": "RenderDetailed() calls UpdateContext() and Draw()",
       "Filename": "RenderShapeDetails.txt",
       "ImageURL": "{Path}/process.png"
     },
-      {
+    {
       "Tip": "Create Functions with a common signature for drawing",
       "Title": "List of render functions with common signature",
       "Filename": "CommonFunction.txt"

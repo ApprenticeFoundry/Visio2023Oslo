@@ -4,6 +4,7 @@
   "ImageURL": "{Path}/drawmenu.gif",
   "MemeURL": "{Path}/VisioTools.png",
   "Tip": "Use the shape model as a shared resource to create other UI elements.",
+  "Category": "Web Native",
   "Summary": {
     "What": "Define the command actions as part of the shape model. The write code to project the 'view' through out the solution.",
     "Why": "Code is simplified and reliability is improved, when there is a single action for each command.",

@@ -2,7 +2,7 @@
   "Status": "MustSee",
   "Title": "200 - Shape Hit Testing",
   "ImageURL": "{Path}/quadtree.gif",
-  "Category": "Performance",
+  "Category": "Web Native",
   "Tip": "Use a QuadTree to locate shapes on the page by mouse position.",
   "Summary": {
     "What": "Nearly event user task starts with finding the shapes under the mouse.",
