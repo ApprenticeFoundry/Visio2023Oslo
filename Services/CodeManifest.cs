@@ -13,6 +13,7 @@ public class CodeManifest
     public string MemeURL { get; set; } = "";
     public string Status { get; set; } = "................";
     public string Category { get; set; } = "";
+    public string Badge { get; set; } = "";
     public CodeSummary? Summary { get; set; } 
     public List<CodeSample> Samples { get; set; } = new();
 

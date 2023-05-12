@@ -33,6 +33,10 @@ public class SamplesBase : ComponentBase
     {
         return !string.IsNullOrEmpty(sample.Category);
     }
+    public bool HasBadge(CodeManifest sample)
+    {
+        return !string.IsNullOrEmpty(sample.Badge);
+    }
     protected override void OnInitialized()
     {
         base.OnInitialized();

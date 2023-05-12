@@ -2,6 +2,7 @@
   "Status": "Show",
   "Title": "A - Techniques for Improving Performance",
   "ImageURL": "{Path}/framerate.gif",
+  "Badge": "Performance",
   "Tip":"Monitor performance by keeping the frame rate visible during development.",
   "Samples": [
   ]
