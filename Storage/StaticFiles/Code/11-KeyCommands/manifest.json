@@ -1,11 +1,12 @@
 {
   "Status": "Done",
   "Title": "A - KeyPress Events",
-  "Tip":"Capturing key events using ComponentBus.",
+  "Tip": "Capturing key events using ComponentBus.",
   "ImageURL": "{Path}/keys.gif",
+  "Badge": "Programable",
   "Samples": [
     {
-      "Tip":"The code is very readable and easy to understand.",
+      "Tip": "The code is very readable and easy to understand.",
       "Title": "KeyDown(CanvasKeyboardEventArgs args)",
       "Filename": "KeyDown.txt"
     }

@@ -2,6 +2,7 @@
   "Status": "Done",
   "Title": "A - Techniques for Improving User Interaction",
   "ImageURL": "{Path}/performance.gif",
+  "Badge": "Performance",
   "Tip": "Queue user interaction events while the canvas is rendering.",
   "Summary": {
     "What": "Avoid processing events that may cause the render to change during the render process",
@@ -9,7 +10,6 @@
     "How": "Set a busy flags while UI is rendering, queue any events to processing when the render is complete."
   },
   "Samples": [
-
     {
       "Tip": "Be smart, do not interrupt drawing with mouse events",
       "Title": "First, set a busy flag while the canvas is rendering",

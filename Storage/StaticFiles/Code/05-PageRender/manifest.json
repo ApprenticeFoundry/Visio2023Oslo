@@ -2,6 +2,7 @@
   "Status": "Done",
   "Title": "A - Page Rendering",
   "ImageURL": "{Path}/pageandzoom.png",
+  "Badge": "Custom Shapes",
   "Tip": "Only render what the user can see.",
   "Summary": {
     "What": "Shapes off the screen, small shapes, and detailed shapesin the distance are all good candidates for modified rendering.",

@@ -1,6 +1,7 @@
 {
   "Title": "A - Workspace and Custom Workbooks",
   "ImageURL": "{Path}/workbook.png",
+  "Badge": "Extensible",
   "Status": "Done",
   "Tip": "Introduce custom extensions with a Workspace and Workbook.",
   "Summary": {
@@ -13,11 +14,11 @@
       "Tip": "Include the FoundaryBlazor library part of your next Blazor project.",
       "Title": "Standard code for creating a Blazor component",
       "Filename": "integration.txt"
-     },
+    },
     {
       "Tip": "Add as many workbooks as you like to your project.",
       "Title": "Create a 'Stencil' workbook using class inheritance",
       "Filename": "workbook.txt"
-     }
+    }
   ]
 }

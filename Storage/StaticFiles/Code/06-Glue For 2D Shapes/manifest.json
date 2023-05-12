@@ -1,6 +1,7 @@
 {
   "Title": "A - Glueing 2D Shapes to 2D Shapes",
   "Status": "Done",
+  "Badge": "Model Relationships",
   "ImageURL": "{Path}/glue2da.gif",
   "Tip": "2D Glue requires the shape to reference another. But this can be dynamically using a function that contains a reference to the target.",
   "Summary": {

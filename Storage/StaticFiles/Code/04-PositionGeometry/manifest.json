@@ -3,6 +3,7 @@
   "Title": "A - Positioning Geometry",
   "ImageURL": "{Path}/visiopins.png",
   "MemeURL": "{Path}/matrix.jpg",
+  "Badge": "Custom Shapes",
   "Tip": "Commit to understanding how the matrix controls the rendering of your shape.",
   "Summary": {
     "What": "Shapes are positioned by a matrix. I follow the convention from Visio.",
@@ -10,11 +11,11 @@
     "How": "The details follow below, step by step"
   },
   "Samples": [
-      {
+    {
       "Tip": "Make the matrix calculation parametric ",
       "Title": "Compute the matrix based on the shape's properties",
       "Filename": "GetMatrix.txt",
-       "MemeURL": "{Path}/shapesheet.png"
+      "MemeURL": "{Path}/shapesheet.png"
     },
     {
       "Tip": "Map the matrix into the context",

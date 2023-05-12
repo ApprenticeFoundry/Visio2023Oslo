@@ -2,6 +2,7 @@
   "Status": "Done",
   "Title": "A - Draw Geometry",
   "ImageURL": "{Path}/redraw.gif",
+  "Badge" : "Custom Shapes",
   "Tip": "Use Functions to draw the geometry, it gives you tremendous flexibility.",
   "Summary": {
     "What": "Use methods to ensure a repeatable render process. Draw the geometry using a function.",
