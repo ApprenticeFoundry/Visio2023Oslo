@@ -3,11 +3,11 @@
   "Category": "Model / Shape Separation",
   "ImageURL": "{Path}/birds.gif",
   "Status": "MustSee",
-  "Tip": "The Boids simulation is an excellent stress test.",
+  "Tip": "Use the Boids simulation as a stress test.",
   "Summary": {
-    "What": "Create your own shapes and models with C# Workbook class.",
-    "Why": "I want to build on this platform",
-    "How": "Follow the examples in this code."
+"What": "Boids is a simulation of flocking birds that show the impact of large numbers of shapes on performance.",
+"Why": "Model / shape seperation is important for future integrations but can degrade performance. So ongoing performance testing is important.",
+"How": "All boids must recalculate their position and velocity every frame, which is very demanding. "
   },
   "Samples": [
     {

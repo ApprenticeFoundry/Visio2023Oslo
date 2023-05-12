@@ -1,7 +1,7 @@
 {
   "Status": "MustSee",
   "Title": "100 - Shape Hit Testing",
-  "ImageURL": "{Path}/quadtree.gif",
+  "MemeURL": "{Path}/quadtree.gif",
   "Category": "Known Domain",
   "Tip": "Use a QuadTree to speed up hit testing.",
   "Summary": {
@@ -11,7 +11,7 @@
   },
   "Samples": [
     {
-      "Tip": "Reuse discarded QuadTree nodes; Avoid creating and destroying objects",
+      "Tip": ".",
       "Title": "Subdivide the page into smaller and smaller spaces",
       "Description": "The tree is dynamic, rebuild after every frame render, save and reuse discarded nodes.",
       "Filename": "ReuseQuadTree.txt",
