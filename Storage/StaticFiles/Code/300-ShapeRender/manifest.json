@@ -3,10 +3,10 @@
   "Title": "300 - Shape Rendering",
   "ImageURL": "{Path}/shaperender.gif",
   "Category": "Domain Fundamentals",
-  "Tip": "Design your rendering process with a combination of method calls and a series of optional function calls,",
+  "Tip": "Design the rendering process with a combination of method calls and optional function calls.",
   "Summary": {
-    "What": "Use methods to ensure a repeatable render process. Delegate the 'drawing' of geometry to a function.",
-    "Why": "Different Shape configurations have different rendering requirements.",
+    "What": "Use methods to ensure a repeatable render process; delegate the drawing of geometry to functions.",
+    "Why": "Different shape classes have different rendering requirements.",
     "How": "Integrate NO-OP function pointers into the render methods, then set there values dynamically as needed."
   },
   "Samples": [
