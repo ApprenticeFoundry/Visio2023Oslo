@@ -2,7 +2,7 @@
   "Status": "MustSee",
   "Title": "300 - Shape Rendering",
   "ImageURL": "{Path}/shaperender.gif",
-  "Category": "Web Native",
+  "Category": "Domain Fundamentals",
   "Tip": "Design your rendering process with a combination of method calls and a series of optional function calls,",
   "Summary": {
     "What": "Use methods to ensure a repeatable render process. Delegate the 'drawing' of geometry to a function.",
