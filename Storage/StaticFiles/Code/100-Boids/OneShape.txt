@@ -1,4 +1,5 @@
 
+// FoFieldShape2D.cs
 
     private static async Task DrawABoid(Canvas2DContext ctx, Boid boid, int size)
     {
@@ -20,38 +21,43 @@
         await ctx.RestoreAsync();
     }
 
-    
+// FoFieldShape2D.cs
 
-   public void ToggleFieldShape()
+    public override async Task<bool> RenderDetailed(Canvas2DContext ctx, int tick, bool deep = true)
     {
-        IsRunning = false;
-        if (FieldShape == null)
+        if ( !IsVisible ) return false;
+
+        await ctx.SaveAsync();
+        await UpdateContext(ctx, tick);
+
+
+        DrawSimulation?.Invoke(ctx);
+        if ( !IsSelected )
+            HoverDraw?.Invoke(ctx, this);
+            
+
+        if (IsSelected)
+            await DrawWhenSelected(ctx, tick, deep);
+
+        await ctx.RestoreAsync();
+        return true;
+    }
+
+
+// BoidsSimulation.cs
+
+   public void CreateFieldShape()
+    {
+
+        //...
+
+        FieldShape = new FoFieldShape2D("Boids", (int)Width, (int)Height, "Pink");
+        Drawing.AddShape<FoFieldShape2D>(FieldShape);
+
+        FieldShape.DrawSimulation = async (ctx) =>
         {
-            var page = Drawing.CurrentPage();
-            page.ClearAll();
-
-            var BoidCount = 10;
-            CreateBoids(BoidCount, RandomColor());
-            LocalBoids.ForEach(boid => SendModelCreated<Boid>(boid));
-            IsRunning = true;
-
-            FieldShape = new FoFieldShape2D("Boids", (int)Width, (int)Height, "Pink")
-            {
-                DrawSimulation = async (ctx) =>
-                {
-                    foreach (var boid in LocalBoids)
-                        await DrawABoid(ctx, boid, 40);
-                    foreach (var boid in ForeignBoids.Values)
-                        await DrawABoid(ctx, boid, 20);
-                }
-            };
-
-            Drawing.AddShape<FoFieldShape2D>(FieldShape);
+            foreach (var boid in LocalBoids)
+                await DrawABoid(ctx, boid, 40);
         }
-        else
-        {
 
-            FieldShape = null;
-            ToggleBoids();
-        }
     }

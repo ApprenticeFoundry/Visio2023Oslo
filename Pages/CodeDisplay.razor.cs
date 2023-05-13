@@ -39,6 +39,11 @@ public class CodeDisplayBase : ComponentBase, IDisposable
         // $"DemoURL =[{Sample!.DemoURL}]".WriteInfo();
         return !string.IsNullOrEmpty(Sample?.DemoURL);
     }
+    public bool HasTip()
+    {
+        // $"DemoURL =[{Sample!.DemoURL}]".WriteInfo();
+        return !string.IsNullOrEmpty(Sample?.Tip);
+    }
     public bool HasCode()
     {
         // $"DemoURL =[{Sample!.DemoURL}]".WriteInfo();
