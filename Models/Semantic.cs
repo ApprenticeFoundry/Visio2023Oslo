@@ -121,10 +121,10 @@ public class Semantic
         layout.HorizontalLayoutConnections<FoConnector1D>(Drawing.Pages());
     }
 
-    public async Task RenderTree(Canvas2DContext ctx)
+    public async Task RenderTree(Canvas2DContext ctx, int tick)
     {
         if (CurrentLayout != null)
-            await CurrentLayout.RenderLayoutTree(ctx);
+            await CurrentLayout.RenderLayoutTree(ctx,tick);
     }
 
     public DT_AssetFile AddAssetFile(DT_Hero hero, string filename)
