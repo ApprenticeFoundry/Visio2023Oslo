@@ -48,7 +48,7 @@ public class CompShape2D : FoShape2D
     public CompShape2D TagAsComposition(TreeModel model)
     {
         CompShape2DType = CompShape2DType.Composition;
-        this.PostDraw = async (ctx,obj) => await this.DrawFancyPin(ctx);
+        //this.PostDraw = async (ctx,obj) => await this.DrawFancyPin(ctx);
         //Model = model;
         Color = "Green";
         Title = model.ComponentName;
@@ -63,7 +63,7 @@ public class CompShape2D : FoShape2D
             PinX = this.Width / 2,
             PinY = 3 * this.Height / 4,
             TextTop = this.Height / 4,
-            PostDraw = async (ctx, obj) => await this.DrawPin(ctx)
+            //PostDraw = async (ctx, obj) => await this.DrawPin(ctx)
         };
         this.Add<CompShape2D>(subShape);
         return this;
@@ -78,7 +78,7 @@ public class CompShape2D : FoShape2D
         Title = model.ClassName;
         ResizeTo(220, 60);
         TextTop = this.Height / 2;
-        this.PostDraw = async (ctx,obj) => await this.DrawFancyPin(ctx);
+        //this.PostDraw = async (ctx,obj) => await this.DrawFancyPin(ctx);
         return this;
     }
 
