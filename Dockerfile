@@ -14,26 +14,26 @@ ENV NugetUserId=${NugetUserId}
 ENV NugetPersonalAccessToken=${NugetPersonalAccessToken}
 
 WORKDIR /src
-COPY ["Visio2023Oslo.csproj", "nuget.config", "./"]
+COPY ["Visio2023Foundry.csproj", "nuget.config", "./"]
 
-RUN dotnet restore "./Visio2023Oslo.csproj"
+RUN dotnet restore "./Visio2023Foundry.csproj"
 COPY . .
 WORKDIR "/src/."
-RUN dotnet build "Visio2023Oslo.csproj" -c Release -o /app/build
+RUN dotnet build "Visio2023Foundry.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Visio2023Oslo.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Visio2023Foundry.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 RUN mkdir -p /app/storage
 COPY ./storage/ ./storage/
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Visio2023Oslo.dll"]
+ENTRYPOINT ["dotnet", "Visio2023Foundry.dll"]
 
 # az login
 # az acr login --name iobtassets
-# From Visio2023Oslo folder:
+# From Visio2023Foundry folder:
 # Windows Environment Variables
 # set NugetUserId=iobt
 # set NugetPersonalAccessToken=<personal access token from https://dev.azure.com/iobt/IoBTNuGet/_artifacts/feed/BlazorThreeJS>
