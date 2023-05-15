@@ -14,33 +14,33 @@ ENV NugetUserId=${NugetUserId}
 ENV NugetPersonalAccessToken=${NugetPersonalAccessToken}
 
 WORKDIR /src
-COPY ["Visio2023Foundry.csproj", "nuget.config", "./"]
+COPY ["Visio2023Oslo.csproj", "nuget.config", "./"]
 
-RUN dotnet restore "./Visio2023Foundry.csproj"
+RUN dotnet restore "./Visio2023Oslo.csproj"
 COPY . .
 WORKDIR "/src/."
-RUN dotnet build "Visio2023Foundry.csproj" -c Release -o /app/build
+RUN dotnet build "Visio2023Oslo.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Visio2023Foundry.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Visio2023Oslo.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 RUN mkdir -p /app/storage
 COPY ./storage/ ./storage/
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Visio2023Foundry.dll"]
+ENTRYPOINT ["dotnet", "Visio2023Oslo.dll"]
 
 # az login
 # az acr login --name iobtassets
-# From Visio2023Foundry folder:
+# From Visio2023Oslo folder:
 # Windows Environment Variables
 # set NugetUserId=iobt
 # set NugetPersonalAccessToken=<personal access token from https://dev.azure.com/iobt/IoBTNuGet/_artifacts/feed/BlazorThreeJS>
-# docker build -t visio2023foundry --build-arg NugetUserId --build-arg NugetPersonalAccessToken .
-# docker tag visio2023foundry iobtassets.azurecr.io/visio2023foundry:v1.0.0
-# docker push iobtassets.azurecr.io/visio2023foundry:v1.0.0
+# docker build -t visio2023oslo --build-arg NugetUserId --build-arg NugetPersonalAccessToken .
+# docker tag visio2023oslo iobtassets.azurecr.io/visio2023oslo:v1.0.0
+# docker push iobtassets.azurecr.io/visio2023oslo:v1.0.0
 # Note: cannot be run from localhost. Use machine IP.  For example:  http://192.168.1.165:5200/
-# docker run -d -p 5200:80 --rm --name visio2023foundry visio2023foundry
-# docker run -it  visio2023foundry /bin/bash
-# docker exec -it visio2023foundry bash
+# docker run -d -p 5200:80 --rm --name visio2023oslo visio2023oslo
+# docker run -it  visio2023oslo /bin/bash
+# docker exec -it visio2023oslo bash
