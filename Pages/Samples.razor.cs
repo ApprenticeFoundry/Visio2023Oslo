@@ -37,13 +37,17 @@ public class SamplesBase : ComponentBase
     {
         return !string.IsNullOrEmpty(sample.Badge);
     }
+    public bool HasDemo(CodeManifest sample)
+    {
+        return !string.IsNullOrEmpty(sample.DemoURL);
+    }
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
   
         var data = CodeDisplay!.GetCodeLibrary();
-        Manifests = data.Manifests.Where(item => item.HasTip()).ToList();
+        Manifests = data.Manifests; //.Where(item => item.HasTip()).ToList();
         //Payload = StorageHelpers.Dehydrate<CodeLibrary>(data, false);
 
 

@@ -14,9 +14,11 @@ namespace Visio2023Foundry.Model;
 
 public class Composition : FoWorkbook
 {
+
     public Point MarginH { get; set; } = new(20, 50);
     public Point MarginV { get; set; } = new(50, 20);
 
+    public bool ShowLayout { get; set; } = false;
     public FoLayoutTree<CompShape2D>? LayoutTree { get; set; }
 
     private Dictionary<string,TreeModel> ModelLookup { get; set; } = new();
@@ -35,8 +37,8 @@ public class Composition : FoWorkbook
 
         if (LayoutTree?.GetShape() is not CompShape2D rootShape) return;
 
-        var x = rootShape.LeftEdge();
-        var y = rootShape.TopEdge();
+        var x = rootShape.PinX; //.LeftEdge();
+        var y = rootShape.PinY; //.TopEdge();
 
         var rootModel = ModelLookup[rootShape.GetGlyphId()];
 
@@ -98,6 +100,7 @@ public class Composition : FoWorkbook
         var menu = new Dictionary<string, Action>()
         {
             { "Clear", () => DoClear() },
+            { "Show/Hide Layout", () => DoShowLayout() },
             { "Workspace", () => DoCreateHorizontalTree(WorkspaceModel()) },
             { "Workbook", () => DoCreateHorizontalTree(WorkbookModel()) },
             { "Drawing", () => DoCreateHorizontalTree(DrawingModel()) },
@@ -152,6 +155,12 @@ public class Composition : FoWorkbook
         var drawing = Workspace.GetDrawing();
         if (drawing == null) return;
         drawing.ClearAll();
+    }
+
+    private void DoShowLayout() 
+    {
+        ShowLayout = !ShowLayout;
+        Drawlayout();
     }
 
     private static TreeModel WorkspaceModel()
@@ -246,6 +255,16 @@ public class Composition : FoWorkbook
         return model;
     }
 
+    private void Drawlayout()
+    {
+        var drawing = Workspace.GetDrawing();
+        if (drawing == null) return;
+         drawing.SetPostRenderAction(async (ctx,tick) => await Task.CompletedTask);
+
+        if ( LayoutTree == null  || !ShowLayout ) return;
+        drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);        
+    }
+
     private void DoCreateHorizontalTree(TreeModel model)
     {
         DoClear();
@@ -260,7 +279,7 @@ public class Composition : FoWorkbook
         LayoutTree.HorizontalLayout(pt.X, pt.Y, MarginH);
         LayoutTree.HorizontalLayoutConnections<FoConnector1D>(drawing.Pages());
 
-        // drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);
+        Drawlayout();
     }
 
     private void DoCreateVerticalTree(TreeModel model)
@@ -277,7 +296,7 @@ public class Composition : FoWorkbook
         LayoutTree.VerticalLayout(pt.X, pt.Y, MarginV);
         LayoutTree.VerticalLayoutConnections<FoConnector1D>(drawing.Pages());
 
-        // drawing.SetPostRenderAction(LayoutTree.RenderLayoutTree);
+        Drawlayout();
     }
 
 

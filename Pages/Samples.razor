@@ -10,6 +10,10 @@
     <p style="padding-left:40px;">
 
         <a class="@ComputeComplete(manifest)" href="@ComputeLink(manifest)" >@ModifyTitle(manifest)</a>
+        @if (HasDemo(manifest))
+        {
+            <a class="btn badge bg-success ms-1 me-1" href="@manifest.DemoURL" >DEMO</a>
+        }
         @if (HasCategory(manifest))
         {
             <span class="badge bg-primary ms-1 me-1">@manifest.Category</span>

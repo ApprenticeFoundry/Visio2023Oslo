@@ -28,7 +28,7 @@ public class CodePageBase : ComponentBase
             Path = data.Storage;
             Manifest = data.Manifests.FirstOrDefault(x => x.Folder.Matches(Folder));
             Summary = Manifest!.Summary;
-            Samples = Manifest!.Samples.Where(x => x.HasTip()).ToList();
+            Samples = Manifest!.Samples; //.Where(x => x.HasTip()).ToList();
             //Payload = StorageHelpers.Dehydrate<CodeManifest>(Manifest!, false);
         }
     }
