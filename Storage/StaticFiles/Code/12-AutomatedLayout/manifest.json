@@ -1,6 +1,6 @@
 {
-  "Title": "A - Automated Layout of Trees",
-  "Status": "Show",
+  "Title": "300 - Automated Layout of Trees",
+  "Status": "MustSee",
   "Badge": "Custom Shapes",
   "Tip": "Create a class that 'wraps' a shape and orchestrates that arrangement of layout of horizontal and vertical trees ",
   "ImageURL": "{Path}/layoutH.png",
