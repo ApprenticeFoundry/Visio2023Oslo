@@ -37,10 +37,10 @@ ENTRYPOINT ["dotnet", "OSLOFoundry.dll"]
 # Windows Environment Variables
 # set NugetUserId=iobt
 # set NugetPersonalAccessToken=<personal access token from https://dev.azure.com/iobt/IoBTNuGet/_artifacts/feed/BlazorThreeJS>
-# docker build -t oslofoundry --build-arg NugetUserId --build-arg NugetPersonalAccessToken .
-# docker tag OSLOFoundry iobtassets.azurecr.io/OSLOFoundry:v2.0.0
-# docker push iobtassets.azurecr.io/OSLOFoundry:v2.0.0
+# docker build -t visio2023oslo --build-arg NugetUserId --build-arg NugetPersonalAccessToken .
+# docker tag visio2023oslo iobtassets.azurecr.io/visio2023oslo:v1.0.2
+# docker push iobtassets.azurecr.io/visio2023oslo:v1.0.2
 # Note: cannot be run from localhost. Use machine IP.  For example:  http://192.168.1.165:5200/
-# docker run -d -p 5200:80 --rm --name OSLOFoundry OSLOFoundry
-# docker run -it  OSLOFoundry /bin/bash
-# docker exec -it OSLOFoundry bash
+# docker run -d -p 5200:80 --rm --name visio2023oslo visio2023oslo
+# docker run -it  visio2023oslo /bin/bash
+# docker exec -it visio2023oslo bash
