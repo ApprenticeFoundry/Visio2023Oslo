@@ -96,9 +96,9 @@ public class Playground : FoWorkbook
         if ( drawing == null) return;
 
         var c1 = drawing.AddShape<FoGroup2D>(new FoGroup2D(100, 100, "Cyan"));
-        c1?.MoveTo(1200, 90);
-        c1?.Add<FoShape2D>(new FoShape2D(20, 30, "Red"));
-        c1?.Add<FoShape2D>(new FoShape2D(20, 30, "Green")).MoveTo(30, 20);
+        c1?.MoveTo(600,290);
+        c1?.Add<FoShape2D>(new FoShape2D(20, 60, "Red"));
+        c1?.Add<FoShape2D>(new FoShape2D(60, 30, "Green")).MoveTo(30, 20);
         c1?.CaptureShape<FoShape2D>(new FoShape2D(20, 30, "Blue")).MoveTo(100, 90);
 
         Command.SendShapeCreate(c1);
