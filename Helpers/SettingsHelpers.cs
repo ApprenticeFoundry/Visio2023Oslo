@@ -46,12 +46,13 @@ public static class SettingsHelpers
 
     public static string GetMIMEType(this string fileName)
     {
+        string contentType = "application/octet-stream";
         var provider = SettingsHelpers.MIMETypeProvider();
 
-        if (!provider.TryGetContentType(fileName, out string contentType))
-        {
-            contentType = "application/octet-stream";
-        }
+        if (provider.TryGetContentType(fileName, out contentType))
+            return contentType;
+        
+        contentType = "application/octet-stream";
         return contentType;
     }
 
