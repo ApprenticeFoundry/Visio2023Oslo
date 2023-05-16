@@ -1,6 +1,6 @@
 {
   "Status": "MustSee",
-  "Title": "A - KeyPress Events",
+  "Title": "900 - KeyPress Events",
   "Tip": "Capturing key events using ComponentBus.",
 
   "ImageURL": "{Path}/keys.gif",

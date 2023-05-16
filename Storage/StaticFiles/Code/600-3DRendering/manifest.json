@@ -13,17 +13,14 @@
     {
       "Tip": "First let's recognize that .Net is a giving Community.",
       "Title": "Thank You Roman Simuta!",
-      "Description": "for giving me access to your Blazor / Three.js integration",
       "ImageURL": "{Path}/letter.png"
     },
     {
-      "Tip": "Load models using a pre-render method",
       "ImageURL": "{Path}/Car1.png",
       "MemeURL": "{Path}/Car2.png",
       "Filename": "preRender.txt"
     },
     {
-      "Tip": "Primitives do not require async loading",
       "ImageURL": "{Path}/text3D.png",
       "Filename": "Primitives.txt"
     }
