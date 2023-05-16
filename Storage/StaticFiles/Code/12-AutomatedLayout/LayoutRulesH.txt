@@ -7,26 +7,24 @@
         private V _item;
         private FoLayoutTree<V>? _parent;
         private List<FoLayoutTree<V>>? _children;
+
+        private void DoCreateHorizontalTree(TreeModel model)
+        {
+            DoClear();
+            var drawing = Workspace.GetDrawing();
+            if (drawing == null) return;
+
+            var page = drawing.CurrentPage();
+            var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
+
+            // build the data structure from shapes
+            LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) =>shape.TagAsComposition(tree));
+            
+            // Do the layout...
+            LayoutTree.HorizontalLayout(pt.X, pt.Y, MarginH);
+            LayoutTree.HorizontalLayoutConnections<FoConnector1D>(drawing.Pages());
+        }
+
     }
- 
-
-    private void DoCreateHorizontalTree(TreeModel model)
-    {
-        DoClear();
-        var drawing = Workspace.GetDrawing();
-        if (drawing == null) return;
-
-        var page = drawing.CurrentPage();
-        var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
-
-        // build the data structure from shapes
-        LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) =>shape.TagAsComposition(tree));
-        
-        // Do the layout...
-        LayoutTree.HorizontalLayout(pt.X, pt.Y, MarginH);
-        LayoutTree.HorizontalLayoutConnections<FoConnector1D>(drawing.Pages());
-    }
-
-
 
  
