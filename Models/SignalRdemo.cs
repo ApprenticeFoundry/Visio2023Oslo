@@ -15,12 +15,45 @@ using Visio2023Foundry.Dialogs;
 namespace Visio2023Foundry.Model;
 
 
+public class SteveArrow: FoShape1D
+{
+    public SteveArrow():base()
+    {
+        Height = 50;
+        ShapeDraw = async (ctx, obj) => await DrawSteveArrowAsync(ctx, obj.Width, obj.Height, obj.Color);
+    }
+
+    private static async Task DrawSteveArrowAsync(Canvas2DContext ctx, int width, int height, string color)
+    {
+        var headWidth = 40;
+        var bodyHeight = height / 4;
+        var bodyWidth = width - headWidth;
+
+        await ctx.SetFillStyleAsync(color);
+        var y = (height - bodyHeight) / 2.0;
+        await ctx.FillRectAsync(0, y, bodyWidth, bodyHeight);
+
+        await ctx.BeginPathAsync();
+        await ctx.MoveToAsync(bodyWidth, 0);
+        await ctx.LineToAsync(width, height / 2);
+        await ctx.LineToAsync(bodyWidth,height);
+        await ctx.LineToAsync(bodyWidth, 0);
+        await ctx.ClosePathAsync();
+        await ctx.FillAsync();
+
+        await ctx.SetFillStyleAsync("#fff");
+        await ctx.FillTextAsync("→", width /2, height / 2, 20);
+    }
+}
+
+
 public class SignalRDemo : FoWorkbook
 {
 
     public SignalRDemo(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
         base(space,command,dialog,js,pubSub)
     {
+        StorageHelpers.RegisterLookupType<SteveArrow>();
     }
 
 
@@ -116,11 +149,8 @@ public class SignalRDemo : FoWorkbook
         drawing.AddShape(s1);  
         drawing.AddShape(s2);
 
-        var wire2 = new FoShape1D("Arrow", "Cyan")
-        {
-            Height = 50,
-            ShapeDraw = async (ctx, obj) => await DrawSteveArrowAsync(ctx, obj.Width, obj.Height, obj.Color)
-        };
+        var wire2 = new SteveArrow();
+
         wire2.GlueStartTo(s1, "RIGHT");
         wire2.GlueFinishTo(s2, "LEFT");
         drawing.AddShape(wire2);
@@ -131,27 +161,7 @@ public class SignalRDemo : FoWorkbook
         wire2.GetMembers<FoGlue2D>()?.ForEach(glue => Command.SendGlue(glue));
     }
 
-    private static async Task DrawSteveArrowAsync(Canvas2DContext ctx, int width, int height, string color)
-    {
-        var headWidth = 40;
-        var bodyHeight = height / 4;
-        var bodyWidth = width - headWidth;
 
-        await ctx.SetFillStyleAsync(color);
-        var y = (height - bodyHeight) / 2.0;
-        await ctx.FillRectAsync(0, y, bodyWidth, bodyHeight);
-
-        await ctx.BeginPathAsync();
-        await ctx.MoveToAsync(bodyWidth, 0);
-        await ctx.LineToAsync(width, height / 2);
-        await ctx.LineToAsync(bodyWidth,height);
-        await ctx.LineToAsync(bodyWidth, 0);
-        await ctx.ClosePathAsync();
-        await ctx.FillAsync();
-
-        await ctx.SetFillStyleAsync("#fff");
-        await ctx.FillTextAsync("→", width /2, height / 2, 20);
-    }
     private void CreateGluePlayground()
     {
         var drawing = Workspace.GetDrawing();

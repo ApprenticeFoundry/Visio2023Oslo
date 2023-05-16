@@ -12,27 +12,10 @@
   },
   "Description": "Integrate actions with a command service, then list the shapes become menus",
   "Samples": [
-    {
-      "Title": "Leverage the standard web menus and do much more",
-      "ImageURL": "{Path}/menus.png",
-      "Filename": "hardmenu.txt"
-    },
+
     {
       "Tip": "Simple API to associate actions with command names",
       "Filename": "simpleAPI.txt"
-    },
-    {
-      "Title": "This action will draw line segments, The command service notifies the other components",
-      "ImageURL": "{Path}/lines.png",
-      "Filename": "linecommand.txt"
-    },
-    {
-      "Title": "The menus are modeled as shapes",
-      "Filename": "Menu.txt"
-    },
-    {
-      "Title": "The buttons become shapes too",
-      "Filename": "Button.txt"
     },
     {
       "Tip": "You can build a traditional web menu from a menu shapes",
@@ -41,7 +24,6 @@
     },
     {
       "Tip": "Follow the demo link at try it out",
-      "Title": "Actions can also render menus to the canvas",
       "ImageURL": "{Path}/drawmenu.gif",
       "DemoURL": "/visio2023drawing/playground",
       "Filename": "menuPlayground.txt"

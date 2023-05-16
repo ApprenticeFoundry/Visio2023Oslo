@@ -13,25 +13,21 @@
     {
       "Tip": "Use a generic class to capture your shape relationships",
       "ImageURL": "{Path}/layoutV.png",
-      "Title": "FoLayoutTree<V> - Horizontal Tree",
       "Filename": "LayoutRules.txt",
       "DemoURL": "/visio2023drawing/Composition"
     },
     {
       "Tip": "Compute the size of the each tree branch first",
-      "Title": "Compute Size",
       "Filename": "BranchSize.txt",
       "DemoURL": "/visio2023drawing/Composition"
     },
     {
       "Tip": "Next compute the location of each branch",
-      "Title": "Compute Location",
       "Filename": "BranchLocation.txt",
       "DemoURL": "/visio2023drawing/Composition"
     },
     {
       "Tip": "Finally connect with 1D shapes",
-      "Title": "Compute Connections",
       "Filename": "Connect.txt",
       "DemoURL": "/visio2023drawing/Composition"
     }

@@ -9,9 +9,9 @@
 <h3 style="padding-top:20px;padding-left:20px">Tip: @Manifest?.Tip</h3>
 @if (HasSummary())
 {
-    <h3 style="padding-top: 10px;padding-left: 50px;">What: @Summary!.What</h3>
-    <h3 style="padding-top: 10px;padding-left: 50px;">Why: @Summary!.Why</h3>
-    <h3 style="padding-top: 10px;padding-left: 50px;">How: @Summary!.How</h3>
+    <h3 class="questions">What: @Summary!.What</h3>
+    <h3 class="questions">Why: @Summary!.Why</h3>
+    <h3 class="questions">How: @Summary!.How</h3>
 }
 
 @if (HasImage())
@@ -35,6 +35,7 @@
 }
 
 <a class="btn btn-dark m-1" href="/samples" >Code Samples...</a>
+<br/>
 
 @if (HasMeme())
 {

@@ -17,3 +17,10 @@
     margin-right: 150px;
     margin-left: 180px;
  }
+
+ .questions {
+   padding-top: 10px;
+   padding-left: 50px;
+   max-width: 1200p;
+   font-size: 20px;
+ }
