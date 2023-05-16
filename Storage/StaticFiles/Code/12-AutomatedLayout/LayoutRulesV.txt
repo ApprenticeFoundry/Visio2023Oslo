@@ -2,6 +2,14 @@
 // FoLayoutTree.cs
 
 
+    public class FoLayoutTree<V> where V : FoGlyph2D
+    {
+        private V _item;
+        private FoLayoutTree<V>? _parent;
+        private List<FoLayoutTree<V>>? _children;
+    }
+ 
+
     private void DoCreateVerticalTree(TreeModel model)
     {
         DoClear();

@@ -3,7 +3,7 @@
   "Status": "MustSee",
   "Badge": "Custom Shapes",
   "Tip": "Create a class that 'wraps' a shape and orchestrates that arrangement of layout of horizontal and vertical trees ",
-  "ImageURL": "{Path}/layoutH.png",
+  "ImageURL": "{Path}/layoutpop.gif",
   "Summary": {
     "What": "Lots of drawings are based on trees or shapes, layout is a very common problem",
     "Why": "Your users should spend their time thinking about the relationships between the component shapes ",
@@ -12,8 +12,14 @@
   "Samples": [
     {
       "Tip": "Use a generic class to capture your shape relationships",
+      "ImageURL": "{Path}/layoutH.png",
+      "Filename": "LayoutRulesH.txt",
+      "DemoURL": "/visio2023drawing/Composition"
+    },
+    {
+      "Tip": "Use a generic class to capture your shape relationships",
       "ImageURL": "{Path}/layoutV.png",
-      "Filename": "LayoutRules.txt",
+      "Filename": "LayoutRulesV.txt",
       "DemoURL": "/visio2023drawing/Composition"
     },
     {
