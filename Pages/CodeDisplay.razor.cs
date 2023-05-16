@@ -49,6 +49,8 @@ public class CodeDisplayBase : ComponentBase, IDisposable
         // $"DemoURL =[{Sample!.DemoURL}]".WriteInfo();
         return !string.IsNullOrEmpty(Code);
     }
+
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();

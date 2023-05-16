@@ -1,6 +1,6 @@
 {
   "Title": "A - Glueing 2D Shapes to 2D Shapes",
-  "Status": "Done",
+  "Status": "MustSee",
   "Badge": "Model Relationships",
   "ImageURL": "{Path}/glue2da.gif",
   "Tip": "2D Glue requires the shape to reference another. But this can be dynamically using a function that contains a reference to the target.",
@@ -11,12 +11,9 @@
   },
   "Samples": [
     {
-      "Tip": "2D Glue is a direct rewrite of the ContextLink function. ",
-      "Title": "2D Glue on a shape",
       "Filename": "Glue2D.txt"
     },
     {
-      "Tip": "2D Glue can also adjust the any attribute of the source shape.",
       "ImageURL": "{Path}/glue2db.gif",
       "Filename": "Glue2DTwist.txt"
     }

@@ -62,6 +62,12 @@ public class CodePageBase : ComponentBase
         //$"ImageURL =[{Sample!.ImageURL}]".WriteInfo();
         return !string.IsNullOrEmpty(Manifest?.MemeURL);
     }
+
+    public static string ModifyTitle(CodeManifest manifest)
+    {
+        var title =  manifest.Title.Split(" - ").Last();
+        return title;
+    }
 }
 
 
