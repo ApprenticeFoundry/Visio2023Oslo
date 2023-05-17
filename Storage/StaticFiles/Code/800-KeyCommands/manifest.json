@@ -4,7 +4,7 @@
   "Tip": "Capturing key events using ComponentBus.",
 
   "ImageURL": "{Path}/keys.gif",
-  "Badge": "Programable",
+  "Badge": "Programmable",
   "Samples": [
     {
       "Tip": "This is my favorite code in the entire project, so simple easy to read",

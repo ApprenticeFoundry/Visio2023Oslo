@@ -1,7 +1,7 @@
 {
   "Status": "Done",
   "Title": "930 - Events and Reactive Programming",
-  "Badge": "Programable",
+  "Badge": "Programmable",
   "ImageURL": "{Path}/encoding.png",
   "Tip": "Process all events as messages with topics, it will simplify your code when you implement collaboration between users.",
   "Summary": {

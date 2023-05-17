@@ -2,7 +2,7 @@
   "Status": "Done",
   "Title": "920 - Pub/Sub and Reactive Programming",
   "ImageURL": "{Path}/pubsub.png",
-  "Badge": "Programable",
+  "Badge": "Programmable",
   "Description": "How to use Pub/Sub and Reactive Programming in Blazor",
   "Tip": "Add a topic to every message object",
   "Summary": {
