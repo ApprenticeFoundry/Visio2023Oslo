@@ -1,6 +1,6 @@
 {
-  "Status": "Done",
-  "Title": "A - Draw Geometry",
+  "Status": "MustSee",
+  "Title": "700 - Draw Geometry",
   "ImageURL": "{Path}/redraw.gif",
   "Badge" : "Custom Shapes",
   "Tip": "Use Functions to draw the geometry, it gives you tremendous flexibility.",

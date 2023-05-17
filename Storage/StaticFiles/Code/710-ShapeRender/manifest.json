@@ -1,6 +1,6 @@
 {
   "Status": "Show",
-  "Title": "A - Shape Rendering",
+  "Title": "710 - Shape Rendering",
   "ImageURL": "{Path}/shaperender.gif",
   "Category": "Domain Fundamentals",
   "Tip": "Design the rendering process with a combination of method calls and optional function calls.",

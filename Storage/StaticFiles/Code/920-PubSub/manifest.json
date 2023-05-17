@@ -1,6 +1,6 @@
 {
-  "Status": "Show",
-  "Title": "A - Pub/Sub and Reactive Programming",
+  "Status": "Done",
+  "Title": "920 - Pub/Sub and Reactive Programming",
   "ImageURL": "{Path}/pubsub.png",
   "Badge": "Programable",
   "Description": "How to use Pub/Sub and Reactive Programming in Blazor",
