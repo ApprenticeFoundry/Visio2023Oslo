@@ -1,10 +1,10 @@
 {
-  "Title": "700 - Glueing 1D Shapes to 2D Shapes",
+  "Title": "600 - Glueing 1D Shapes to 2D Shapes",
   "Status": "MustSee",
   "ImageURL": "{Path}/glue.gif",
   "Badge": "Model Relationships",
   "Description": "1D and 2D 'Glue' will adjust other shapes as a result of moving the selected shape",
-  "Tip": "1D Glue requires the shape to reference another. Do this through an intermediary object the links the source and target.",
+  "Tip": "1D Glue requires an intermediary object the links the source and target.",
   "Summary": {
     "What": "When the target shape is moved, other shapes that own the 'glue' to it must be notified and modified.",
     "Why": "1D shapes must adjust there position and orientation to stay connected in the diagram.",

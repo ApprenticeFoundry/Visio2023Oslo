@@ -1,9 +1,9 @@
 {
-  "Title": "800 - Glueing 2D Shapes to 2D Shapes",
+  "Title": "610 - Glueing 2D Shapes to 2D Shapes",
   "Status": "MustSee",
   "Badge": "Model Relationships",
   "ImageURL": "{Path}/glue2da.gif",
-  "Tip": "2D Glue requires the shape to reference another. But this can be dynamically using a function that contains a reference to the target.",
+  "Tip": "2D Glue requires dynamically using a function that contains a reference to the target.",
   "Summary": {
     "What": "When the target shape is moved, the source shape must adjust to stay connected.",
     "Why": "1D shapes must adjust their size and orientation to stay connected in the diagram.",

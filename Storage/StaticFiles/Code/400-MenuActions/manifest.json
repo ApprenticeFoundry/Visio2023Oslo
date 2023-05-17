@@ -1,6 +1,6 @@
 {
-  "Status": "MustSee",
-  "Title": "400 - Menus and User Commands",
+  "Status": "Show",
+  "Title": "700 - Menus and User Commands",
   "ImageURL": "{Path}/menu2.gif",
   "MemeURL": "{Path}/VisioTools.png",
   "Tip": "Use the shape model as a shared resource to create menus and other UI elements.",
