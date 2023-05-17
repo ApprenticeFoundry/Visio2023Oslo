@@ -61,6 +61,26 @@ public class Gamer : FoWorkbook, IDisposable
 
     }
 
+    public void DoLoad3dModelFolder(string folder)
+    {
+        var arena = Workspace.GetArena();
+        if (arena == null) return;
+
+        var baseURL = $"{Workspace.GetBaseUrl()}storage/StaticFiles";
+
+        string path = Directory.GetCurrentDirectory();
+        var source  = Path.Combine(path, "storage", "StaticFiles",folder);
+        source.WriteSuccess();
+
+        var files = Directory.GetFiles(source);
+        foreach (string fileName in files)
+        {
+            var name = Path.GetFileName(fileName);
+            $"Loading {name}".WriteNote();
+            arena.Load3DModelFromFile(folder, name, baseURL);
+        }
+    }
+
     private void DoAddCube()
     {
         var id = Guid.NewGuid().ToString();
