@@ -11,21 +11,15 @@
   },
   "Samples": [
     {
-      "Tip": "Have two separate render chains, one for the page and one for the zoom window",
-      "Title": "Create the canvas context and call the render chain",
       "Filename": "DrawingRender.txt"
     },
     {
-      "Tip": "The page manager is responsible for updating the page and the zoom window",
       "ImageURL": "{Path}/drawwhatyousee.png",
-      "Title": "The page manager also updates the hit test service",
       "Filename": "ShouldRender.txt"
     },
     {
-      "Tip": "Finally Order matters when rendering",
       "ImageURL": "{Path}/ordermatters.png",
-      "Filename": "RenderPageDetails.txt",
-      "Description": "Draw the background, then the grid, then the shapes (1D=>2D) then the tool artifacts"
+      "Filename": "RenderPageDetails.txt"
     }
   ]
 }

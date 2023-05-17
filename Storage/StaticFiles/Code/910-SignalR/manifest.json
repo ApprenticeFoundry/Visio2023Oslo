@@ -11,24 +11,16 @@
   },
   "Samples": [
     {
-      "Tip": "Build a family of messages to communicate with SignalR hub",
-      "Title": "D2D_Move message class",
       "Filename": "Messages.txt"
     },
     {
-      "Tip": "Foundry services should call Command service => SignalR hub.",
-      "Title": "Publish to SignalR / Subscribe to BlazorComponentBus",
       "Filename": "BusToSignalR.txt"
     },
     {
-      "Tip": " SignalR client => Command service call Foundry service.",
-      "Title": "Subscribe to SignalR / Publish to BlazorComponentBus",
       "Filename": "SignalRtoBus.txt"
     },
     {
-      "Tip": " SignalR client => Command service call Foundry service.",
       "ImageURL": "{Path}/marble.png",
-      "Title": "SignalR DrawingSyncHub is part of the FoundryBlazor library",
       "Filename": "Hub.txt"
     }
   ]

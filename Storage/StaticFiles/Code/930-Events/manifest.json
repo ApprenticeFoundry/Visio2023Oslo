@@ -11,18 +11,12 @@
   },
   "Samples": [
     {
-      "Tip": "Encode all events as messages with topics, as soon as possible",
-      "Title": "This simplifies working with mouse and keyboard events",
       "Filename": "CanvasEncoders.txt"
     },
     {
-      "Tip": "This simplifies working with mouse and keyboard events",
-      "Title": "Same data structure for all events, But a different topic",
       "Filename": "CaptureMouse.txt"
     },
     {
-      "Tip": "Process the streaming events to complete Foundry service action",
-      "Title": "Resizing: Another Tool Example",
       "ImageURL": "{Path}/imageresize.gif",
       "Filename": "Resizing.txt"
     }

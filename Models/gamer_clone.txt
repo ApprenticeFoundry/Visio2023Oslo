@@ -1,0 +1,48 @@
+// Import required libraries
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
+// Create a scene
+const scene = new THREE.Scene();
+
+// Create a camera
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+// Create a renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Create an array to hold the instances
+const instances = [];
+
+// Load the GLB model
+const loader = new GLTFLoader();
+loader.load('path/to/model.glb', (gltf) => {
+  const model = gltf.scene.children[0].clone(); // Assuming the model has only one mesh
+
+  // Create three instances of the mesh
+  for (let i = 0; i < 3; i++) {
+    const instance = model.clone();
+    instance.position.set(i * 2, 0, 0); // Set position for each instance
+    scene.add(instance);
+    instances.push(instance);
+  }
+});
+
+// Create an animation loop
+const animate = function () {
+  requestAnimationFrame(animate);
+
+  // Rotate the instances
+  instances.forEach((instance) => {
+    instance.rotation.x += 0.01;
+    instance.rotation.y += 0.01;
+  });
+
+  renderer.render(scene, camera);
+};
+
+// Start the animation loop
+animate();

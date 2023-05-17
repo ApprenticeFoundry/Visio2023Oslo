@@ -11,7 +11,6 @@
   },
   "Samples": [
       {
-      "Tip": "Change the draw function dynamically to render different shapes",
       "Filename": "multidraw.txt"
     },
     {
@@ -24,13 +23,11 @@
     },
 
     {
-      "Tip": "Setting ShapeDraw Function after you create the shape",
       "ImageURL": "{Path}/ring.png",
       "Filename": "ring.txt"
     },
 
     {
-      "Tip": "Setting HoverDraw Function dynamically",
       "ImageURL": "{Path}/shaperender.gif",
       "Filename": "lasthover.txt"
     }

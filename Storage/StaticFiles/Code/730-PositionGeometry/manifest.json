@@ -12,19 +12,13 @@
   },
   "Samples": [
     {
-      "Tip": "Make the matrix calculation parametric ",
-      "Title": "Compute the matrix based on the shape's properties",
       "Filename": "GetMatrix.txt",
       "MemeURL": "{Path}/shapesheet.png"
     },
     {
-      "Tip": "Map the matrix into the context",
-      "Title": "Canvas2DContext TransformAsync  controls the result of all the draw commands",
       "Filename": "UpdateContext.txt"
     },
     {
-      "Tip": "Prevent garbage collection by reusing the matrix instance when 'smashed'",
-      "Title": "Static methods for NewMatrix and SmashMatrix",
       "Filename": "SmashRestore.txt"
     }
   ]
