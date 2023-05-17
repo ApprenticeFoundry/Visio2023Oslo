@@ -7,7 +7,8 @@ public class CodeSample
 {
     public string Tip { get; set; } = "";
     public string Title { get; set; } = "";
-    public string Description { get; set; } = "";
+    public string GUID { get; set; } = Guid.NewGuid().ToString();
+
     public string Filename { get; set; } = "";
     public string Language { get; set; } = "C#";
     public string ImageURL { get; set; } = "";

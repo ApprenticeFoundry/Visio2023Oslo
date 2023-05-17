@@ -17,7 +17,7 @@ public class CodeDisplayBase : ComponentBase, IDisposable
 
     [Parameter] public string? Folder { get; set; }
     [Parameter] public string? Filename { get; set; }
-    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? GUID { get; set; }
 
     public StandaloneCodeEditor _editor = null!;
 
@@ -80,10 +80,10 @@ public class CodeDisplayBase : ComponentBase, IDisposable
                 $"Code Sample File {path} not found".WriteError();
             }
         }
-        else if (!string.IsNullOrEmpty(Folder) && !string.IsNullOrEmpty(Title))
+        else if (!string.IsNullOrEmpty(Folder) && !string.IsNullOrEmpty(GUID))
         {
             var manifest = data.Manifests.FirstOrDefault(x => x.Folder.Matches(Folder));
-            Sample = manifest!.Samples.FirstOrDefault(x => x.Title.Matches(Title));
+            Sample = manifest!.Samples.FirstOrDefault(x => x.GUID.Matches(GUID));
             Code = "";
         }
     }
