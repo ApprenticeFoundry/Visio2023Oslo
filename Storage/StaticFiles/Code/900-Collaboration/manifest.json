@@ -1,19 +1,22 @@
 {
   "Title": "900 - Collaboration with Other FoundryBlazor Clients",
-  "Tip": "Create a milestone that tests your success. This is mine!",
+  "Tip": "Create a simple visual test that is your collaboration goal. This is mine!",
   "ImageURL": "{Path}/collaberation.gif",
+  "DemoURL": "/visio2023drawing/Signalr",
   "Status": "MustSee",
   "Category": "Collaboration",
   "Summary": {
-    "What": "The best collaboration demo is two different users pulling on two blocks and the arrow stretches.",
-    "Why": "1D shapes must adjust their size and orientation to stay connected in the diagram.",
-    "How": "The function is executed as part of the source shapes render cycle."
+    "What": "The best collaboration demo is two different users pulling on two blocks and the connecting arrow stretches.",
+    "Why": "Easy to execute validation of achieving challenging goals.",
+    "How": "The function is executed as part of the arrow's render cycle."
   },
   "Samples": [
         {
-       "ImageURL": "{Path}/marble.png"
-    },
+          "DemoURL": "/visio2023drawing/Signalr",
+          "ImageURL": "{Path}/marble.png"
+        },
     {
+
       "ImageURL": "{Path}/colabflow.png",
       "DemoURL": "/visio2023drawing/Signalr"
     },
@@ -22,7 +25,7 @@
       "DemoURL": "/visio2023drawing/Signalr"
     },
     {
-       "ImageURL": "{Path}/moveshape.gif",
+      "ImageURL": "{Path}/moveshape.gif",
       "DemoURL": "/visio2023drawing/Signalr"
     }
   ]

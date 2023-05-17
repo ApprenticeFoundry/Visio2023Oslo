@@ -1,13 +1,17 @@
 {
   "Status": "MustSee",
-  "Title": "800 - KeyPress Events",
-  "Tip": "Capturing key events using ComponentBus.",
-
+  "Title": "800 - Keypress Events",
+  "DemoURL": "/visio2023drawing/playground",
+  "Tip": "Use Blazor's ComponentBus to capture and broadcast keypress events.",
+  "Summary": {
+    "What": "ComponentBus is great way to decouple components.",
+    "Why": "ComponentBus allows components to communicate without knowing about each other.",
+    "How": "Pattern matching is used to map events to services that edit the drawing."
+  },
   "ImageURL": "{Path}/keys.gif",
   "Badge": "Programmable",
   "Samples": [
     {
-      "Tip": "This is my favorite code in the entire project, so simple easy to read",
       "Filename": "KeyDown.txt"
     }
   ]
