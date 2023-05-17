@@ -26,8 +26,8 @@ public class SamplesBase : ComponentBase
     }
     public static string ModifyTitle(CodeManifest sample)
     {
-        //var title =  sample.Title.Split(" - ").Last();
-        var title =  sample.Title;
+        var title =  sample.Title.Split(" - ").Last();
+        //var title =  sample.Title;
         return title;
     }
     public bool HasCategory(CodeManifest sample)
