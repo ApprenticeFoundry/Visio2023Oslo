@@ -151,8 +151,8 @@ public class SignalRDemo : FoWorkbook
 
         var wire2 = new SteveArrow();
 
-        wire2.GlueStartTo(s1, "RIGHT");
-        wire2.GlueFinishTo(s2, "LEFT");
+        wire2.GlueStartTo(s1);
+        wire2.GlueFinishTo(s2);
         drawing.AddShape(wire2);
 
         Command.SendShapeCreate(s2);
