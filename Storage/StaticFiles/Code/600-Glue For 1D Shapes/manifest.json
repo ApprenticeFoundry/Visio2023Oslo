@@ -27,6 +27,7 @@
     },
     {
       "Tip": "Cache invalidation  (Smashing), the concept that make it all work",
+      "ImageURL": "{Path}/justglue.png",
       "Filename": "Smash.txt"
     }
   ]
