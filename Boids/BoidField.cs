@@ -297,7 +297,7 @@ public class BoidField : IBoidField
             LocalBoids.ForEach(boid => SendModelCreated<Boid>(boid));
             IsRunning = true;
 
-            FieldShape = new FoFieldShape2D("Boids", (int)Width, (int)Height, "Pink")
+            FieldShape = new FoFieldShape2D("Boids", (int)Width, (int)Height, "Purple")
             {
                 DrawSimulation = async (ctx) =>
                 {
@@ -307,14 +307,15 @@ public class BoidField : IBoidField
                         await DrawABoid(ctx, boid, 20);
                 }
             };
-
+            IsRunning = true;
             Drawing.AddShape<FoFieldShape2D>(FieldShape);
         }
         else
         {
-
+            Drawing.ClearAll();
             FieldShape = null;
-            ToggleBoids();
+            IsRunning = true;
+            CreateShapesForBoids(LocalBoids);
         }
     }
 
@@ -325,6 +326,7 @@ public class BoidField : IBoidField
         var a = boid.AngleXY * Matrix2D.DEG_TO_RAD;
 
         await ctx.SaveAsync();
+        await ctx.SetFillStyleAsync(boid.Color);
         await ctx.TranslateAsync(x, y);
         await ctx.RotateAsync((float)a);
         await ctx.BeginPathAsync();

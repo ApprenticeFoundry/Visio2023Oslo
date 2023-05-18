@@ -14,14 +14,17 @@
     {
       "Tip": "First let's recognize that .Net is a giving Community.",
       "Title": "Thank You Roman Simuta!",
-      "ImageURL": "{Path}/letter.png"
+      "ImageURL": "{Path}/letter.png",
+      "DemoURL": "/visio2023arena"
     },
     {
       "ImageURL": "{Path}/Car1.png",
-      "Filename": "preRender.txt"
+      "Filename": "preRender.txt",
+      "DemoURL": "/visio2023arena"
     },
     {
-      "Filename": "Primitives.txt"
+      "Filename": "Primitives.txt",
+      "DemoURL": "/visio2023arena"
     }
   ]
 }

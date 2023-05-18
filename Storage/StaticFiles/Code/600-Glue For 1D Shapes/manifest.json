@@ -2,6 +2,8 @@
   "Title": "600 - Gluing 1D Shapes to 2D Shapes",
   "Status": "MustSee",
   "ImageURL": "{Path}/glue.gif",
+        "Filename": "Shape1D.txt",
+      "DemobURL": "/visio2023drawing/playground",
   "Badge": "Model Relationships",
   "Tip": "1D glue requires a 'Glue' object the links the source to the target.",
   "Summary": {
@@ -11,14 +13,17 @@
   },
   "Samples": [
     {
-      "Filename": "ArrowGlue.txt"
+      "Filename": "ArrowGlue.txt",
+      "DemoURL": "/visio2023drawing/stencil"
     },
     {
       "ImageURL": "{Path}/glue1dmove.gif",
-      "Filename": "Shape1D.txt"
+      "Filename": "Shape1D.txt",
+      "DemoURL": "/visio2023drawing/playground"
     },
     {
-      "Filename": "GlueClass.txt"
+      "Filename": "GlueClass.txt",
+      "DemoURL": "/visio2023drawing/playground"
     },
     {
       "Tip": "Cache invalidation  (Smashing), the concept that make it all work",

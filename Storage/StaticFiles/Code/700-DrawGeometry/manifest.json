@@ -11,14 +11,17 @@
   },
   "Samples": [
       {
+              "DemoURL": "/visio2023drawing/playground",
       "Filename": "multidraw.txt"
     },
     {
       "Tip": "Simple functions to draw geometry",
+      "DemoURL": "/visio2023drawing/playground",
       "Filename": "SimpleDrawingMethods.txt"
     },
     {
       "Tip": "Advanced functions to draw geometry",
+      "DemoURL": "/visio2023drawing/playground",
       "Filename": "AdvancedDrawingMethods.txt"
     },
 

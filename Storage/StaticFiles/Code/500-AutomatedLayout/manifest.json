@@ -2,6 +2,7 @@
   "Title": "500 - Automated Layout of Trees",
   "Status": "MustSee",
   "Badge": "Custom Shapes",
+        "DemoURL": "/visio2023drawing/Composition",
   "Tip": "Create a class that 'wraps' a shape and orchestrates that arrangement of layout of horizontal and vertical trees ",
   "MemeURL": "{Path}/layoutpop.gif",
   "Summary": {

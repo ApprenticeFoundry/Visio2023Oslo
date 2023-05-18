@@ -2,6 +2,7 @@
   "Status": "MustSee",
   "Title": "400 - Menus and User Commands",
   "ImageURL": "{Path}/menu2.gif",
+      "DemoURL": "/visio2023drawing/playground",
   "MemeURL": "{Path}/VisioTools.png",
   "Tip": "Use the shape model as a shared resource to create menus and other UI elements.",
   "Category": "Domain Fundamentals",
@@ -13,10 +14,12 @@
   "Samples": [
 
     {
-      "Filename": "simpleAPI.txt"
+      "Filename": "simpleAPI.txt",
+      "DemoURL": "/visio2023drawing/playground"
     },
     {
       "ImageURL": "{Path}/linemenu.png",
+      "DemoURL": "/visio2023drawing/playground",
       "Filename": "razormenu.txt"
     },
     {
