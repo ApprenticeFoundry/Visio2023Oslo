@@ -41,11 +41,23 @@ public class Gamer : FoWorkbook, IDisposable
             { "Mustang 1965", () => DoLoad3dModel("mustang_1965.glb")},
             { "Power Tower", () => DoLoad3dModel("power_tower.glb")},
             { "T Rex", () => DoLoad3dModel("T_Rex.glb")},
+            { "Stress", () => DoLoad3dStress("jet.glb",1500)},
             { "Add Cube", () => DoAddCube()},
             { "Test World", () => DoTestWorld()}
         }, true);
 
 
+    }
+
+    public void DoLoad3dStress(string filename, int count)
+    {
+        var arena = Workspace.GetArena();
+        if (arena == null) return;
+
+        // var baseURL = Path.Join(Workspace.GetBaseUrl(), "storage", "StaticFiles");
+        var baseURL = $"{Workspace.GetBaseUrl()}storage/StaticFiles";
+        baseURL.WriteSuccess();
+        arena.StressTest3DModelFromFile("3DModels", filename, baseURL, count);
     }
 
     public void DoLoad3dModel(string filename)
