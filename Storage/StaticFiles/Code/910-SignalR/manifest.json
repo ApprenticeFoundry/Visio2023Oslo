@@ -2,6 +2,7 @@
   "Title": "900 - SignalR and Reactive Programming",
   "Tip": "Build a command service to broker the SignalR messages.",
   "ImageURL": "{Path}/colabflow.png",
+  "DemoURL": "/visio2023drawing/Signalr",
   "Status": "MustSee",
   "Badge": "Programmable",
   "Summary": {

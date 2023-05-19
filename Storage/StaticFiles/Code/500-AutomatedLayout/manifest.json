@@ -2,23 +2,21 @@
   "Title": "500 - Automated Layout of Trees",
   "Status": "MustSee",
   "Badge": "Custom Shapes",
-        "DemoURL": "/visio2023drawing/Composition",
-  "Tip": "Create a class that 'wraps' a shape and orchestrates that arrangement of layout of horizontal and vertical trees ",
+  "DemoURL": "/visio2023drawing/Composition",
+  "Tip": "Create a class that 'wraps' a shape to orchestrate the arrangement of horizontal and vertical trees.",
   "MemeURL": "{Path}/layoutpop.gif",
   "Summary": {
-    "What": "Lots of drawings are based on trees or shapes, layout is a very common problem",
-    "Why": "Your users should spend their time thinking about the relationships between the component shapes ",
-    "How": "Use the class FoLayoutTree<V>, to build a tree from your target shapes"
+    "What": "Trees are hierarchical arrangements of shapes and very common in diagrams.",
+    "Why": "Automated layout is helpful, because tree modifications can impact the entire drawing.",
+    "How": "Class FoLayoutTree<Shape2D> uses parent/child relationships to compute the size and location of each branch."
   },
   "Samples": [
     {
-      "Tip": "Horizontal trees are easy to layout",
       "ImageURL": "{Path}/layoutH.png",
       "Filename": "LayoutRulesH.txt",
       "DemoURL": "/visio2023drawing/Composition"
     },
     {
-      "Tip": "Vertical trees are easy to layout",
       "ImageURL": "{Path}/layoutV.png",
       "Filename": "LayoutRulesV.txt",
       "DemoURL": "/visio2023drawing/Composition"

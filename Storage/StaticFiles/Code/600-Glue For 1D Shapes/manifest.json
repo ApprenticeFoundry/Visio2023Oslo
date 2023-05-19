@@ -2,14 +2,14 @@
   "Title": "600 - Gluing 1D Shapes to 2D Shapes",
   "Status": "MustSee",
   "ImageURL": "{Path}/glue.gif",
-        "Filename": "Shape1D.txt",
-      "DemobURL": "/visio2023drawing/playground",
+  "Filename": "Shape1D.txt",
+  "DemoURL": "/visio2023drawing/playground",
   "Badge": "Model Relationships",
-  "Tip": "1D glue requires a 'Glue' object the links the source to the target.",
+  "Tip": "1D glue requires a non-rendered 'Glue' object that links the 1D source to the 2D target.",
   "Summary": {
-    "What": "When the target shape is moved, other shapes that own the 'glue' to it must be notified and modified.",
-    "Why": "1D shapes must adjust there position and orientation to stay connected in the diagram.",
-    "How": "Let the 1D shape own the glue, then notify the glue every time the target shapes is moved so it can adjust the 1D shape."
+    "What": "When the target shape is moved, all 1D shapes that are glued to it must are notified and modified.",
+    "Why": "1D shapes must adjust their position and orientation to stay connected in the diagram.",
+    "How": "Let the 1D shape own the glue, then notify the glue every time the target shape is moved so the 1D shape can adjust itself."
   },
   "Samples": [
     {
@@ -20,15 +20,6 @@
       "ImageURL": "{Path}/glue1dmove.gif",
       "Filename": "Shape1D.txt",
       "DemoURL": "/visio2023drawing/playground"
-    },
-    {
-      "Filename": "GlueClass.txt",
-      "DemoURL": "/visio2023drawing/playground"
-    },
-    {
-      "Tip": "Cache invalidation  (Smashing), the concept that make it all work",
-      "ImageURL": "{Path}/justglue.png",
-      "Filename": "Smash.txt"
     }
   ]
 }
