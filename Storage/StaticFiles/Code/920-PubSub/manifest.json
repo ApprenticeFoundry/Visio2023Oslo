@@ -1,0 +1,24 @@
+{
+  "Status": "Done",
+  "Title": "920 - Pub/Sub and Reactive Programming",
+  "ImageURL": "{Path}/pubsub.png",
+  "Badge": "Programmable",
+  "Tip": "Add a topic to every message object",
+  "Summary": {
+    "What": "Treat every event as a message with a topic, avoid doing a direct function call to another component.",
+    "Why": "Pub/Sub promotes loose coupling. The Message object simplifies recording/playback scenarios and testing.",
+    "How": "Use a Topic / Message structure to share event data, then leverage the BlazorComponentBus service"
+  },
+  "Samples": [
+    {
+      "ImageURL": "{Path}/github.png",
+      "Filename": "BusService.txt",
+      "DemoURL": "https://github.com/cpear/BlazorComponentBus"
+    },
+
+    {
+      "ImageURL": "{Path}/encoding.png",
+      "Filename": "AttachFile.txt"
+    }
+  ]
+}

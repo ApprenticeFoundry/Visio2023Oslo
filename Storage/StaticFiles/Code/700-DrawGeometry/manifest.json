@@ -1,0 +1,38 @@
+{
+  "Status": "MustSee",
+  "Title": "700 - Draw Geometry",
+  "ImageURL": "{Path}/redraw.gif",
+  "Badge" : "Custom Shapes",
+  "Tip": "Use Functions to draw the geometry, it gives you tremendous flexibility.",
+  "Summary": {
+    "What": "Use methods to ensure a repeatable render process. Draw the geometry using a function.",
+    "Why": "Different Shape configurations have different rendering requirements.",
+    "How": "Integrate NO-OP function pointers into the render methods, then set there values dynamically as needed."
+  },
+  "Samples": [
+      {
+              "DemoURL": "/visio2023drawing/playground",
+      "Filename": "multidraw.txt"
+    },
+    {
+      "Tip": "Simple functions to draw geometry",
+      "DemoURL": "/visio2023drawing/playground",
+      "Filename": "SimpleDrawingMethods.txt"
+    },
+    {
+      "Tip": "Advanced functions to draw geometry",
+      "DemoURL": "/visio2023drawing/playground",
+      "Filename": "AdvancedDrawingMethods.txt"
+    },
+
+    {
+      "ImageURL": "{Path}/ring.png",
+      "Filename": "ring.txt"
+    },
+
+    {
+      "ImageURL": "{Path}/shaperender.gif",
+      "Filename": "lasthover.txt"
+    }
+  ]
+}

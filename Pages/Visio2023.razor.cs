@@ -74,6 +74,15 @@ public partial class Visio2023Page : ComponentBase, IDisposable
                 Workspace.EstablishWorkbook<Process>();
             else if ("Signalr".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<SignalRDemo>();
+
+            if ( LoadWorkbook! == null)
+            {
+                Workspace.EstablishWorkbook<Playground>();
+                Workspace.EstablishWorkbook<Stencil>();
+                Workspace.EstablishWorkbook<Composition>();
+                Workspace.EstablishWorkbook<MoSimulation>();
+                Workspace.EstablishWorkbook<Process>();
+            }
                 
             Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
          }

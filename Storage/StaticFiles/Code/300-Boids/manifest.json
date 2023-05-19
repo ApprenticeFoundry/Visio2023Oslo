@@ -1,0 +1,41 @@
+{
+  "Title": "300 - Boids Simulation",
+  "Category": "Model / shape separation",
+  "badge": "Animation",
+  "ImageURL": "{Path}/birds.gif",
+  "DemoURL": "/visio2023drawing/boid",
+  "Status": "MustSee",
+  "Tip": "Use the Boids simulation as a stress test.",
+  "Summary": {
+    "What": "Boids is a simulation of flocking birds that shows the impact of large numbers of shapes on performance.",
+    "Why": "Model / shape separation is important for future integrations but can degrade performance, so ongoing performance testing is important.",
+    "How": "All boids must recalculate their position and velocity every frame, which is very demanding. "
+  },
+  "Samples": [
+    {
+      "ImageURL": "{Path}/newapproch.png",
+      "DemoURL": "https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html",
+      "Filename": "Boid.txt"
+    },
+    {
+      "Tip": "The Boids can be drawn inside a single shape",
+      "ImageURL": "{Path}/groupboids.gif",
+      "Filename": "OneShape.txt"
+    },
+    {
+      "Tip": "The Boids can be many shapes on a page",
+      "ImageURL": "{Path}/ungroupboids.gif",
+      "Filename": "Couple2D.txt"
+    },
+    {
+      "Tip": "The Boids can be many types of shapes",
+      "ImageURL": "{Path}/boid3d.gif",
+      "Filename": "Couple3D.txt"
+    },
+    {
+      "Tip": "With SignalR, the Boids can be distributed",
+      "ImageURL": "{Path}/distributed.png",
+      "Filename": "SignalR.txt"
+    }
+  ]
+}

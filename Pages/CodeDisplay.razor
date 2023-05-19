@@ -20,12 +20,12 @@
     <StandaloneCodeEditor @ref="_editor" ConstructionOptions="EditorConstructionOptions" OnDidInit="@EditorOnDidInit" />
 }
 
-<h4 style="padding-top:10px;"><center>@Sample?.Title</center></h4>
-<h4 style="padding-top: 10px;"><center>@Sample?.Description</center></h4>
+@* <h4 style="padding-top:10px;"><center>@Sample?.Title</center></h4> *@
 
 @if (HasDemo())
 {
-    <a href="@Sample!.DemoURL" style="padding-left:80px;padding-top:40px">@Sample?.DemoURL</a>
+    <a class="btn badge bg-success ms-1 me-1" href="@Sample.DemoURL" >DEMO</a>
+    @* <a href="@Sample!.DemoURL" style="padding-left:80px;padding-top:40px">@Sample?.DemoURL</a> *@
 }
 
 

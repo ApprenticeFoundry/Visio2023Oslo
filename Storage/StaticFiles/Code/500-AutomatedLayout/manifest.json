@@ -1,0 +1,42 @@
+{
+  "Title": "500 - Automated Layout of Trees",
+  "Status": "MustSee",
+  "Badge": "Custom Shapes",
+        "DemoURL": "/visio2023drawing/Composition",
+  "Tip": "Create a class that 'wraps' a shape and orchestrates that arrangement of layout of horizontal and vertical trees ",
+  "MemeURL": "{Path}/layoutpop.gif",
+  "Summary": {
+    "What": "Lots of drawings are based on trees or shapes, layout is a very common problem",
+    "Why": "Your users should spend their time thinking about the relationships between the component shapes ",
+    "How": "Use the class FoLayoutTree<V>, to build a tree from your target shapes"
+  },
+  "Samples": [
+    {
+      "Tip": "Horizontal trees are easy to layout",
+      "ImageURL": "{Path}/layoutH.png",
+      "Filename": "LayoutRulesH.txt",
+      "DemoURL": "/visio2023drawing/Composition"
+    },
+    {
+      "Tip": "Vertical trees are easy to layout",
+      "ImageURL": "{Path}/layoutV.png",
+      "Filename": "LayoutRulesV.txt",
+      "DemoURL": "/visio2023drawing/Composition"
+    },
+    {
+      "Tip": "First compute the size of the each tree branch",
+      "Filename": "BranchSize.txt",
+      "DemoURL": "/visio2023drawing/Composition"
+    },
+    {
+      "Tip": "Next compute the location of each branch",
+      "Filename": "BranchLocation.txt",
+      "DemoURL": "/visio2023drawing/Composition"
+    },
+    {
+      "Tip": "Finally connect with 1D shapes",
+      "Filename": "Connect.txt",
+      "DemoURL": "/visio2023drawing/Composition"
+    }
+  ]
+}

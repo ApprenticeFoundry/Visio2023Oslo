@@ -1,0 +1,32 @@
+{
+  "Title": "900 - Collaboration with Other FoundryBlazor Clients",
+  "Tip": "Create a simple visual test that is your collaboration goal. This is mine!",
+  "ImageURL": "{Path}/collaberation.gif",
+  "DemoURL": "/visio2023drawing/Signalr",
+  "Status": "MustSee",
+  "Category": "Collaboration",
+  "Summary": {
+    "What": "The best collaboration demo is two different users pulling on two blocks and the connecting arrow stretches.",
+    "Why": "Easy to execute validation of achieving challenging goals.",
+    "How": "The function is executed as part of the arrow's render cycle."
+  },
+  "Samples": [
+        {
+          "DemoURL": "/visio2023drawing/Signalr",
+          "ImageURL": "{Path}/marble.png"
+        },
+    {
+
+      "ImageURL": "{Path}/colabflow.png",
+      "DemoURL": "/visio2023drawing/Signalr"
+    },
+    {
+      "ImageURL": "{Path}/movecursor.gif",
+      "DemoURL": "/visio2023drawing/Signalr"
+    },
+    {
+      "ImageURL": "{Path}/moveshape.gif",
+      "DemoURL": "/visio2023drawing/Signalr"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "Title": "410 - Workspace and Custom Workbooks",
+  "ImageURL": "{Path}/workbook.png",
+  "Badge": "Extensible",
+  "Status": "Done",
+  "Tip": "Introduce custom extensions with a Workspace and Workbook.",
+  "Summary": {
+  },
+  "Samples": [
+    {
+      "Filename": "integration.txt"
+    },
+    {
+      "Filename": "workbook.txt"
+    }
+  ]
+}

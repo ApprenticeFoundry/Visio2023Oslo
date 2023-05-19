@@ -1,0 +1,24 @@
+{
+  "Title": "610 - Gluing 2D Shapes to 2D Shapes",
+  "Status": "Show",
+  "Badge": "Model Relationships",
+      "DemobURL": "/visio2023drawing/playground",
+  "Tip": "2D Glue requires dynamically using a function that contains a reference to the target.",
+  "Summary": {
+    "What": "When the target shape is moved, the source shape must adjust to stay connected.",
+    "Why": "1D shapes must adjust their size and orientation to stay connected in the diagram.",
+    "How": "The function is executed as part of the source shapes render cycle."
+  },
+  "Samples": [
+    {
+      "ImageURL": "{Path}/glue2da.gif",
+      "DemoURL": "/visio2023drawing/playground",
+      "Filename": "Glue2D.txt"
+    },
+    {
+      "ImageURL": "{Path}/glue2db.gif",
+      "DemoURL": "/visio2023drawing/playground",
+      "Filename": "Glue2DTwist.txt"
+    }
+  ]
+}

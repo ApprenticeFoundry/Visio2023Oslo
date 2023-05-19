@@ -1,0 +1,24 @@
+{
+  "Status": "Done",
+  "Title": "930 - Events and Reactive Programming",
+  "Badge": "Programmable",
+  "ImageURL": "{Path}/encoding.png",
+  "Tip": "Process all events as messages with topics, it will simplify your code when you implement collaboration between users.",
+  "Summary": {
+    "What": "Treat every event as a message with a topic, avoid doing a direct function call to another component.",
+    "Why": "Pub/Sub promotes loose coupling. The Message object simplifies recording/playback scenarios and testing.",
+    "How": "Use a Topic / Message structure to share event data, then leverage the BlazorComponentBus service"
+  },
+  "Samples": [
+    {
+      "Filename": "CanvasEncoders.txt"
+    },
+    {
+      "Filename": "CaptureMouse.txt"
+    },
+    {
+      "ImageURL": "{Path}/imageresize.gif",
+      "Filename": "Resizing.txt"
+    }
+  ]
+}

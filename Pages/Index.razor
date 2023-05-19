@@ -29,7 +29,7 @@
 <center class="slide">What We Will Cover</center>
 <h2 class="bullet">What comprises a “reinvented” Visio solution</h2>
 <h2 class="bullet">Yes, Blazor can do it, with sample code</h2>
-<h2 class="bullet">A list of tricks/tips I used to implement a solution</h2>
+<h2 class="bullet">A list of tricks / tips I used to implement this solution</h2>
 
 
 <center class="slide">What is a “Reinvented” Visio Solution?</center>
@@ -119,12 +119,18 @@
 <center style="padding-top: 600px;padding-bottom: 1500px;" class="slide">Let's do some demos</center>
 
 <a id="InspiredbyVisio"></a>
-<center  class="slide">This Solution is Inspired by Visio</center>
+<center  class="slide">The FoundryBlazor Project is Inspired by 2013 Visio</center>
 <center style="padding-top: 380px;">
     <img src="/storage/StaticFiles/Media/shapesheet.png" style="width:55%" />
 </center>
 <center style="padding-top: 380px;">
     <img src="/storage/StaticFiles/Media/visiopins.png" style="width:55%" />
+</center>
+<center style="padding-top: 380px;">
+    <img src="/storage/StaticFiles/Media/matrix.png" style="width:55%" />
+</center>
+<center style="padding-top: 380px;">
+    <img src="/storage/StaticFiles/Media/geometry.png" style="width:55%" />
 </center>
 <center style="padding-top: 380px;">
     <img src="/storage/StaticFiles/Media/ShapeRender.png" style="width:55%" />
@@ -136,8 +142,24 @@
     <img src="/storage/StaticFiles/Media/Classes.png" style="width:55%" />
 </center>
 <center style="padding-top: 380px;">
-    <img src="/storage/StaticFiles/Media/Glue.png" style="width:55%" />
+    <img src="/storage/StaticFiles/Media/shapesheet1d.png" style="width:55%" />
 </center>
+<center style="padding-top: 380px;">
+    <img src="/storage/StaticFiles/Media/Glue.png" style="width:55%" />
+    @* <img src="/storage/StaticFiles/Media/smashing.png" style="width:55%" /> *@
+</center>
+
+<h2 class="keypoint" style="padding-top: 20px;">A value changes that will make the green shape's size or position invalid</h2>
+<h2 class="keypoint">The green shape marks it's matrix2D property as invalid</h2>
+<h2 class="keypoint">The shared glue is notified that the green (target) shape has changed</h2>
+<h2 class="keypoint">The glue then notifies the blue (source) shape that it must change also</h2>
+<h2 class="keypoint">The blue shape marks it's matrix2D property as invalid</h2>
+<h2 class="keypoint">Both blue and green redraw themselves in the next render</h2>
+
+<h2 class="keypoint" style="padding-top: 20px;">The yellow shape in not changed by the green shape's changes.</h2>
+<h2 class="keypoint">The blue shape can not be moved by the user.</h2>
+<h2 class="keypoint">Note: Visio does all the dependency tracking with the shape sheet.</h2>
+
 <center style="padding-top: 380px;">
     <img src="/storage/StaticFiles/Media/Workspace.png" style="width:55%" />
 </center>
@@ -153,13 +175,17 @@
 <h2 class="keypoint">HTML5 canvas sends an event when it has the bandwidth to render</h2>
 <h2 class="keypoint">Process any event you receive outside of the render cycle</h2>
 <h2 class="keypoint">Only render sections of the canvas that will be displayed</h2>
-<h2 class="keypoint">Consider size when drawing shape detailed</h2>
+<h2 class="keypoint">Consider size when drawing shape details</h2>
 <h2 class="keypoint">Animation events are triggered before each render cycle</h2>
 <h2 class="keypoint">Multiple events can trigger the same value to change </h2>
-<h2 class="keypoint">Values should be calculated on demand (like a spread sheet) </h2>
+<h2 class="keypoint">Values should be calculated on demand (like a spreadsheet) </h2>
 
 <center style="padding-top: 380px;">
     <img src="/storage/StaticFiles/Media/performance.gif" style="width:55%" />
+</center>
+
+<center style="padding-top: 380px;">
+    <img src="/storage/StaticFiles/Media/colab.png" style="width:65%" />
 </center>
 
 <center style="padding-top: 600px;padding-bottom: 1500px;" class="slide">Let's do some more demos</center>

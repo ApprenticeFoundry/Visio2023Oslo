@@ -1,0 +1,25 @@
+{
+  "Status": "Done",
+  "Title": "730 - Positioning Geometry",
+  "ImageURL": "{Path}/visiopins.png",
+  "MemeURL": "{Path}/matrix.jpg",
+  "Badge": "Custom Shapes",
+  "Tip": "Commit to understanding how the matrix controls the rendering of your shape.",
+  "Summary": {
+    "What": "Shapes are positioned by a matrix. I follow the convention from Visio.",
+    "Why": "The visio convention is easily mapped into HTML5 Canvas.",
+    "How": "The details follow below, step by step"
+  },
+  "Samples": [
+    {
+      "Filename": "GetMatrix.txt",
+      "MemeURL": "{Path}/shapesheet.png"
+    },
+    {
+      "Filename": "UpdateContext.txt"
+    },
+    {
+      "Filename": "SmashRestore.txt"
+    }
+  ]
+}

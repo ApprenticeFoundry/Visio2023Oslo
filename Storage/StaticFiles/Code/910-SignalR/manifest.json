@@ -1,0 +1,27 @@
+{
+  "Title": "910 - SignalR and Reactive Programming",
+  "Tip": "Build a command service to broker the SignalR messages.",
+  "ImageURL": "{Path}/colabflow.png",
+  "Status": "Show",
+  "Badge": "Programmable",
+  "Summary": {
+    "What": "The command service is the central point for processing all messages to and from other clients.",
+    "Why": "The code here will focus synchronizing the state of the drawing across all clients.",
+    "How": "Listening to both SignalR and BlazorComponentBus."
+  },
+  "Samples": [
+    {
+      "Filename": "Messages.txt"
+    },
+    {
+      "Filename": "BusToSignalR.txt"
+    },
+    {
+      "Filename": "SignalRtoBus.txt"
+    },
+    {
+      "ImageURL": "{Path}/marble.png",
+      "Filename": "Hub.txt"
+    }
+  ]
+}

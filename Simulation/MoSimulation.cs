@@ -22,9 +22,6 @@ public class MoSimulation : FoWorkbook
     {
         space.EstablishMenu2D<FoMenu2D, FoButton2D>("Simulation", new Dictionary<string, Action>()
         {
-
-            { "TVA", () => SetDoCreateTVA(js,"Squire1", "https://iobtsquire1.azurewebsites.net/")},
-            //{ "TVA Local", () => SetDoCreateTVA(js,"Local", "https://localhost:5501/")},
             { "Clock", () => SetDoCreateClock()},
             { "Biometric", () => SetDoCreateBiometric()},
             { "Position", () => SetDoCreatePosition()},

@@ -52,6 +52,7 @@ public class Composition : FoWorkbook
         if (e.State == SelectionState.Dropped && shape == rootShape)
         {
             LayoutTree?.Layout(x, y, MarginV);
+             RepositionAnimation(x, y);
             return;
         }
     
@@ -74,6 +75,7 @@ public class Composition : FoWorkbook
                 }
                 node?.PurgeChildren();
                 LayoutTree?.Layout(x, y, MarginV);
+                 RepositionAnimation(x, y);
             } 
             else if ( node != null && model.Children().Count > 0)
             {
@@ -89,7 +91,7 @@ public class Composition : FoWorkbook
                     LayoutTree?.VerticalLayout(x, y, MarginV);
                     LayoutTree?.VerticalLayoutConnections<FoConnector1D>(drawing.Pages());
                 }
-                
+                RepositionAnimation(x, y);
             }
         }        
     }
@@ -113,6 +115,13 @@ public class Composition : FoWorkbook
 
     }
 
+
+    public void RepositionAnimation(int x, int y)
+    {
+        var shapes = ShapeLookup.Values.ToList();
+        shapes.ForEach(shape => shape.AnimatedMoveFrom(x,y));
+    }
+  
     public FoLayoutTree<V> CreateShapeParentTree<V>(TreeModel model, Action<V,TreeModel> TagAction) where V : CompShape2D
     {
 

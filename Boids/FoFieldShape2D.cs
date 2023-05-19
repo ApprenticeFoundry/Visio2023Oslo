@@ -18,7 +18,7 @@ public class FoFieldShape2D : FoShape2D
     public FoFieldShape2D(string name, int width, int height, string color) : base(name, width, height, color)
     {
         PinX = PinY = 0;
-        ShapeDraw = DrawBox;
+        ShapeDraw = DrawRect;
         LocPinX = (obj) => 0;
         LocPinY = (obj) => 0;
     }

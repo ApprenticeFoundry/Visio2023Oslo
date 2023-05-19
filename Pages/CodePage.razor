@@ -3,15 +3,15 @@
 
 <PageTitle>Code Page</PageTitle>
 
-<h1 style="padding-top: 10px;"><center>@Manifest!.Title</center></h1>
-<h2 style="padding-top: 10px;"><center>@Manifest!.Description</center></h2>
+<h1 style="padding-top: 10px;"><center>@ModifyTitle(Manifest)</center></h1>
+
 
 <h3 style="padding-top:20px;padding-left:20px">Tip: @Manifest?.Tip</h3>
 @if (HasSummary())
 {
-    <h3 style="padding-top: 10px;padding-left: 50px;">What: @Summary!.What</h3>
-    <h3 style="padding-top: 10px;padding-left: 50px;">Why: @Summary!.Why</h3>
-    <h3 style="padding-top: 10px;padding-left: 50px;">How: @Summary!.How</h3>
+    <h3 class="questions">What: @Summary!.What</h3>
+    <h3 class="questions">Why: @Summary!.Why</h3>
+    <h3 class="questions">How: @Summary!.How</h3>
 }
 
 @if (HasImage())
@@ -21,7 +21,8 @@
 
 @if (HasDemo())
 {
-    <a href="@Manifest?.DemoURL" style="padding-left:80px;padding-top:40px">@Manifest!.DemoURL</a>
+    <a class="btn badge bg-success ms-1 me-1" href="@Manifest.DemoURL" >DEMO</a>
+    @* <a href="@Manifest?.DemoURL" style="padding-left:80px;padding-top:40px">@Manifest!.DemoURL</a> *@
 }
 
 @* <h4 style="padding-top:20px;padding-left:80px;padding-bottom:50px"><i>@Manifest!.Notes</i></h4> *@
@@ -29,11 +30,12 @@
 @foreach (var Sample in Samples)
 {
     <div>
-        <CodeDisplay Folder=@Manifest!.Folder Filename=@Sample.Filename Title="@Sample.Title"/>
+        <CodeDisplay Folder=@Manifest!.Folder Filename=@Sample.Filename GUID="@Sample.GUID"/>
     </div>
 }
 
 <a class="btn btn-dark m-1" href="/samples" >Code Samples...</a>
+<br/>
 
 @if (HasMeme())
 {

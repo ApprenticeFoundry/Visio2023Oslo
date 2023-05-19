@@ -6,7 +6,7 @@ public class CodeManifest
 {
     public string Folder { get; set; } = "";
     public string Title { get; set; } = "";
-    public string Description { get; set; } = "";
+    public string GUID { get; set; } = Guid.NewGuid().ToString();
     public string Tip { get; set; } = "";
     public string ImageURL { get; set; } = "";
     public string DemoURL { get; set; } = "";

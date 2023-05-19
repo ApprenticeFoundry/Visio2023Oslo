@@ -1,0 +1,20 @@
+
+
+    public virtual Matrix2D GetMatrix()
+    {
+        if (_matrix == null)
+        {
+            _matrix = Matrix2D.NewMatrix();
+            _matrix.AppendTransform(this.PinX, this.PinY, 1.0, 1.0, RotationZ(this), LocPinX(this), LocPinY(this));
+        }
+        return _matrix;
+    }
+
+    public virtual async Task UpdateContext(Canvas2DContext ctx, int tick)
+    {
+        ContextLink?.Invoke(this, tick);
+
+        var mtx = this.GetMatrix();
+        if (mtx != null)  
+            await ctx.TransformAsync(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
+    }

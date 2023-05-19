@@ -1,0 +1,25 @@
+{
+  "Status": "Done",
+  "Title": "720 - Page Rendering",
+  "ImageURL": "{Path}/pageandzoom.png",
+  "Badge": "Custom Shapes",
+  "Tip": "Only render what the user can see.",
+  "Summary": {
+    "What": "Shapes off the screen, small shapes, and detailed shapesin the distance are all good candidates for modified rendering.",
+    "Why": "Rendering is an expensive process. Writing code to determine what should be drawn will always pays off.",
+    "How": "Characterize the shapes that are in the view before the render to determine the best way to process them."
+  },
+  "Samples": [
+    {
+      "Filename": "DrawingRender.txt"
+    },
+    {
+      "ImageURL": "{Path}/drawwhatyousee.png",
+      "Filename": "ShouldRender.txt"
+    },
+    {
+      "ImageURL": "{Path}/ordermatters.png",
+      "Filename": "RenderPageDetails.txt"
+    }
+  ]
+}
