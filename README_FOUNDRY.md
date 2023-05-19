@@ -71,3 +71,5 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 #Interesting links for reference
 
 http://nicholasjohnson.com/blog/how-angular2-di-works-with-typescript/
+set NugetUserId=iobt
+set NugetPersonalAccessToken=s4ywh7vydf6wejyicssnrjbqoscokcztr4bdrrmprmuqy62qzn2a

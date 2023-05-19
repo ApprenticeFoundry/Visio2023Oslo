@@ -6,7 +6,7 @@
   "DemoURL": "/visio2023drawing/playground",
   "Tip": "Use a QuadTree to speed up hit testing.",
   "Summary": {
-    "What": "Hittesting is finding objects under the mouse cursor.",
+    "What": "Hit testing is finding objects under the mouse cursor.",
     "Why": "It is a common task that happens a lot, so it needs to be fast.",
     "How": "The QuadTree is a data structure that divides the page into smaller and smaller spaces. It is a tree, so it is fast to search."
   },

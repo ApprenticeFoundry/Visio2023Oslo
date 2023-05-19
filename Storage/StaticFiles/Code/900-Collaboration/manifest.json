@@ -1,5 +1,5 @@
 {
-  "Title": "900 - Collaboration with Other FoundryBlazor Clients",
+  "Title": "910 - Collaboration with Other FoundryBlazor Clients",
   "Tip": "Create a simple visual test that is your collaboration goal. This is mine!",
   "ImageURL": "{Path}/collaberation.gif",
   "DemoURL": "/visio2023drawing/Signalr",
@@ -11,15 +11,7 @@
     "How": "The function is executed as part of the arrow's render cycle."
   },
   "Samples": [
-        {
-          "DemoURL": "/visio2023drawing/Signalr",
-          "ImageURL": "{Path}/marble.png"
-        },
-    {
 
-      "ImageURL": "{Path}/colabflow.png",
-      "DemoURL": "/visio2023drawing/Signalr"
-    },
     {
       "ImageURL": "{Path}/movecursor.gif",
       "DemoURL": "/visio2023drawing/Signalr"

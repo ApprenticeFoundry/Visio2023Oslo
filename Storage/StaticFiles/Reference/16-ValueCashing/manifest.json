@@ -6,7 +6,7 @@
     {
       "Title": "Early:  Listening to events",
       "Filename": "Sample.txt",
-      "Notes": "This is a sample of the ComponentBus"
+      "Notes": "This is a sample of the BlazorComponentBus"
     },
     {
       "Title": "Later: internal PubSub Subscription network with pattern",

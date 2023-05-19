@@ -4,8 +4,8 @@
   "DemoURL": "/visio2023drawing/playground",
   "Tip": "Use Blazor's ComponentBus to capture and broadcast keypress events.",
   "Summary": {
-    "What": "ComponentBus is great way to decouple components.",
-    "Why": "ComponentBus allows components to communicate without knowing about each other.",
+    "What": "BlazorComponentBus is great way to decouple components.",
+    "Why": "BlazorComponentBus allows components to communicate without knowing about each other.",
     "How": "Pattern matching is used to map events to services that edit the drawing."
   },
   "ImageURL": "{Path}/keys.gif",
