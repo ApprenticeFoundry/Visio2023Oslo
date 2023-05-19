@@ -65,9 +65,9 @@ public class BoidField : IBoidField
         var shape3D = new FoShape3D(boid.BoidId, boid.Color);
         shape3D.CreateBox(boid.BoidId, .1, .1, .1);
 
-        // var url = $"{Workspace.GetBaseUrl()}storage/StaticFiles/3DModels/jet.glb";
+        //var url = $"{Workspace.GetBaseUrl()}storage/StaticFiles/3DModels/jet.glb";
         // url.WriteSuccess();
-        // shape3D.CreateGlb(url, .1, .1, .1);
+        //shape3D.CreateGlb(url, .1, .1, .1);
 
         page.AddShape(shape2D);
         stage.AddShape(shape3D);
@@ -296,15 +296,36 @@ public class BoidField : IBoidField
             CreateBoids(BoidCount, RandomColor());
             LocalBoids.ForEach(boid => SendModelCreated<Boid>(boid));
             IsRunning = true;
+                
+            var stage = Arena.CurrentStage();
+
+            Action<Boid> move3D = (boid =>
+            {
+                var shape3D = stage?.Find<FoShape3D>(boid.BoidId);
+                if (shape3D != null)
+                {
+                    var x = boid.X * 0.01;
+                    var y = boid.Z * 0.01;
+                    var z = boid.Y * 0.01;
+                    shape3D.UpdateMeshPosition(x, y, z);
+                }
+            });
 
             FieldShape = new FoFieldShape2D("Boids", (int)Width, (int)Height, "Purple")
             {
                 DrawSimulation = async (ctx) =>
                 {
                     foreach (var boid in LocalBoids)
+                    {
                         await DrawABoid(ctx, boid, 40);
+                        //move3D.Invoke(boid);
+                    }   
+
                     foreach (var boid in ForeignBoids.Values)
+                    {
                         await DrawABoid(ctx, boid, 20);
+                        //move3D.Invoke(boid);
+                    }
                 }
             };
             IsRunning = true;
