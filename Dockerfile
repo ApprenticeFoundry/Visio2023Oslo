@@ -44,6 +44,3 @@ ENTRYPOINT ["dotnet", "Visio2023Foundry.dll"]
 # docker run -d -p 5200:80 --rm --name visio2023oslo visio2023oslo
 # docker run -it  visio2023oslo /bin/bash
 # docker exec -it visio2023oslo bash
-
-
-# dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true 
