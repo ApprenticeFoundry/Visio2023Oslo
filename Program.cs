@@ -54,6 +54,7 @@ builder.Services.AddScoped<IArena, NDC_Arena3D>();
 builder.Services.AddScoped<IWorkspace, FoWorkspace>();
 builder.Services.AddScoped<ICodeDisplayService, CodeDisplayService>();
 
+builder.WebHost.UseStaticWebAssets();
 
 // builder.Services.AddControllers().AddJsonOptions(options =>
 // {
@@ -134,6 +135,8 @@ app.UseFileServer(new FileServerOptions
 
 
 //app.UseFileServer(true);
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
