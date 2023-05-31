@@ -7,9 +7,9 @@
   "Tip": "Use the shape model as a shared resource to create menus and other UI elements.",
   "Category": "Domain Fundamentals",
   "Summary": {
-    "What": "Define the command actions as part of the shape model. The write code to project the 'view' through out the solution.",
-    "Why": "Code is simplified and reliability is improved, when there is a single action for each command.",
-    "How": "Delegate the command details to a common object, use functions with closures as necessary."
+    "What": "Define the command actions as part of the shape model. Write code once and reuse it for all menus.",
+    "Why": "Code is simplified and reliability is improved.",
+    "How": "Take advantage of functions and closures."
   },
   "Samples": [
 

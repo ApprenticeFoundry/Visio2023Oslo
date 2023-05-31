@@ -7,8 +7,8 @@
   "Category": "Collaboration",
   "Summary": {
     "What": "The best collaboration demo is two different users pulling on two blocks and the connecting arrow stretches.",
-    "Why": "Easy to execute validation of achieving challenging goals.",
-    "How": "The function is executed as part of the arrow's render cycle."
+    "Why": "Easy way to test achieving challenging goals.",
+    "How": "Two people changing the size and position of a 1D glued shape indirectly by moving other shapes is excellent test."
   },
   "Samples": [
 
