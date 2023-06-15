@@ -24,8 +24,8 @@ public class Composition : FoWorkbook
     private Dictionary<string,TreeModel> ModelLookup { get; set; } = new();
     private Dictionary<string,CompShape2D> ShapeLookup { get; set; } = new();
 
-    public Composition(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub) :
-        base(space, command, dialog, js, pubSub)
+    public Composition(IWorkspace space, IFoundryService foundry) :
+        base(space, foundry)
     {
         PubSub!.SubscribeTo<SelectionChanged>(OnSelectionChanged);
     }
