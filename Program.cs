@@ -34,7 +34,6 @@ builder.Services.AddScoped<ComponentBus>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<DialogService>();
 
-
 builder.Services.AddScoped<IToast, Toast>();
 
 builder.Services.AddScoped<IScaledDrawing, ScaledDrawing>();
@@ -52,7 +51,10 @@ builder.Services.AddScoped<IDrawing, NDC_Drawing2D>();
 builder.Services.AddScoped<IArena, NDC_Arena3D>();
 
 builder.Services.AddScoped<IWorkspace, FoWorkspace>();
+builder.Services.AddScoped<IFoundryService, FoundryService>();
 builder.Services.AddScoped<ICodeDisplayService, CodeDisplayService>();
+
+
 
 builder.WebHost.UseStaticWebAssets();
 
@@ -110,7 +112,6 @@ app.UseSwaggerUI();
 
 envConfig.EstablishAllFolders().ForEach(folder =>
 {
-
     app.UseFileServer(new FileServerOptions
     {
         FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, folder)),
