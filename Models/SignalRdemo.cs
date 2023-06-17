@@ -50,8 +50,8 @@ public class SteveArrow: FoShape1D
 public class SignalRDemo : FoWorkbook
 {
 
-    public SignalRDemo(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
-        base(space,command,dialog,js,pubSub)
+    public SignalRDemo(IWorkspace space, IFoundryService foundry): 
+        base(space,foundry)
     {
         StorageHelpers.RegisterLookupType<SteveArrow>();
     }

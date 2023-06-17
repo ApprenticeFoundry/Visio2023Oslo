@@ -18,8 +18,8 @@ public class Playground : FoWorkbook
 
     private FoMenu2D? PlaygroundMenu { get; set; }
 
-    public Playground(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
-        base(space,command,dialog,js,pubSub)
+    public Playground(IWorkspace space, IFoundryService foundry) :
+        base(space,foundry)
     {
     }
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)

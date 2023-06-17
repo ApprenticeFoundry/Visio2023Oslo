@@ -21,8 +21,8 @@ public class Gamer : FoWorkbook, IDisposable
     private System.Timers.Timer StatusTimer { get; set; } = new(1000);
 
 
-    public Gamer(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub) :
-        base(space, command, dialog, js, pubSub)
+    public Gamer(IWorkspace space, IFoundryService foundry) :
+        base(space,foundry)
     {
     }
 
@@ -32,6 +32,7 @@ public class Gamer : FoWorkbook, IDisposable
         space.EstablishMenu3D<FoMenu3D, FoButton3D>("Gamer", new Dictionary<string, Action>()
         {
             { "Clear", async () => await arena.ClearArena() },
+                        { "Axis", () => DoLoad3dModel("fiveMeterAxis.glb")},
             { "Porshe 911", () => DoLoad3dModel("porsche_911.glb")},
             { "Part 1", () => DoLoad3dModel("part1.glb")},
             { "Part 2", () => DoLoad3dModel("part2.glb")},

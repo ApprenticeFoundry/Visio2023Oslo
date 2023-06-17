@@ -21,10 +21,10 @@ public class Process : FoWorkbook
     private Semantic SemanticModel { get; set; }    
 
     
-    public Process(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
-        base(space,command,dialog,js,pubSub)
+    public Process(IWorkspace space, IFoundryService foundry): 
+        base(space,foundry)
     {
-        SemanticModel = new Semantic(space.GetDrawing(),pubSub);
+        SemanticModel = new Semantic(space.GetDrawing(),foundry.PubSub());
 
     }
 
