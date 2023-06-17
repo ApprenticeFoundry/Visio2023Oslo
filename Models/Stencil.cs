@@ -81,7 +81,7 @@ public class Stencil : FoWorkbook
                     }}
                 };
                 var options = new DialogOptions() { Resizable = true, Draggable = true, CloseDialogOnOverlayClick = true };
-                await Dialog.OpenAsync<ColorRectangle>("Create Color Square", parmas, options);
+                //await Dialog.OpenAsync<ColorRectangle>("Create Color Square", parmas, options);
             };
 
             shape.OpenCreate();
@@ -244,7 +244,7 @@ public class Stencil : FoWorkbook
                     }}
                 };
                 var options = new DialogOptions() { Resizable = true, Draggable = true, CloseDialogOnOverlayClick = true };
-                await Dialog.OpenAsync<TextRectangle>("Create Text", parmas, options);
+                //await Dialog.OpenAsync<TextRectangle>("Create Text", parmas, options);
             };
 
             shape.OpenCreate();
