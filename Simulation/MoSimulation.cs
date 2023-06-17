@@ -13,8 +13,8 @@ namespace Visio2023Foundry.Simulation;
 public class MoSimulation : FoWorkbook
 {
 
-    public MoSimulation(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
-        base(space,command,dialog,js,pubSub)
+    public MoSimulation(IWorkspace space, IFoundryService foundry) :
+        base(space,foundry)
     {
     }
 

@@ -37,8 +37,8 @@ public class SPEC_ImageURL
 public class Stencil : FoWorkbook
 {
 
-    public Stencil(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
-        base(space, command, dialog, js, pubSub)
+    public Stencil(IWorkspace space, IFoundryService foundry) :
+        base(space,foundry)
     {
     }
 

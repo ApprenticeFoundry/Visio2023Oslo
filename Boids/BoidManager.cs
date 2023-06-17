@@ -19,10 +19,10 @@ public class BoidManager : FoWorkbook
     private readonly BoidField Simulation;
 
 
-    public BoidManager(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub) :
-        base(space, command, dialog, js, pubSub)
+    public BoidManager(IWorkspace space, IFoundryService foundry) :
+        base(space, foundry)
     {
-        Simulation = new BoidField(space, command);
+        Simulation = new BoidField(space, foundry.Command());
 
         StorageHelpers.RegisterLookupType<Boid>();
     }
