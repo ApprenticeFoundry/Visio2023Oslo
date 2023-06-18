@@ -7,6 +7,7 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
+using IoBTMessage.Units;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.FileProviders;
 using Radzen;
@@ -36,7 +37,7 @@ builder.Services.AddScoped<DialogService>();
 
 builder.Services.AddScoped<IToast, Toast>();
 
-builder.Services.AddScoped<IScaledDrawing, ScaledDrawing>();
+builder.Services.AddScoped<IScaledCanvas, ScaledDrawing>();
 builder.Services.AddScoped<IScaledArena, ScaledArena>();
 
 builder.Services.AddScoped<IPanZoomService, PanZoomService>();
@@ -52,6 +53,7 @@ builder.Services.AddScoped<IArena, NDC_Arena3D>();
 
 builder.Services.AddScoped<IWorkspace, FoWorkspace>();
 builder.Services.AddScoped<IFoundryService, FoundryService>();
+builder.Services.AddScoped<IUnitSystem, UnitSystem>();
 builder.Services.AddScoped<ICodeDisplayService, CodeDisplayService>();
 
 
@@ -137,7 +139,12 @@ app.UseFileServer(new FileServerOptions
 
 //app.UseFileServer(true);
 
+var serviceScope = ((IApplicationBuilder)app).ApplicationServices
+   .GetRequiredService<IServiceScopeFactory>()
+   .CreateScope();
 
+var unitsystem = serviceScope.ServiceProvider.GetService<IUnitSystem>();
+unitsystem?.Apply(UnitSystemType.MKS);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
