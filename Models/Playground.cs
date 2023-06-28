@@ -59,11 +59,11 @@ public class Playground : FoWorkbook
         s1.GlyphId.WriteNote();
 
         var TargetId1 = s1.GetGlyphId();
-        var Payload = StorageHelpers.Dehydrate(s1, false);
+        var Payload = CodingExtensions.Dehydrate(s1, false);
 
         TargetId1.WriteInfo();
 
-        var s2 = StorageHelpers.Hydrate<FoShape2D>(Payload, false);
+        var s2 = CodingExtensions.Hydrate<FoShape2D>(Payload, false);
         s2.MoveTo(300, 100);
 
         var TargetId2 = s2.GetGlyphId();
