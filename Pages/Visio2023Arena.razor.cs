@@ -3,6 +3,7 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
+using IoBTModules.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Visio2023Foundry.Model;

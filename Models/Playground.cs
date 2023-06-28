@@ -5,6 +5,7 @@ using FoundryBlazor.Canvas;
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using IoBTMessage.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using QRCoder;
