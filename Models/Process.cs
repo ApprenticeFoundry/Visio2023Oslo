@@ -5,6 +5,7 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
 using IoBTMessage.Models;
+using IoBTMessage.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -76,7 +77,7 @@ public class Process : FoWorkbook
         {
             var margin = new Point(20, 50);
             var page = drawing.CurrentPage();
-            var pt = drawing.InchesToPixelsInset(page.PageWidth / 2, 5.0);
+            var pt = new Point(page.PageWidth.AsPixels() / 2, new Length(5.0,"in").AsPixels());
 
             var layoutTree = CreatePlanShapeTree<FoHero2D>(model);
             layoutTree.Layout(pt.X, pt.Y, margin, LayoutRules.ProcessLayout);

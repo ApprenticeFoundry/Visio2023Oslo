@@ -11,10 +11,9 @@ public class NDC_Drawing2D : FoDrawing2D
         IPanZoomService panzoom,
         ISelectionService select,
         IPageManagement manager,
-        IScaledCanvas scaled,
         IHitTestService hittest,
         ComponentBus pubSub
-        ) : base(panzoom,select,manager,scaled,hittest,pubSub)
+        ) : base(panzoom,select,manager,hittest,pubSub)
     {
 
         

@@ -68,7 +68,7 @@ public class Stencil : FoWorkbook
             shape.MoveTo(args.OffsetX, args.OffsetY);
             drawing.AddShape<FoShape2D>(shape);
 
-            shape.DoOnOpenCreate = shape.DoOnOpenEdit = async (target) =>
+            shape.DoOnOpenCreate = shape.DoOnOpenEdit =  (target) => 
             {
                 var parmas = new Dictionary<string, object>() {
                     { "Shape", target },

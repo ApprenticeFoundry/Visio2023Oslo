@@ -37,8 +37,6 @@ builder.Services.AddScoped<DialogService>();
 
 builder.Services.AddScoped<IToast, Toast>();
 
-builder.Services.AddScoped<IScaledCanvas, ScaledDrawing>();
-builder.Services.AddScoped<IScaledArena, ScaledArena>();
 
 builder.Services.AddScoped<IPanZoomService, PanZoomService>();
 builder.Services.AddScoped<IHitTestService, HitTestService>();

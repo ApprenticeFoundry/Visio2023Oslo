@@ -5,6 +5,7 @@ using FoundryBlazor;
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using IoBTMessage.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -281,7 +282,7 @@ public class Composition : FoWorkbook
         if (drawing == null) return;
 
         var page = drawing.CurrentPage();
-        var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
+        var pt = new Point(page.PageWidth.AsPixels() / 6, new Length(5.0,"in").AsPixels());
 
         LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) =>shape.TagAsComposition(tree));
         
@@ -298,7 +299,8 @@ public class Composition : FoWorkbook
         if (drawing == null) return;
 
         var page = drawing.CurrentPage();
-        var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
+
+        var pt = new Point(page.PageWidth.AsPixels() / 6, new Length(5.0, "in").AsPixels());
 
         LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) => shape.TagAsClassification(tree));
 
