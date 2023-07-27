@@ -80,7 +80,7 @@ public class Process : FoWorkbook
             var pt = new Point(page.PageWidth.AsPixels() / 2, new Length(5.0,"in").AsPixels());
 
             var layoutTree = CreatePlanShapeTree<FoHero2D>(model);
-            layoutTree.Layout(pt.X, pt.Y, margin, LayoutRules.ProcessLayout);
+            layoutTree.Layout(pt.X, pt.Y, margin, TreeLayoutRules.ProcessLayout);
             layoutTree.HorizontalLayoutConnections<FoConnector1D>(drawing.Pages());
 
             //var shape = CurrentLayout.GetShape();

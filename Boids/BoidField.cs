@@ -465,7 +465,6 @@ public class BoidField : IBoidField
         }
         //this is necessary to make sure the boids move in 3D
         await Arena.UpdateArena();
-
     }
 
 

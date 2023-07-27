@@ -33,10 +33,7 @@
    <ItemGroup>
    <ProjectReference Include="..\..\Core\BlazorThreeJS\BlazorThreeJS.csproj" />
    <ProjectReference Include="..\..\Core\FoundryBlazor\FoundryBlazor.csproj" />
-   <ProjectReference Include="..\..\Core\IoBTModuleLibrary\IoBTModuleLibrary.csproj" />
-   <ProjectReference Include="..\FoundryBlazor\FoundryBlazor.csproj" />
-   <ProjectReference Include="..\BlazorThreeJS\BlazorThreeJS.csproj" />
-   <ProjectReference Include="..\..\IoBT\IoBTMessageLibrary\IoBTMessageLibrary.csproj" />
+   <ProjectReference Include="..\..\Core\IoBTMessageLibrary\IoBTMessageLibrary.csproj" />
 
 
   </ItemGroup> 
