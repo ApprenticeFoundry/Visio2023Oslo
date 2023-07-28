@@ -86,27 +86,27 @@ public class TargetManager : FoWorkbook
 
     private void DoAttract()
     {
-        throw new NotImplementedException();
+        NetworkLayout.ToggleAttractRule();
     }
 
     private void DoRepel()
     {
-        throw new NotImplementedException();
+        NetworkLayout.ToggleRepelRule();
     }
 
     private void DoCenter()
     {
-        throw new NotImplementedException();
+        NetworkLayout.ToggleCenterRule();
     }
 
     private void DoBoundry()
     {
-        throw new NotImplementedException();
+        NetworkLayout.ToggleBoundryRule();
     }
 
     public override void PreRender(int tick)
     {
-        NetworkLayout.DoLayoutStep(tick);
+        //NetworkLayout.DoLayoutStep(tick);
     }
     public override async Task RenderWatermark(Canvas2DContext ctx, int tick)
     {
@@ -149,10 +149,10 @@ public class TargetManager : FoWorkbook
 
         var t0 = system.CreateTarget("PIN", "10");
         var t1 = system.CreateTarget("ASST", "20");
-        var t2 = system.CreateTarget("PROC", "30");
+        //var t2 = system.CreateTarget("PROC", "30");
 
         system.CreateLink(t0, t1);
-        system.CreateLink(t1, t2);
+        //system.CreateLink(t1, t2);
         return system;
     }
 
