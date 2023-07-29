@@ -24,7 +24,6 @@ public class TargetManager : FoWorkbook
     private IDrawing Drawing { get; set; }
     private FoLayoutNetwork<ThreadShape1D, ThreadShape2D> NetworkLayout { get; set; } = new();
 
-    //private Dictionary<string,DT_Target> ModelLookup { get; set; } = new();
 
     public TargetManager(IWorkspace space, IFoundryService foundry) :
         base(space, foundry)
@@ -47,10 +46,11 @@ public class TargetManager : FoWorkbook
         "TargetManager".WriteWarning();
         var menu = new Dictionary<string, Action>()
         {
-            { "Clear", () => DoClear() },
-            { "Create", () => DoCreate() },
+            { "Menu", () => CreateMenu2D() },
+            { "C Item", () => DoCreateItem() },
+            { "C Network", () => DoCreateNetwork() },
             { "Step 1", () => DoStep1() },
-            { "Step 5", () => DoStep5() },
+            { "Go", () => DoStep5000() },
             { "Attract", () => DoAttract() },
             { "Repel", () => DoRepel() },
             { "Center", () => DoCenter() },
@@ -66,12 +66,33 @@ public class TargetManager : FoWorkbook
         var drawing = Workspace.GetDrawing();
         if (drawing == null) return;
         drawing.ClearAll();
-        CreateMenu2D();
+        //CreateMenu2D();
     }
 
-    private void DoCreate()
+    private void DoCreateItem()
     {
-        DoTesting();
+        DoClear();
+        SystemNetwork = CreateSystemItem();
+        var X = NetworkLayout.XCenter();
+        var Y = NetworkLayout.YCenter();
+        foreach (var item in GenerateShapes())
+        {
+            item.MoveTo(X, Y);
+        }
+
+    }
+
+    private void DoCreateNetwork()
+    {
+        DoClear();
+        SystemNetwork = CreateSystemNetwork();
+        var X = NetworkLayout.XCenter();
+        var Y = NetworkLayout.YCenter();
+        foreach (var item in GenerateShapes())
+        {
+            item.MoveTo(X, Y);
+        }
+
     }
 
     private void DoStep1()
@@ -79,9 +100,9 @@ public class TargetManager : FoWorkbook
         NetworkLayout.DoIteration(1);
     }
 
-    private void DoStep5()
+    private void DoStep5000()
     {
-        NetworkLayout.DoIteration(5);
+        NetworkLayout.DoIteration(5000);
     }
 
     private void DoAttract()
@@ -106,7 +127,7 @@ public class TargetManager : FoWorkbook
 
     public override void PreRender(int tick)
     {
-        //NetworkLayout.DoLayoutStep(tick);
+        NetworkLayout.DoLayoutStep(tick);
     }
     public override async Task RenderWatermark(Canvas2DContext ctx, int tick)
     {
@@ -118,15 +139,23 @@ public class TargetManager : FoWorkbook
 
         var shape = Activator.CreateInstance<V>();
         shape.GlyphId = model.guid;
-        //ModelLookup.Add(shape.GetGlyphId(), model);
 
 
         TagAction?.Invoke(shape, model);
-        Drawing?.AddShape<V>(shape);
+        Drawing.AddShape<V>(shape);
 
-        Random rnd = new();
+        var node = new FoLayoutNode<V>(shape, 0, 0);
 
-        var node = new FoLayoutNode<V>(shape, 1000 * rnd.NextDouble(), 1000 * rnd.NextDouble());
+        shape.AfterMatrixRefresh((obj) =>
+        {
+            if ( node.X != obj.PinX || node.Y != obj.PinY)
+            {
+                $"Moved by user {obj.Name} {node.X} {node.Y}".WriteInfo();
+            }
+            node.X = obj.PinX;
+            node.Y = obj.PinY;
+        });
+
         return node;
     }
 
@@ -142,6 +171,14 @@ public class TargetManager : FoWorkbook
         return link;
     }
 
+    public DT_System CreateSystemItem()
+    {
+        var system = new DT_System();
+
+        var t0 = system.CreateTarget("PIN", "10");
+
+        return system;
+    }
 
     public DT_System CreateSystemNetwork()
     {
@@ -149,34 +186,32 @@ public class TargetManager : FoWorkbook
 
         var t0 = system.CreateTarget("PIN", "10");
         var t1 = system.CreateTarget("ASST", "20");
-        //var t2 = system.CreateTarget("PROC", "30");
-
+        var t2 = system.CreateTarget("PROC", "30");
+        var t3 = system.CreateTarget("CAD", "30");
+        var t4 = system.CreateTarget("CAD", "31");
+        var t5 = system.CreateTarget("CAD", "32");
         system.CreateLink(t0, t1);
-        //system.CreateLink(t1, t2);
+        system.CreateLink(t1, t2);
+        system.CreateLink(t1, t3);
+        system.CreateLink(t3, t4);
+           system.CreateLink(t4, t5);
         return system;
     }
 
 
-    private void DoTesting()
+    private List<FoLayoutNode<ThreadShape2D>> GenerateShapes()
     {
+        var list = NetworkLayout.GetNodes();
+
         var drawing = Workspace.GetDrawing();
-        if (drawing == null) return;
-
-        var margin = new Point(20, 50);
-        var page = drawing.CurrentPage();
-        var pt = new Point(page.PageWidth.AsPixels() / 4, new Length(3.0, "cm").AsPixels());
+        if (drawing == null || SystemNetwork == null)
+            return list;
 
 
-        SystemNetwork = CreateSystemNetwork();
-
-
-        int count = 0;
         foreach (var item in SystemNetwork.Targets())
         {
             var node = CreateNodeShape<ThreadShape2D>(item, (shape, model) => shape.TagAsComposition(model));
-            node.GetShape().MoveTo(pt.X, pt.Y).MoveBy(count, count);
             NetworkLayout.AddNode(node);
-            count += 30;
         }
 
         foreach (var item in SystemNetwork.Links())
@@ -188,10 +223,7 @@ public class TargetManager : FoWorkbook
             if (source != null && sink != null)
                 link.Connect(source, sink);
         }
-
-
-
-
+        return list;
     }
 
 
