@@ -51,8 +51,9 @@ public class TargetManager : FoWorkbook
             { "C Network", () => DoCreateNetwork() },
             { "Step 1", () => DoStep1() },
             { "Go", () => DoStep5000() },
+            { "Random", () => DoRandom() },
             { "Attract", () => DoAttract() },
-            { "Repel", () => DoRepel() },
+            { "Repell", () => DoRepell() },
             { "Center", () => DoCenter() },
             { "Boundry", () => DoBoundry() },
         };
@@ -79,6 +80,7 @@ public class TargetManager : FoWorkbook
         {
             item.MoveTo(X, Y);
         }
+        DoRandom();
 
     }
 
@@ -92,7 +94,7 @@ public class TargetManager : FoWorkbook
         {
             item.MoveTo(X, Y);
         }
-
+        DoRandom();
     }
 
     private void DoStep1()
@@ -105,24 +107,28 @@ public class TargetManager : FoWorkbook
         NetworkLayout.DoIteration(5000);
     }
 
+    private void DoRandom()
+    {
+        NetworkLayout.DoRandomRule();
+    }
     private void DoAttract()
     {
-        NetworkLayout.ToggleAttractRule();
+        NetworkLayout.DoAttractRule();
     }
 
-    private void DoRepel()
+    private void DoRepell()
     {
-        NetworkLayout.ToggleRepelRule();
+        NetworkLayout.DoRepellRule();
     }
 
     private void DoCenter()
     {
-        NetworkLayout.ToggleCenterRule();
+        NetworkLayout.DoCenterRule();
     }
 
     private void DoBoundry()
     {
-        NetworkLayout.ToggleBoundryRule();
+        NetworkLayout.DoBoundryRule();
     }
 
     public override void PreRender(int tick)
