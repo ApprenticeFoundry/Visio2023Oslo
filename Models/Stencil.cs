@@ -37,8 +37,8 @@ public class SPEC_ImageURL
 public class Stencil : FoWorkbook
 {
 
-    public Stencil(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
-        base(space, command, dialog, js, pubSub)
+    public Stencil(IWorkspace space, IFoundryService foundry) :
+        base(space,foundry)
     {
     }
 
@@ -68,7 +68,7 @@ public class Stencil : FoWorkbook
             shape.MoveTo(args.OffsetX, args.OffsetY);
             drawing.AddShape<FoShape2D>(shape);
 
-            shape.DoOnOpenCreate = shape.DoOnOpenEdit = async (target) =>
+            shape.DoOnOpenCreate = shape.DoOnOpenEdit =  (target) => 
             {
                 var parmas = new Dictionary<string, object>() {
                     { "Shape", target },
@@ -81,7 +81,7 @@ public class Stencil : FoWorkbook
                     }}
                 };
                 var options = new DialogOptions() { Resizable = true, Draggable = true, CloseDialogOnOverlayClick = true };
-                await Dialog.OpenAsync<ColorRectangle>("Create Color Square", parmas, options);
+                //await Dialog.OpenAsync<ColorRectangle>("Create Color Square", parmas, options);
             };
 
             shape.OpenCreate();
@@ -244,7 +244,7 @@ public class Stencil : FoWorkbook
                     }}
                 };
                 var options = new DialogOptions() { Resizable = true, Draggable = true, CloseDialogOnOverlayClick = true };
-                await Dialog.OpenAsync<TextRectangle>("Create Text", parmas, options);
+                //await Dialog.OpenAsync<TextRectangle>("Create Text", parmas, options);
             };
 
             shape.OpenCreate();

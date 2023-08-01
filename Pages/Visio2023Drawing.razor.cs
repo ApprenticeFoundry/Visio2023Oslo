@@ -3,12 +3,14 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
+using IoBTModules.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 using Visio2023Foundry.Model;
 
 using Visio2023Foundry.Simulation;
+using Visio2023Foundry.Targets;
 
 namespace Visio2023Foundry.Pages;
 
@@ -62,6 +64,8 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
                 Workspace.EstablishWorkbook<Playground>();
             else if ("Stencil".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<Stencil>();
+            else if ("Network".Matches(LoadWorkbook!))
+                Workspace.EstablishWorkbook<TargetManager>();
             else if ("Boid".Matches(LoadWorkbook!))
                 Workspace.EstablishWorkbook<BoidManager>();
             else if ("Composition".Matches(LoadWorkbook!))

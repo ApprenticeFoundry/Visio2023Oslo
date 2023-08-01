@@ -6,6 +6,7 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using IoBTMessage.Extensions;
 using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -50,8 +51,8 @@ public class SteveArrow: FoShape1D
 public class SignalRDemo : FoWorkbook
 {
 
-    public SignalRDemo(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
-        base(space,command,dialog,js,pubSub)
+    public SignalRDemo(IWorkspace space, IFoundryService foundry): 
+        base(space,foundry)
     {
         StorageHelpers.RegisterLookupType<SteveArrow>();
     }
@@ -106,11 +107,11 @@ public class SignalRDemo : FoWorkbook
         s1.GlyphId.WriteNote();
 
         var TargetId1 = s1.GetGlyphId();
-        var Payload = StorageHelpers.Dehydrate(s1, false);
+        var Payload = CodingExtensions.Dehydrate(s1, false);
 
         TargetId1.WriteInfo();
 
-        var s2 = StorageHelpers.Hydrate<FoShape2D>(Payload, false);
+        var s2 = CodingExtensions.Hydrate<FoShape2D>(Payload, false);
         s2.MoveTo(300, 100);
 
         var TargetId2 = s2.GetGlyphId();

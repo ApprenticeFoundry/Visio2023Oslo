@@ -5,6 +5,7 @@ using FoundryBlazor;
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using IoBTMessage.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -24,8 +25,8 @@ public class Composition : FoWorkbook
     private Dictionary<string,TreeModel> ModelLookup { get; set; } = new();
     private Dictionary<string,CompShape2D> ShapeLookup { get; set; } = new();
 
-    public Composition(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub) :
-        base(space, command, dialog, js, pubSub)
+    public Composition(IWorkspace space, IFoundryService foundry) :
+        base(space, foundry)
     {
         PubSub!.SubscribeTo<SelectionChanged>(OnSelectionChanged);
     }
@@ -281,7 +282,7 @@ public class Composition : FoWorkbook
         if (drawing == null) return;
 
         var page = drawing.CurrentPage();
-        var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
+        var pt = new Point(page.PageWidth.AsPixels() / 6, new Length(5.0,"in").AsPixels());
 
         LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) =>shape.TagAsComposition(tree));
         
@@ -298,7 +299,8 @@ public class Composition : FoWorkbook
         if (drawing == null) return;
 
         var page = drawing.CurrentPage();
-        var pt = drawing.InchesToPixelsInset(page.PageWidth / 6, 5.0);
+
+        var pt = new Point(page.PageWidth.AsPixels() / 6, new Length(5.0, "in").AsPixels());
 
         LayoutTree = CreateShapeParentTree<CompShape2D>(model, (shape, tree) => shape.TagAsClassification(tree));
 

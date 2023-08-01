@@ -5,6 +5,7 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Shared;
 using IoBTMessage.Models;
+using IoBTMessage.Units;
 using IoBTModules.Extensions;
 using QRCoder;
 using Radzen;
@@ -115,7 +116,7 @@ public class Semantic
     {
         var margin = new Point(20, 50);
         var page = Drawing.CurrentPage();
-        var pt = Drawing.InchesToPixelsInset(page.PageWidth / 3, 5.0);
+        var pt = new Point(page.PageWidth.AsPixels() / 3, new Length(5.0,"in").AsPixels());
 
         layout.HorizontalLayout(pt.X, pt.Y, margin);
         layout.HorizontalLayoutConnections<FoConnector1D>(Drawing.Pages());

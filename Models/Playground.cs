@@ -5,6 +5,7 @@ using FoundryBlazor.Canvas;
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using IoBTMessage.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using QRCoder;
@@ -18,8 +19,8 @@ public class Playground : FoWorkbook
 
     private FoMenu2D? PlaygroundMenu { get; set; }
 
-    public Playground(IWorkspace space, ICommand command, DialogService dialog, IJSRuntime js, ComponentBus pubSub): 
-        base(space,command,dialog,js,pubSub)
+    public Playground(IWorkspace space, IFoundryService foundry) :
+        base(space,foundry)
     {
     }
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
@@ -59,11 +60,11 @@ public class Playground : FoWorkbook
         s1.GlyphId.WriteNote();
 
         var TargetId1 = s1.GetGlyphId();
-        var Payload = StorageHelpers.Dehydrate(s1, false);
+        var Payload = CodingExtensions.Dehydrate(s1, false);
 
         TargetId1.WriteInfo();
 
-        var s2 = StorageHelpers.Hydrate<FoShape2D>(Payload, false);
+        var s2 = CodingExtensions.Hydrate<FoShape2D>(Payload, false);
         s2.MoveTo(300, 100);
 
         var TargetId2 = s2.GetGlyphId();

@@ -3,7 +3,7 @@
 
 <PageTitle>Code Page</PageTitle>
 
-<h1 style="padding-top: 10px;"><center>@ModifyTitle(Manifest)</center></h1>
+<h1 style="padding-top: 10px;"><center>@ModifyTitle(Manifest!)</center></h1>
 
 
 <h3 style="padding-top:20px;padding-left:20px">Tip: @Manifest?.Tip</h3>
@@ -21,7 +21,7 @@
 
 @if (HasDemo())
 {
-    <a class="btn badge bg-success ms-1 me-1" href="@Manifest.DemoURL" >DEMO</a>
+    <a class="btn badge bg-success ms-1 me-1" href="@Manifest?.DemoURL" >DEMO</a>
     @* <a href="@Manifest?.DemoURL" style="padding-left:80px;padding-top:40px">@Manifest!.DemoURL</a> *@
 }
 

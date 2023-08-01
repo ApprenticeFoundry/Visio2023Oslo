@@ -7,6 +7,7 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using IoBTMessage.Extensions;
 
 
 // Washington Monument/Coordinates
@@ -114,7 +115,7 @@ public class BoidField : IBoidField
     public void BoidModelCreate(D2D_ModelCreate model)
     {
         "Call to create model".WriteInfo();
-        var obj = StorageHelpers.HydrateObject(typeof(Boid), model.Payload);
+        var obj = CodingExtensions.HydrateObject(typeof(Boid), model.Payload);
         if (obj is Boid boid)
         {
             ForeignBoids.Add(boid.BoidId, boid);
@@ -153,7 +154,7 @@ public class BoidField : IBoidField
 
         //create shadow boids 
 
-        var obj = StorageHelpers.HydrateObject(typeof(Boid), model.Payload);
+        var obj = CodingExtensions.HydrateObject(typeof(Boid), model.Payload);
         if (obj is Boid newboid)
         {
             ReflectedBoids.Add(newboid.BoidId, newboid);
@@ -189,7 +190,7 @@ public class BoidField : IBoidField
         var create = new D2D_ModelCreate()
         {
             PayloadType = model.GetType().Name,
-            Payload = StorageHelpers.Dehydrate<T>(model, false)
+            Payload = CodingExtensions.Dehydrate<T>(model, false)
         };
 
         Command.SendSyncMessage(create);
@@ -464,7 +465,6 @@ public class BoidField : IBoidField
         }
         //this is necessary to make sure the boids move in 3D
         await Arena.UpdateArena();
-
     }
 
 
