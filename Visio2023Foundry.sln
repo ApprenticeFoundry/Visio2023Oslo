@@ -5,14 +5,6 @@ VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Visio2023Foundry", "Visio2023Foundry.csproj", "{B88E31CD-3F43-49C2-9983-AF98196143A0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2C378224-5CDD-400B-BB97-612EDEB60848}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IoBTMessageLibrary", "..\..\Core\IoBTMessageLibrary\IoBTMessageLibrary.csproj", "{48096EAB-9DFD-417C-934D-4626481E3BE6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoundryBlazor", "..\..\Core\FoundryBlazor\FoundryBlazor.csproj", "{1E74533C-7083-4EC5-808B-826959E1DDB9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorThreeJS", "..\..\Core\BlazorThreeJS\BlazorThreeJS.csproj", "{F74979E0-99FC-4118-9ED9-9F2F59ED7C4F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

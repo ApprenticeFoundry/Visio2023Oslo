@@ -57,7 +57,7 @@ public class ThreadShape2D : FoShape2D
         var subShape = new ThreadShape2D
         {
             Color = "Yellow",
-            Title = model.targetType,
+            Title = model.address,
             Width = this.Width,
             Height = this.Height / 2,
             PinX = this.Width / 2,
