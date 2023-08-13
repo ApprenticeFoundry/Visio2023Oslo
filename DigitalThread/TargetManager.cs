@@ -29,6 +29,10 @@ public class TargetManager : FoWorkbook
         base(space, foundry)
     {
         Drawing = space.GetDrawing()!;
+        NetworkLayout.Boundary = new(50, 50, 1700, 1200);
+
+        Drawing = space.GetDrawing()!;
+        EstablishCurrentPage("Overview", "blue").SetPageSize(60, 40, "cm");
     }
 
 
@@ -56,10 +60,25 @@ public class TargetManager : FoWorkbook
             { "Repell", () => DoRepell() },
             { "Center", () => DoCenter() },
             { "Boundry", () => DoBoundry() },
+            { "Save", () => DoSave() },
+               { "Restore", () => DoRestore() },
         };
 
         TargetMenu = space.EstablishMenu2D<FoMenu2D, FoButton2D>("Targets", menu, true);
         CreateMenu2D();
+    }
+
+    private void DoRestore()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void DoSave()
+    {
+        var text = "Hello, world!";
+        var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+
+        Workspace.LocalFileSave("HelloWorld.txt", bytes);
     }
 
     private void DoClear()

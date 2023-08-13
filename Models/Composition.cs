@@ -22,12 +22,19 @@ public class Composition : FoWorkbook
     public bool ShowLayout { get; set; } = false;
     public FoLayoutTree<CompShape2D>? LayoutTree { get; set; }
 
+
+    private IDrawing Drawing { get; set; }
+
     private Dictionary<string,TreeModel> ModelLookup { get; set; } = new();
     private Dictionary<string,CompShape2D> ShapeLookup { get; set; } = new();
 
     public Composition(IWorkspace space, IFoundryService foundry) :
         base(space, foundry)
     {
+        Drawing = space.GetDrawing()!;
+
+        EstablishCurrentPage("Bill of Materials", "Green").SetPageSize(600, 40, "cm");
+
         PubSub!.SubscribeTo<SelectionChanged>(OnSelectionChanged);
     }
 

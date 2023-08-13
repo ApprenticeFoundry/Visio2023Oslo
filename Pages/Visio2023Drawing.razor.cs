@@ -31,9 +31,21 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
 
     protected override void OnInitialized()
     {
-        Workspace?.SetBaseUrl(Navigation?.BaseUri ?? "");
+        Workspace!.SetBaseUrl(Navigation?.BaseUri ?? "");
         if (Navigation != null)
             Navigation.LocationChanged += LocationChanged;
+
+
+        Workspace.EstablishWorkbook<Playground>().Name = "playground";
+        Workspace.EstablishWorkbook<Stencil>().Name = "stencil";
+        Workspace.EstablishWorkbook<TargetManager>().Name = "network";
+        Workspace.EstablishWorkbook<BoidManager>().Name = "boid"; 
+        Workspace.EstablishWorkbook<Composition>().Name = "composition"; 
+        Workspace.EstablishWorkbook<MoSimulation>().Name = "simulation"; 
+        Workspace.EstablishWorkbook<Process>().Name = "process"; 
+        Workspace.EstablishWorkbook<SignalRDemo>().Name = "Signalr"; 
+
+        base.OnInitialized();
     }
 
     public void Dispose()
@@ -57,27 +69,11 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
     {
         if (Workspace != null)
         {
-            // $"RefreshWorkPieceMenus".WriteInfo();
-            Workspace.ClearAllWorkbook();
-
-            if ("Playground".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<Playground>();
-            else if ("Stencil".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<Stencil>();
-            else if ("Network".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<TargetManager>();
-            else if ("Boid".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<BoidManager>();
-            else if ("Composition".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<Composition>();
-            else if ("Simulation".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<MoSimulation>();
-            else if ("Process".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<Process>();
-            else if ("Signalr".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<SignalRDemo>();
-
-            Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
+            var found = Workspace.FindWorkbook(LoadWorkbook!);
+            if (found != null)
+            {
+                Workspace?.SetCurrentWorkbook(found!).CurrentPage();
+            }
         }
     }
 
@@ -106,7 +102,9 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
         {
             //PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub!.SubscribeTo<ViewStyle>(OnViewStyleChanged);
-            Toast!.Success($"Drawing Page Loaded!");
+            //Toast!.Success($"Drawing Page Loaded!");
+            Workspace!.GetDrawing();
+            Workspace!.GetArena();
         }
 
         await base.OnAfterRenderAsync(firstRender);

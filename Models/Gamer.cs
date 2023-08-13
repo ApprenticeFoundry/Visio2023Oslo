@@ -70,7 +70,15 @@ public class Gamer : FoWorkbook, IDisposable
         // var baseURL = Path.Join(Workspace.GetBaseUrl(), "storage", "StaticFiles");
         var baseURL = $"{Workspace.GetBaseUrl()}storage/StaticFiles";
         baseURL.WriteSuccess();
-        arena.Load3DModelFromFile("3DModels", filename, baseURL);
+        var spec = new UDTO_Body()
+        {
+            name = filename,
+            sourceGuid = Guid.NewGuid().ToString(),
+            uniqueGuid = Guid.NewGuid().ToString(),
+            position = new HighResPosition(1, 2, 3, "m"),
+            boundingBox = new BoundingBox(1.5, 1.5, 1.5, "m"),
+        };
+        arena.Load3DModelFromFile(spec,"3DModels", filename, baseURL);
 
     }
 
@@ -90,7 +98,13 @@ public class Gamer : FoWorkbook, IDisposable
         {
             var name = Path.GetFileName(fileName);
             $"Loading {name}".WriteNote();
-            arena.Load3DModelFromFile(folder, name, baseURL);
+            var spec = new UDTO_Body()
+            {
+                name = name,
+                sourceGuid = Guid.NewGuid().ToString(),
+                uniqueGuid = Guid.NewGuid().ToString(),
+            };
+            arena.Load3DModelFromFile(spec, folder, name, baseURL);
         }
     }
 

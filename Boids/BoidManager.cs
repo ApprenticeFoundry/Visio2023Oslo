@@ -5,6 +5,7 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
@@ -78,7 +79,15 @@ public class BoidManager : FoWorkbook
         // var baseURL = Path.Join(Workspace.GetBaseUrl(), "storage", "StaticFiles");
         var baseURL = $"{Workspace.GetBaseUrl()}storage/StaticFiles";
         baseURL.WriteSuccess();
-        arena.Load3DModelFromFile("3DModels", filename, baseURL);
+        var spec = new UDTO_Body()
+        {
+            name = filename,
+            sourceGuid = Guid.NewGuid().ToString(),
+            uniqueGuid = Guid.NewGuid().ToString(),
+            position = new HighResPosition(1, 2, 3, "m"),
+            boundingBox = new BoundingBox(1.5, 1.5, 1.5, "m"),
+        };
+        arena.Load3DModelFromFile(spec,"3DModels", filename, baseURL);
     }
 
     public override bool SetSignalRHub(HubConnection hub, string panid)

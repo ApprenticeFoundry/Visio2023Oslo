@@ -12,7 +12,7 @@ public enum ThreadShape2DType
     Classification,
 }
 
-public class ThreadShape2D : FoShape2D
+public class ThreadShape2D : FoText2D
 {
 
     public ThreadShape2DType ThreadShape2DType { get; set; } = ThreadShape2DType.None;
