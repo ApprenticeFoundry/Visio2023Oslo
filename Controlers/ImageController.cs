@@ -2,6 +2,8 @@
 using IoBTMessage.Models;
 using SkiaSharp;
 using FoundryBlazor.Extensions;
+using FoundryRulesAndUnits.Models;
+using FoundryRulesAndUnits.Extensions;
 
 namespace Foundry.Controllers
 {

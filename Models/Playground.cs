@@ -5,6 +5,8 @@ using FoundryBlazor.Canvas;
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Models;
 using IoBTMessage.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -18,10 +20,14 @@ public class Playground : FoWorkbook
 {
 
     private FoMenu2D? PlaygroundMenu { get; set; }
+    private IDrawing Drawing { get; set; }
 
     public Playground(IWorkspace space, IFoundryService foundry) :
         base(space,foundry)
     {
+        Drawing = space.GetDrawing()!;
+        // Thread Overview - Canvas Background = #faf8cf
+        EstablishCurrentPage(GetType().Name, "#faf8cf").SetPageSize(60, 40, "cm");
     }
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
@@ -221,7 +227,7 @@ public class Playground : FoWorkbook
         var shape = new FoShape2D(300, 300, "Red");
         shape.AnimatedMoveTo(200, 200);
 
-        var mock = new MockDataMaker();
+        var mock = new MockDataGenerator();
         var list = new List<Action<Canvas2DContext, FoGlyph2D>>()
         {
             shape.DrawCircle,

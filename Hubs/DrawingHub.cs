@@ -1,6 +1,7 @@
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Message;
 using FoundryBlazor.Solutions;
+using FoundryRulesAndUnits.Extensions;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Visio2023Foundry.Server;

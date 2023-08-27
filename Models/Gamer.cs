@@ -12,6 +12,8 @@ using QRCoder;
 using Radzen;
 using Visio2023Foundry.Dialogs;
 using System.Timers;
+using FoundryRulesAndUnits.Models;
+using FoundryRulesAndUnits.Extensions;
 
 namespace Visio2023Foundry.Model;
 
@@ -58,7 +60,7 @@ public class Gamer : FoWorkbook, IDisposable
         // var baseURL = Path.Join(Workspace.GetBaseUrl(), "storage", "StaticFiles");
         var baseURL = $"{Workspace.GetBaseUrl()}storage/StaticFiles";
         baseURL.WriteSuccess();
-        arena.StressTest3DModelFromFile("3DModels", filename, baseURL, count);
+        //arena.StressTest3DModelFromFile("3DModels", filename, baseURL, count);
     }
 
     public void DoLoad3dModel(string filename)
@@ -75,10 +77,10 @@ public class Gamer : FoWorkbook, IDisposable
             name = filename,
             sourceGuid = Guid.NewGuid().ToString(),
             uniqueGuid = Guid.NewGuid().ToString(),
-            position = new HighResPosition(1, 2, 3, "m"),
-            boundingBox = new BoundingBox(1.5, 1.5, 1.5, "m"),
+            position = new UDTO_HighResPosition(1, 2, 3),
+            boundingBox = new UDTO_BoundingBox(1.5, 1.5, 1.5),
         };
-        arena.Load3DModelFromFile(spec,"3DModels", filename, baseURL);
+        //arena.Load3DModelFromFile(spec,"3DModels", filename, baseURL);
 
     }
 
@@ -104,7 +106,7 @@ public class Gamer : FoWorkbook, IDisposable
                 sourceGuid = Guid.NewGuid().ToString(),
                 uniqueGuid = Guid.NewGuid().ToString(),
             };
-            arena.Load3DModelFromFile(spec, folder, name, baseURL);
+            //arena.Load3DModelFromFile(spec, folder, name, baseURL);
         }
     }
 

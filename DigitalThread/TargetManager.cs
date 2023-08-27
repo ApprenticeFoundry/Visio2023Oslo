@@ -1,18 +1,10 @@
-using System.Drawing;
-using System.Collections.Generic;
-using BlazorComponentBus;
-
-using FoundryBlazor.Canvas;
-using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
 using IoBTMessage.Models;
-using IoBTMessage.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Radzen;
-using System;
 using Blazor.Extensions.Canvas.Canvas2D;
+using FoundryRulesAndUnits.Extensions;
 
 namespace Visio2023Foundry.Targets;
 
@@ -32,7 +24,7 @@ public class TargetManager : FoWorkbook
         NetworkLayout.Boundary = new(50, 50, 1700, 1200);
 
         Drawing = space.GetDrawing()!;
-        EstablishCurrentPage("Overview", "blue").SetPageSize(60, 40, "cm");
+        EstablishCurrentPage(GetType().Name, "blue").SetPageSize(60, 40, "cm");
     }
 
 

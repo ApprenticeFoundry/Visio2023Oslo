@@ -6,6 +6,7 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using FoundryRulesAndUnits.Extensions;
 using IoBTMessage.Extensions;
 using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;

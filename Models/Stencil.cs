@@ -4,6 +4,7 @@ using FoundryBlazor.Canvas;
 using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using FoundryRulesAndUnits.Models;
 using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -36,10 +37,13 @@ public class SPEC_ImageURL
 
 public class Stencil : FoWorkbook
 {
-
+    private IDrawing Drawing { get; set; }
     public Stencil(IWorkspace space, IFoundryService foundry) :
         base(space,foundry)
     {
+        Drawing = space.GetDrawing()!;
+        // Thread Overview - Canvas Background = #faf8cf
+        EstablishCurrentPage(GetType().Name, "#faf8cf").SetPageSize(60, 40, "cm");
     }
 
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
@@ -231,7 +235,7 @@ public class Stencil : FoWorkbook
             shape.MoveTo(args.OffsetX, args.OffsetY);
             drawing.AddShape<FoText2D>(shape);
 
-            shape.DoOnOpenCreate = shape.DoOnOpenEdit = async (target) =>
+            shape.DoOnOpenCreate = shape.DoOnOpenEdit =  (target) =>
             {
                 var parmas = new Dictionary<string, object>() {
                     { "Shape", target },

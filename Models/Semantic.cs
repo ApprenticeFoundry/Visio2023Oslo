@@ -1,12 +1,11 @@
 using System.Drawing;
 using Blazor.Extensions.Canvas.Canvas2D;
 using BlazorComponentBus;
-using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
-using FoundryBlazor.Shared;
+using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Units;
 using IoBTMessage.Models;
-using IoBTMessage.Units;
-using IoBTModules.Extensions;
+
 using QRCoder;
 using Radzen;
 using SkiaSharp;

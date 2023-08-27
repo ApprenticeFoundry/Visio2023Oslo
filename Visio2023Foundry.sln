@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorThreeJS", "..\..\Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoundryBlazor", "..\..\Core\FoundryBlazor\FoundryBlazor.csproj", "{A92E8DE0-6E18-42FD-9457-F6C1A2A29C5D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoundryRulesAndUnits", "..\..\Core\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj", "{C334A982-F6D5-42BF-A23F-046ABBCC416A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A92E8DE0-6E18-42FD-9457-F6C1A2A29C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A92E8DE0-6E18-42FD-9457-F6C1A2A29C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A92E8DE0-6E18-42FD-9457-F6C1A2A29C5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C334A982-F6D5-42BF-A23F-046ABBCC416A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C334A982-F6D5-42BF-A23F-046ABBCC416A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C334A982-F6D5-42BF-A23F-046ABBCC416A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C334A982-F6D5-42BF-A23F-046ABBCC416A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

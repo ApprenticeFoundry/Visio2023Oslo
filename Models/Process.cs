@@ -1,11 +1,10 @@
 using System.Drawing;
-using BlazorComponentBus;
 using FoundryBlazor.Canvas;
-using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Units;
 using IoBTMessage.Models;
-using IoBTMessage.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -20,13 +19,15 @@ public class Process : FoWorkbook
 
 
     private Semantic SemanticModel { get; set; }    
-
+    private IDrawing Drawing { get; set; }
     
     public Process(IWorkspace space, IFoundryService foundry): 
         base(space,foundry)
     {
         SemanticModel = new Semantic(space.GetDrawing(),foundry.PubSub());
-
+        Drawing = space.GetDrawing()!;
+        // Thread Overview - Canvas Background = #faf8cf
+        EstablishCurrentPage(GetType().Name, "#faf8cf").SetPageSize(60, 40, "cm");
     }
 
 

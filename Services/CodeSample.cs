@@ -1,5 +1,6 @@
 
 using FoundryBlazor.Extensions;
+using FoundryRulesAndUnits.Extensions;
 
 namespace Visio2023Foundry.Model;
 

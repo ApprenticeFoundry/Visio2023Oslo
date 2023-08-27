@@ -1,11 +1,9 @@
 using System.Drawing;
-using Blazor.Extensions.Canvas.Canvas2D;
-using BlazorComponentBus;
 using FoundryBlazor;
-using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
-using IoBTMessage.Units;
+using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -33,7 +31,7 @@ public class Composition : FoWorkbook
     {
         Drawing = space.GetDrawing()!;
 
-        EstablishCurrentPage("Bill of Materials", "Green").SetPageSize(600, 40, "cm");
+        EstablishCurrentPage(GetType().Name, "Green").SetPageSize(600, 40, "cm");
 
         PubSub!.SubscribeTo<SelectionChanged>(OnSelectionChanged);
     }

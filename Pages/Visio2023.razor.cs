@@ -1,9 +1,9 @@
 using BlazorComponentBus;
-using FoundryBlazor.Extensions;
+
 using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
-using IoBTModules.Extensions;
+using FoundryRulesAndUnits.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;

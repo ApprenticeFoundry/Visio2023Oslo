@@ -3,6 +3,7 @@ using FoundryBlazor.Canvas;
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using FoundryRulesAndUnits.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Radzen;
@@ -12,10 +13,13 @@ namespace Visio2023Foundry.Simulation;
 
 public class MoSimulation : FoWorkbook
 {
-
+    private IDrawing Drawing { get; set; }
     public MoSimulation(IWorkspace space, IFoundryService foundry) :
         base(space,foundry)
     {
+        Drawing = space.GetDrawing()!;
+        // Thread Overview - Canvas Background = #faf8cf
+        EstablishCurrentPage(GetType().Name, "#faf8cf").SetPageSize(60, 40, "cm");
     }
 
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)

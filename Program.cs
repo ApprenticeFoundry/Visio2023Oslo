@@ -3,11 +3,11 @@ using System.Text.Json.Serialization;
 using BlazorComponentBus;
 using Foundry.Helpers;
 using FoundryBlazor;
-using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
-using IoBTMessage.Units;
+using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Units;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.FileProviders;
 using Radzen;
@@ -118,7 +118,7 @@ envConfig.EstablishAllFolders().ForEach(folder =>
         RequestPath = new PathString($"/{folder}"),
         EnableDirectoryBrowsing = true,
         StaticFileOptions = {
-            ContentTypeProvider = SettingsHelpers.MIMETypeProvider()
+            ContentTypeProvider = ContentTypeHelpers.MIMETypeProvider()
         }
     });
 });
@@ -130,7 +130,7 @@ app.UseFileServer(new FileServerOptions
     RequestPath = new PathString($"/storage"),
     EnableDirectoryBrowsing = true,
     StaticFileOptions = {
-        ContentTypeProvider = SettingsHelpers.MIMETypeProvider()
+        ContentTypeProvider = ContentTypeHelpers.MIMETypeProvider()
     }
 });
 

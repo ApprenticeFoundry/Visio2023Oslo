@@ -3,7 +3,8 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
-using IoBTModules.Extensions;
+using FoundryRulesAndUnits.Extensions;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
@@ -59,9 +60,11 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
 
     private void LocationChanged(object? sender, LocationChangedEventArgs e)
     {
-
-        // $"LocationChanged {e.Location}".WriteInfo();
-        RefreshWorkbookMenus();
+        if ( e.Location.Contains("visio2023drawing") )
+        {
+            $"Visio2023DrawingPage LocationChanged {e.Location}".WriteInfo();
+            RefreshWorkbookMenus();
+        }
         StateHasChanged();
     }
 

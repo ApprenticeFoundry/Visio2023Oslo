@@ -5,6 +5,8 @@ using FoundryBlazor.Extensions;
 using FoundryBlazor.Message;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
+using FoundryRulesAndUnits.Extensions;
+using FoundryRulesAndUnits.Models;
 using IoBTMessage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -84,10 +86,10 @@ public class BoidManager : FoWorkbook
             name = filename,
             sourceGuid = Guid.NewGuid().ToString(),
             uniqueGuid = Guid.NewGuid().ToString(),
-            position = new HighResPosition(1, 2, 3, "m"),
-            boundingBox = new BoundingBox(1.5, 1.5, 1.5, "m"),
+            position = new UDTO_HighResPosition(1, 2, 3),
+            boundingBox = new UDTO_BoundingBox(1.5, 1.5, 1.5),
         };
-        arena.Load3DModelFromFile(spec,"3DModels", filename, baseURL);
+        //arena.Load3DModelFromFile(spec,"3DModels", filename, baseURL);
     }
 
     public override bool SetSignalRHub(HubConnection hub, string panid)

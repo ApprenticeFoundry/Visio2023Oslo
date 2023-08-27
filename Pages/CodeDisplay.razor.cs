@@ -8,7 +8,7 @@ using Visio2023Foundry.Model;
 // using Microsoft.JSInterop;
 using BlazorMonaco;
 using BlazorMonaco.Editor;
-using IoBTModules.Extensions;
+using FoundryRulesAndUnits.Extensions;
 
 namespace Visio2023Foundry.Pages;
 

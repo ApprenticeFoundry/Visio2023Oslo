@@ -1,8 +1,4 @@
-using BlazorComponentBus;
-using Foundry.Helpers;
-using FoundryBlazor.Extensions;
-using FoundryBlazor.PubSub;
-using IoBTModules.Extensions;
+using FoundryRulesAndUnits.Extensions;
 using Microsoft.AspNetCore.Components;
 using Visio2023Foundry.Model;
 
