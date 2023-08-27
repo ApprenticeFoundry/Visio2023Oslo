@@ -1,5 +1,5 @@
 using BlazorComponentBus;
-using FoundryBlazor.Extensions;
+
 using FoundryBlazor.PubSub;
 using FoundryBlazor.Shared;
 using FoundryBlazor.Solutions;
@@ -8,8 +8,8 @@ using FoundryRulesAndUnits.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
-using Visio2023Foundry.Model;
 
+using Visio2023Foundry.Model;
 using Visio2023Foundry.Simulation;
 using Visio2023Foundry.Targets;
 
@@ -44,7 +44,9 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
         Workspace.EstablishWorkbook<Composition>().Name = "composition"; 
         Workspace.EstablishWorkbook<MoSimulation>().Name = "simulation"; 
         Workspace.EstablishWorkbook<Process>().Name = "process"; 
-        Workspace.EstablishWorkbook<SignalRDemo>().Name = "Signalr"; 
+        Workspace.EstablishWorkbook<SignalRDemo>().Name = "Signalr";
+
+        $"Visio2023DrawingPage OnInitialized LoadWorkbook ={LoadWorkbook}".WriteNote();
 
         base.OnInitialized();
     }
@@ -72,6 +74,8 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
     {
         if (Workspace != null)
         {
+               $"Visio2023DrawingPage RefreshWorkbookMenus LoadWorkbook ={LoadWorkbook}".WriteNote();
+
             var found = Workspace.FindWorkbook(LoadWorkbook!);
             if (found != null)
             {
@@ -92,8 +96,9 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
             var defaultHubURI = Navigation!.ToAbsoluteUri("/DrawingSyncHub").ToString();
             await Workspace.InitializedAsync(defaultHubURI!);
 
+       $"Visio2023DrawingPage OnInitializedAsync LoadWorkbook ={LoadWorkbook}".WriteNote();
 
-            //Toast?.Info(LoadWorkbook ?? "No LoadWorkbook");
+            Toast?.Info(LoadWorkbook ?? "No LoadWorkbook");
         }
 
         await base.OnInitializedAsync();
@@ -103,11 +108,14 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
     {
         if (firstRender)
         {
-            //PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
+            PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub!.SubscribeTo<ViewStyle>(OnViewStyleChanged);
             //Toast!.Success($"Drawing Page Loaded!");
             Workspace!.GetDrawing();
             Workspace!.GetArena();
+
+      $"Visio2023DrawingPage OnAfterRenderAsync LoadWorkbook ={LoadWorkbook}".WriteNote();
+
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -116,7 +124,7 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
     private void OnRefreshUIEvent(RefreshUIEvent e)
     {
         InvokeAsync(StateHasChanged);
-        $"Visio2023Page OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
+        $"Visio2023DrawingPage OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
     }
 
     private void OnViewStyleChanged(ViewStyle e)

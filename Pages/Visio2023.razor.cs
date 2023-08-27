@@ -7,9 +7,10 @@ using FoundryRulesAndUnits.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
-using Visio2023Foundry.Model;
 
+using Visio2023Foundry.Model;
 using Visio2023Foundry.Simulation;
+using Visio2023Foundry.Targets;
 
 namespace Visio2023Foundry.Pages;
 
@@ -37,9 +38,18 @@ public partial class Visio2023Page : ComponentBase, IDisposable
 
     protected override void OnInitialized()
     {
-        Workspace?.SetBaseUrl(Navigation?.BaseUri ?? "");
+        Workspace!.SetBaseUrl(Navigation?.BaseUri ?? "");
        if ( Navigation != null)
             Navigation.LocationChanged += LocationChanged;
+
+        Workspace.EstablishWorkbook<Playground>().Name = "playground";
+        Workspace.EstablishWorkbook<Stencil>().Name = "stencil";
+        Workspace.EstablishWorkbook<TargetManager>().Name = "network";
+        Workspace.EstablishWorkbook<BoidManager>().Name = "boid"; 
+        Workspace.EstablishWorkbook<Composition>().Name = "composition"; 
+        Workspace.EstablishWorkbook<MoSimulation>().Name = "simulation"; 
+        Workspace.EstablishWorkbook<Process>().Name = "process"; 
+        Workspace.EstablishWorkbook<SignalRDemo>().Name = "Signalr"; 
     }
 
     public void Dispose()
@@ -51,42 +61,24 @@ public partial class Visio2023Page : ComponentBase, IDisposable
  
     private void LocationChanged(object? sender, LocationChangedEventArgs e)
     {
-       // $"LocationChanged {e.Location}".WriteInfo();
-        RefreshWorkbookMenus();
+        if ( e.Location.Contains("visio2023") )
+        {
+            $"visio2023 LocationChanged {e.Location}".WriteInfo();
+            RefreshWorkbookMenus();
+        }
         StateHasChanged();
     }
 
     private void RefreshWorkbookMenus()
     {
-         if (Workspace != null) {
-            Workspace.ClearAllWorkbook();
-
-            if ("Playground".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<Playground>();
-            else if ("Stencil".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<Stencil>();
-            else if ("Boid".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<BoidManager>();
-            else if ("Composition".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<Composition>();
-            else if ("Simulation".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<MoSimulation>();
-            else if ("Process".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<Process>();
-            else if ("Signalr".Matches(LoadWorkbook!))
-                Workspace.EstablishWorkbook<SignalRDemo>();
-
-            if ( LoadWorkbook! == null)
+        if (Workspace != null)
+        {
+            var found = Workspace.FindWorkbook(LoadWorkbook!);
+            if (found != null)
             {
-                Workspace.EstablishWorkbook<Playground>();
-                Workspace.EstablishWorkbook<Stencil>();
-                Workspace.EstablishWorkbook<Composition>();
-                Workspace.EstablishWorkbook<MoSimulation>();
-                Workspace.EstablishWorkbook<Process>();
+                Workspace?.SetCurrentWorkbook(found!).CurrentPage();
             }
-                
-            Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
-         }
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -112,8 +104,10 @@ public partial class Visio2023Page : ComponentBase, IDisposable
     {
         if (firstRender)
         {
-            //PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
+            PubSub!.SubscribeTo<RefreshUIEvent>(OnRefreshUIEvent);
             PubSub!.SubscribeTo<ViewStyle>(OnViewStyleChanged);
+            Workspace!.GetDrawing();
+            Workspace!.GetArena();
         }
 
         await base.OnAfterRenderAsync(firstRender);

@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using BlazorComponentBus;
 using FoundryBlazor.PubSub;
-using FoundryBlazor.Solutions;
-using FoundryBlazor.Extensions;
 using FoundryRulesAndUnits.Extensions;
 
 namespace Visio2023Foundry.Pages;
