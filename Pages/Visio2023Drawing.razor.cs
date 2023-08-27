@@ -92,6 +92,7 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
 
             var url = ""; //RestAPI?.GetServerUrl() ?? "";
             Workspace.CreateCommands(Workspace, JsRuntime!, Navigation!, url);
+            Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
 
             var defaultHubURI = Navigation!.ToAbsoluteUri("/DrawingSyncHub").ToString();
             await Workspace.InitializedAsync(defaultHubURI!);

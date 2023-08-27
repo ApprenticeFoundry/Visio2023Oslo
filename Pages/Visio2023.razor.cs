@@ -49,7 +49,7 @@ public partial class Visio2023Page : ComponentBase, IDisposable
         Workspace.EstablishWorkbook<Composition>().Name = "composition"; 
         Workspace.EstablishWorkbook<MoSimulation>().Name = "simulation"; 
         Workspace.EstablishWorkbook<Process>().Name = "process"; 
-        Workspace.EstablishWorkbook<SignalRDemo>().Name = "Signalr"; 
+        Workspace.EstablishWorkbook<SignalRDemo>().Name = "SignalR"; 
     }
 
     public void Dispose()
@@ -89,6 +89,7 @@ public partial class Visio2023Page : ComponentBase, IDisposable
 
             var url = ""; //RestAPI?.GetServerUrl() ?? "";
             Workspace.CreateCommands(Workspace, JsRuntime!, Navigation!, url);
+            Workspace.CreateMenus(Workspace, JsRuntime!, Navigation!);
 
 
             var defaultHubURI = Navigation!.ToAbsoluteUri("/DrawingSyncHub").ToString();

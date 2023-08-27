@@ -42,13 +42,14 @@ public class Stencil : FoWorkbook
         base(space,foundry)
     {
         Drawing = space.GetDrawing()!;
-        // Thread Overview - Canvas Background = #faf8cf
-        EstablishCurrentPage(GetType().Name, "#faf8cf").SetPageSize(60, 40, "cm");
+        var page = EstablishCurrentPage(GetType().Name, "#EEE8AA");
+        page.SetPageSize(60, 40, "cm");
+
     }
 
     public override void CreateMenus(IWorkspace space, IJSRuntime js, NavigationManager nav)
     {
-        space.EstablishMenu2D<FoMenu2D, FoButton2D>("Stencil", new Dictionary<string, Action>()
+        var menu = new Dictionary<string, Action>()
         {
             { "GPT4 Arrow", () => SetDoCreateGPT4Arrow()},
             { "Steve Arrow", () => SetDoCreateSteveArrow()},
@@ -59,7 +60,9 @@ public class Stencil : FoWorkbook
             { "Video URL", () => SetDoAddVideo()},
             { "Glue", () => CreateGluePlayground()},
             { "QR Code", () => SetDoAddQRCode()},
-        }, true);
+        };
+
+        space.EstablishMenu2D<FoMenu2D, FoButton2D>("Stencil", menu, true);
 
     }
 
