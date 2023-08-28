@@ -1,4 +1,5 @@
 {
   "cSpell.words": ["Boid", "Boids", "quadtree", "Visio"],
-  "dotnet.defaultSolution": "Visio2023Foundry.sln"
+  "dotnet.defaultSolution": "Visio2023Foundry.sln",
+  "githubPullRequests.ignoredPullRequestBranches": ["develop"]
 }
