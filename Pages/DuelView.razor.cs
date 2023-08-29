@@ -14,7 +14,7 @@ using Visio2023Foundry.Targets;
 
 namespace Visio2023Foundry.Pages;
 
-public partial class Visio2023Page : ComponentBase, IDisposable
+public partial class DuelViewPage : ComponentBase, IDisposable
 {
     [Inject] public NavigationManager? Navigation { get; set; }
     [Inject] protected IJSRuntime? JsRuntime { get; set; }
@@ -42,14 +42,14 @@ public partial class Visio2023Page : ComponentBase, IDisposable
        if ( Navigation != null)
             Navigation.LocationChanged += LocationChanged;
 
-        Workspace.EstablishWorkbook<Playground>().Name = "playground";
-        Workspace.EstablishWorkbook<Stencil>().Name = "stencil";
-        Workspace.EstablishWorkbook<TargetManager>().Name = "network";
-        Workspace.EstablishWorkbook<BoidManager>().Name = "boid"; 
-        Workspace.EstablishWorkbook<Composition>().Name = "composition"; 
-        Workspace.EstablishWorkbook<MoSimulation>().Name = "simulation"; 
-        Workspace.EstablishWorkbook<Process>().Name = "process"; 
-        Workspace.EstablishWorkbook<SignalRDemo>().Name = "SignalR"; 
+        // Workspace.EstablishWorkbook<Playground>().Name = "playground";
+        // Workspace.EstablishWorkbook<Stencil>().Name = "stencil";
+        // Workspace.EstablishWorkbook<TargetManager>().Name = "network";
+        // Workspace.EstablishWorkbook<BoidManager>().Name = "boid"; 
+        // Workspace.EstablishWorkbook<Composition>().Name = "composition"; 
+        // Workspace.EstablishWorkbook<MoSimulation>().Name = "simulation"; 
+        // Workspace.EstablishWorkbook<Process>().Name = "process"; 
+        // Workspace.EstablishWorkbook<SignalRDemo>().Name = "SignalR"; 
     }
 
     public void Dispose()
@@ -61,9 +61,9 @@ public partial class Visio2023Page : ComponentBase, IDisposable
  
     private void LocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        if ( e.Location.Contains("visio2023") )
+        if ( e.Location.Contains("duelview") )
         {
-            $"visio2023 LocationChanged {e.Location}".WriteInfo();
+            $"duelview LocationChanged {e.Location}".WriteInfo();
             RefreshWorkbookMenus();
         }
         StateHasChanged();
@@ -77,6 +77,8 @@ public partial class Visio2023Page : ComponentBase, IDisposable
             if (found != null)
             {
                 Workspace?.SetCurrentWorkbook(found!).CurrentPage();
+            } else {
+                $"duelview RefreshWorkbookMenus {LoadWorkbook} not found".WriteInfo();
             }
         }
     }
@@ -117,7 +119,7 @@ public partial class Visio2023Page : ComponentBase, IDisposable
     private void OnRefreshUIEvent(RefreshUIEvent e)
     {
         InvokeAsync(StateHasChanged);
-         $"Visio2023Page OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
+         $"duelview OnRefreshUIEvent StateHasChanged {e.note}".WriteInfo();
     }
 
     private void OnViewStyleChanged(ViewStyle e)

@@ -14,7 +14,8 @@ using Radzen;
 
 
 using Visio2023Foundry.Model;
-
+using Visio2023Foundry.Simulation;
+using Visio2023Foundry.Targets;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -167,5 +168,19 @@ app.MapControllers();
 app.MapHub<DrawingSyncHub>("/DrawingSyncHub");
 
 app.MapFallbackToPage("/_Host");
+
+
+//var Workspace = serviceScope?.ServiceProvider.GetService<IWorkspace>();
+
+//knowledge base
+
+// Workspace!.EstablishWorkbook<Playground>().Name = "playground";
+// Workspace.EstablishWorkbook<Stencil>().Name = "stencil";
+// Workspace.EstablishWorkbook<TargetManager>().Name = "network";
+// Workspace.EstablishWorkbook<BoidManager>().Name = "boid"; 
+// Workspace.EstablishWorkbook<Composition>().Name = "composition"; 
+// Workspace.EstablishWorkbook<MoSimulation>().Name = "simulation"; 
+// Workspace.EstablishWorkbook<Process>().Name = "process"; 
+// Workspace.EstablishWorkbook<SignalRDemo>().Name = "SignalR"; 
 
 app.Run();
