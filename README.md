@@ -98,16 +98,5 @@
 - Workspaces and WorkPieces (Stencils)
 
 
-### References
 
-https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/optimizing-performance-2d-graphics-and-imaging?view=netframeworkdesktop-4.8
-- 
-
-set NugetUserId=iobt
-set NugetPersonalAccessToken=vciqzkoknrkcrinrkwxxbr62aal5zhad3kzaextnvc7mq7bncsda
-nuget restore
-dotnet clean
-dotnet restore
-dotnet build
-dotnet run (edited) 
 
