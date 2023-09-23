@@ -272,7 +272,7 @@ public class Playground : FoWorkbook
             FoGlyph2D.Animations.Tween(shape, new { PinX = X, PinY = Y }, 2)
                 .OnUpdate((arg) =>
                 {
-                    FoGlyph2D.ResetHitTesting = true;
+                    FoGlyph2D.ResetHitTesting(true,"Animation Complete");
                     //$"{arg} working".WriteLine(ConsoleColor.DarkYellow);
                 });
 

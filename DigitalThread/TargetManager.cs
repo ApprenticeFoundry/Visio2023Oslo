@@ -53,7 +53,7 @@ public class TargetManager : FoWorkbook
             { "Center", () => DoCenter() },
             { "Boundry", () => DoBoundry() },
             { "Save", () => DoSave() },
-               { "Restore", () => DoRestore() },
+            { "Restore", () => DoRestore() },
         };
 
         TargetMenu = space.EstablishMenu2D<FoMenu2D, FoButton2D>("Targets", menu, true);

@@ -11,8 +11,6 @@ namespace Foundry.Helpers;
 public static class SettingsHelpers
 {
 
-
-
     public static T Hydrate<T>(this string target, bool includeFields) where T : class
     {
         using var stream = new MemoryStream();
