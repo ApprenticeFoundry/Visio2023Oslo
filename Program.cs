@@ -49,6 +49,8 @@ builder.Services.AddScoped<ICommand, CommandService>();
 
 builder.Services.AddScoped<IDrawing, NDC_Drawing2D>();
 builder.Services.AddScoped<IArena, NDC_Arena3D>();
+builder.Services.AddScoped<IQRCodeService, QRCodeService>();
+
 
 builder.Services.AddScoped<IWorkspace, FoWorkspace>();
 builder.Services.AddScoped<IFoundryService, FoundryService>();

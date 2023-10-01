@@ -53,7 +53,6 @@ public partial class Visio2023DrawingPage : ComponentBase, IDisposable
 
     public void Dispose()
     {
-         Workspace?.OnDispose();
         if (Navigation != null)
             Navigation.LocationChanged -= LocationChanged;
     }

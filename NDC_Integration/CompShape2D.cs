@@ -1,5 +1,5 @@
 using Blazor.Extensions.Canvas.Canvas2D;
-using FoundryBlazor.Canvas;
+using FoundryBlazor.Shared;
 using FoundryBlazor.Shape;
 using Visio2023Foundry.Model;
 

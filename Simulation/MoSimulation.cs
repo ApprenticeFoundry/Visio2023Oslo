@@ -1,5 +1,5 @@
 using BlazorComponentBus;
-using FoundryBlazor.Canvas;
+using FoundryBlazor.Shared;
 using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;

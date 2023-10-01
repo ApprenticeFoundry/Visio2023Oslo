@@ -1,17 +1,11 @@
 
 using Blazor.Extensions.Canvas.Canvas2D;
-using BlazorComponentBus;
-using FoundryBlazor.Canvas;
-using FoundryBlazor.Extensions;
 using FoundryBlazor.Shape;
 using FoundryBlazor.Solutions;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
-using IoBTMessage.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using QRCoder;
-using Radzen;
 
 namespace Visio2023Foundry.Model;
 
@@ -152,27 +146,12 @@ public class Playground : FoWorkbook
         s1.MoveTo(400, 200);
 
         var text = "Foundry Canvas QR Code";
-        var qrGenerator = new QRCodeGenerator();
-        var qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
+        var q1 = QRCode.AttachQRCode(text, s1, drawing);
 
-        var qrCode = new PngByteQRCode(qrCodeData);
-        var qrCodeImage = qrCode.GetGraphic(20);
-        var base64 = Convert.ToBase64String(qrCodeImage);
-        var dataURL = $"data:image/png;base64,{base64}";
-
-        var q1 = new FoImage2D(80, 80, "White")
-        {
-            ImageUrl = dataURL,
-            ScaleX = 0.10,
-            ScaleY = 0.10,
-        };
-        q1.MoveTo(400, 400);
-        drawing.AddShape<FoImage2D>(q1);
-
-        q1.ContextLink = (obj,tick) => {
+        q1?.BeforeShapeRefresh((obj,tick) => {
             obj.PinX = s1.PinX;
             obj.PinY = s1.PinY + s1.Height/2;
-        };
+        });
 
         s1.AnimatedMoveTo(800, 300);
     }
